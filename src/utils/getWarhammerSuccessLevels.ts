@@ -58,18 +58,18 @@ export default ({
     const skillTens = getTens(skillLevel);
     SL = skillTens - rolledTens;
 
+    if (useDarkHeresySL)
+    {
+      SL = Math.floor((skillLevel - result)/10);
+      if (isSuccess) {
+        SL = SL + 1;
+      }
+    }
+
     if (isAutoSuccess) {
       SL = SL > 1 ? SL : 1;
     } else if (isAutoFailure) {
       SL = SL < -1 ? SL : -1;
-    }
-  }
-
-  if (!useFastSL && useDarkHeresySL) {
-    if (isSuccess || isAutoSuccess) {
-      SL = SL + 1;
-    } else if (isFailure || isAutoFailure) {
-      SL = SL - 1;
     }
   }
 
