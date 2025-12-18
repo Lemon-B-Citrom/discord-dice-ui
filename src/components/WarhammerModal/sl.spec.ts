@@ -2,7 +2,7 @@
 import { isProperSl } from "./sl";
 
 describe("isProperSl", () => {
-  test.each(["2e", "4e", "dh", "fast"])(
+  test.each(["2e", "4e", "dh", "fast", "ow"])(
     'should return "true" for proper SL value',
     (val) => {
       expect(isProperSl(val)).toBe(true);

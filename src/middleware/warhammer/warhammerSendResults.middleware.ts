@@ -17,6 +17,7 @@ export default (store: any) => (next: any) => (action: any) => {
 
     const useFastSL = slType === sl.fast;
     const useDarkHeresySL = slType === sl.dh;
+    const useOnlyWarSL = slType === sl.ow;
     const useWarhammer2eSL = slType === sl.wfrp2e;
 
     const msgTitle = `${username} rolled **\`1d100\`**. Result: \`${result}\`.`;
@@ -34,6 +35,8 @@ export default (store: any) => (next: any) => (action: any) => {
       description += "\n**Fast SL** used.";
     } else if (useDarkHeresySL) {
       description += "\n**Dark Heresy II DoS** used.";
+    } else if (useOnlyWarSL) {
+      description += "\n**Only War DoS** used.";
     } else if (useWarhammer2eSL) {
       description += "\n**Warhammer 2e DoS** used.";
     } else {
@@ -61,7 +64,7 @@ export default (store: any) => (next: any) => (action: any) => {
     let slWord = "Success Level";
     let slString = SL > 0 ? `+${SL}` : `${SL}`;
 
-    if (useDarkHeresySL || useWarhammer2eSL) {
+    if (useDarkHeresySL || useOnlyWarSL || useWarhammer2eSL) {
       slString = `${Math.abs(SL)}`;
       if (isSuccess || isAutoSuccess) {
         slWord = "Degrees of Success";

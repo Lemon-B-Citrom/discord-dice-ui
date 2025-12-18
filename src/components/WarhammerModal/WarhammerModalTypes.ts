@@ -2,7 +2,8 @@ export type WarhammerSlTypes =
   | "warhammer2e"
   | "warhammer4e"
   | "fastSL"
-  | "darkHeresy2e";
+  | "darkHeresy2e"
+  | "onlyWar";
 
 export interface WarhammerModalPropTypes {
   showModal: boolean;

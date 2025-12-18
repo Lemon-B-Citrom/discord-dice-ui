@@ -14,6 +14,7 @@ export default ({
   result,
   useFastSL,
   useDarkHeresySL,
+  useOnlyWarSL,
   useWarhammer2eSL,
 }: any): successLevelsType => {
   let autoFailureMin;
@@ -58,9 +59,16 @@ export default ({
     const skillTens = getTens(skillLevel);
     SL = skillTens - rolledTens;
 
-    if (useDarkHeresySL)
-    {
-      SL = Math.floor((skillLevel - result)/10);
+    if (!useFastSL && useDarkHeresySL) {
+      if (isSuccess || isAutoSuccess) {
+        SL = SL + 1;
+      } else if (isFailure || isAutoFailure) {
+        SL = SL - 1;
+      }
+    }
+
+    if (useOnlyWarSL) {
+      SL = Math.floor((skillLevel - result) / 10);
       if (isSuccess) {
         SL = SL + 1;
       }

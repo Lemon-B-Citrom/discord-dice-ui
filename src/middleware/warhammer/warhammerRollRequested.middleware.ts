@@ -18,6 +18,7 @@ export default (store: any) => (next: any) => (action: any) => {
     const result = getResultsArray(100)[0];
     const { slType } = warhammerState;
     const useDarkHeresySL = slType === sl.dh;
+    const useOnlyWarSL = slType === sl.ow;
     const useWarhammer2eSL = slType === sl.wfrp2e;
 
     const successLevels = getWarhammerSuccessLevels({
@@ -25,13 +26,14 @@ export default (store: any) => (next: any) => (action: any) => {
       result,
       useFastSL: slType === sl.fast,
       useDarkHeresySL,
+      useOnlyWarSL,
       useWarhammer2eSL,
     });
 
     let hitLocation;
     const resultReversed = getReversedResult(result);
 
-    if (useDarkHeresySL) {
+    if (useDarkHeresySL || useOnlyWarSL) {
       hitLocation = getDarkHeresyIIHitLocation(resultReversed);
     } else if (useWarhammer2eSL) {
       hitLocation = getWarhammer2eHitLocation(resultReversed);

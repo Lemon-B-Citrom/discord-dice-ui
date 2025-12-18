@@ -3,6 +3,7 @@ const sl = {
   wfrp4e: "4e",
   dh: "dh",
   fast: "fast",
+  ow: "ow",
 };
 
 export function isProperSl(val: string | null) {

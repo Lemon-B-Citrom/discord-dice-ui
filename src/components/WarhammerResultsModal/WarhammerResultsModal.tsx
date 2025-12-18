@@ -42,6 +42,7 @@ function WarhammerResultsModal() {
 
   const useFastSL = slType === sl.fast;
   const useDarkHeresySL = slType === sl.dh;
+  const useOnlyWarSL = slType === sl.ow;
   const useWarhammer2eSL = slType === sl.wfrp2e;
 
   let slString =
@@ -54,12 +55,15 @@ function WarhammerResultsModal() {
   } else if (useDarkHeresySL) {
     slInfo = "Dark Heresy II DoS";
     slString = `${Math.abs(successLevels.SL)}`;
+  } else if (useOnlyWarSL) {
+    slInfo = "Only War DoS";
+    slString = `${Math.abs(successLevels.SL)}`;
   } else if (useWarhammer2eSL) {
     slInfo = "Warhammer 2e DoS";
     slString = `${Math.abs(successLevels.SL)}`;
   }
 
-  if (useDarkHeresySL || useWarhammer2eSL) {
+  if (useDarkHeresySL || useOnlyWarSL || useWarhammer2eSL) {
     if (isSuccess || isAutoSuccess) {
       slWord = "Degrees of Success";
     } else {
@@ -157,7 +161,7 @@ function WarhammerResultsModal() {
         {/* Hit Locations */}
         <HitLocations
           hitLocation={hitLocation}
-          isDarkHeresy={useDarkHeresySL}
+          isDarkHeresy={useDarkHeresySL || useOnlyWarSL}
           isWarhammer2e={useWarhammer2eSL}
         />
 

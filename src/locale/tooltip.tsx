@@ -50,6 +50,24 @@ const darkHeresy = (
   </span>
 );
 
+const onlyWar = (
+  <span className="tooltip-fast-sl">
+    <p>
+      If the roll is equal to or lower than the characteristic, the character
+      has gained one{" "}
+      <strong className="tooltip-success">degree of success (DoS)</strong>. He
+      also gains additional degrees of success for every full 10% he beats his
+      target number by.
+    </p>
+    <p>
+      If the roll is higher than the characteristic, the character has gained
+      one <strong className="tooltip-failed">degree of failure (DoF)</strong>,
+      and gains additional degrees of failure for every full 10% he fails his
+      target number by.
+    </p>
+  </span>
+);
+
 export default {
   critical: (
     <span>
@@ -201,4 +219,5 @@ export default {
   fastSL,
   warhammer2eSL,
   darkHeresy,
+  onlyWar,
 };

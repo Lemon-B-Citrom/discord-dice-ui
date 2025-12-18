@@ -21,14 +21,14 @@ const percentIcon = (
 
 const createRenderer =
   (render: any) =>
-  // @ts-ignore
-  ({ input, label, id, inputValue, textMuted, meta, disabled }, ...rest) => {
-    return (
-      <>
-        {render(input, label, id, inputValue, textMuted, meta, disabled, rest)}
-      </>
-    );
-  };
+    // @ts-ignore
+    ({ input, label, id, inputValue, textMuted, meta, disabled }, ...rest) => {
+      return (
+        <>
+          {render(input, label, id, inputValue, textMuted, meta, disabled, rest)}
+        </>
+      );
+    };
 
 const renderInput = createRenderer(
   // @ts-ignore
@@ -102,6 +102,17 @@ const darkHeresyLabel = (
   </span>
 );
 
+const onlyWarLabel = (
+  <span>
+    Use Only War DoS{" "}
+    <InfoTooltip
+      content={tooltip.onlyWar}
+      className="tooltip-fast-sl-icon"
+      placement="bottom"
+    />
+  </span>
+);
+
 function WarhammerModalForm({
   formId,
   change,
@@ -167,6 +178,16 @@ function WarhammerModalForm({
             onChange={handleSlChange}
           />
           {darkHeresyLabel}
+        </label>
+        <label>
+          <Field
+            name="slType"
+            value={sl.ow}
+            component="input"
+            type="radio"
+            onChange={handleSlChange}
+          />
+          {onlyWarLabel}
         </label>
       </div>
       <div className="skill-level-field skill-level-field--with-range">
