@@ -13,6 +13,7 @@ import {
   D20,
   D12,
   D10,
+  D5,
   D8,
   D6,
   D4,
@@ -91,6 +92,10 @@ export const commonDice = [
     label: "d10",
   },
   {
+    diceType: D5,
+    label: "d5",
+  },
+  {
     diceType: D8,
     label: "d8",
   },
@@ -155,6 +160,10 @@ export const warhammerSet = [
   {
     diceType: D10,
     label: "d10",
+  },
+  {
+    diceType: D5,
+    label: "d5",
   },
   combatTracker,
   {

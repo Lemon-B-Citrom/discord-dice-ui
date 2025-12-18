@@ -4,6 +4,7 @@ export const D66 = "d66";
 export const D20 = "d20";
 export const D12 = "d12";
 export const D10 = "d10";
+export const D5 = "d5";
 export const D8 = "d8";
 export const D6 = "d6";
 export const D3 = "d3";
