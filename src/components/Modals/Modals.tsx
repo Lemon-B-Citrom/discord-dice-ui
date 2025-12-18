@@ -29,7 +29,6 @@ import CombatTrackerModal from "../CombatTracker/CombatTrackerModal";
 import WrathAndGloryResultsModal from "../WrathAndGloryPoolBuilder/WrathAndGloryResultsModal";
 import TorModal from "../torModals/TorModal";
 import TorResultsModal from "../torModals/TorResultsModal";
-import XCardModal from "../XCard/XCardModal";
 import DuneModalContainer from "../dune-modal/dune-modal-container";
 import DuneTokensModalContainer from "../dune-tokens-modal/dune-tokens-modal-container";
 
@@ -89,8 +88,6 @@ function Modals({
       <WrathAndGloryResultsModal />
       <TorModal />
       <TorResultsModal />
-
-      <XCardModal />
     </>
   );
 }

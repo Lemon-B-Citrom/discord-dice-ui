@@ -117,7 +117,6 @@ export const classicSet = [
     noDropdown: true,
   },
   combatTracker,
-  xCard,
 ];
 
 export const poolSet = [
@@ -143,7 +142,6 @@ export const CthulhuSet = [
     label: "Character Sheet",
     noDropdown: true,
   },
-  xCard,
 ];
 
 export const warhammerSet = [
@@ -172,7 +170,6 @@ export const warhammerSet = [
     diceImg: "warhammer_money/gold.png",
     noDropdown: true,
   },
-  xCard,
 ];
 
 export const conanSet = [
@@ -200,7 +197,6 @@ export const conanSet = [
     diceImg: "conan_tokens.png",
     noDropdown: true,
   },
-  xCard,
 ];
 
 export const infinitySet = [
@@ -228,7 +224,6 @@ export const infinitySet = [
     diceImg: "infinity_tokens.png",
     noDropdown: true,
   },
-  xCard,
 ];
 
 export const duneSet = [
@@ -247,7 +242,6 @@ export const duneSet = [
     diceImg: "dune_tokens.png",
     noDropdown: true,
   },
-  xCard,
 ];
 
 export const narrativeDiceSet = [
@@ -266,7 +260,6 @@ export const narrativeDiceSet = [
     isExcludedFromPool: true,
     noDropdown: true,
   },
-  xCard,
 ];
 
 export const l5rDiceSet = [
@@ -279,7 +272,6 @@ export const l5rDiceSet = [
     isExcludedFromPool: true,
     noDropdown: true,
   },
-  xCard,
 ];
 
 export const rollAndKeepDiceSet = [
@@ -293,7 +285,6 @@ export const rollAndKeepDiceSet = [
     label: "Apply Modifier",
   },
   combatTracker,
-  xCard,
 ];
 
 export const fateDiceSet = [
@@ -302,7 +293,6 @@ export const fateDiceSet = [
     label: "Fate Dice",
   },
   combatTracker,
-  xCard,
 ];
 
 export const wrathAndGloryDiceSet = [
@@ -326,7 +316,6 @@ export const wrathAndGloryDiceSet = [
     noDropdown: true,
   },
   combatTracker,
-  xCard,
 ];
 
-export const torDiceSet = [torSkillTest, torSuccessDie, torFeatDie, xCard];
+export const torDiceSet = [torSkillTest, torSuccessDie, torFeatDie];
