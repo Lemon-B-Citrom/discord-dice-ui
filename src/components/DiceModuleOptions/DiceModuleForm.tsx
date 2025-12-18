@@ -5,7 +5,7 @@ import useDiceModuleFormStore, { disallowModifierFor } from "./store";
 import "./DiceModuleForm.css";
 
 function DiceModuleForm() {
-  const { mode, toggleMode, useModifier, toggleModifier } =
+  const { mode, toggleMode, useModifier, toggleModifier, preserveDiceOrder, togglePreserveDiceOrder } =
     useDiceModuleFormStore();
   const disableModifier = disallowModifierFor.includes(mode);
 
@@ -21,6 +21,16 @@ function DiceModuleForm() {
           checked={useModifier}
           disabled={disableModifier}
           onChange={toggleModifier}
+          custom
+        />
+        <Form.Check
+          type="checkbox"
+          label="Preserve Dice Order"
+          name="preserveDiceOrder"
+          id="preserveDiceOrder"
+          key="preserveDiceOrder"
+          checked={preserveDiceOrder}
+          onChange={togglePreserveDiceOrder}
           custom
         />
       </div>

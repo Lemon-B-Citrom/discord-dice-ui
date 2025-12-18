@@ -13,6 +13,7 @@ import {
 import { FATE_DIE, MINUS, PLUS } from "../consts/fateConsts";
 import mapValueToFate from "./utils/mapValueToFate";
 import { duneDiceRolled } from "../actions/dune.actions";
+import diceModuleOptionsStore from "../components/DiceModuleOptions/store";
 
 interface rollDiceResult {
   results: Array<number>;
@@ -62,7 +63,8 @@ export default (store: any) => (next: any) => (action: any) => {
       diceAmount = diceAmount - itemsToStay.length;
     }
 
-    result.results = getResultsArray(diceTypeNum, diceAmount);
+    const { preserveDiceOrder } = diceModuleOptionsStore.getState();
+    result.results = getResultsArray(diceTypeNum, diceAmount, undefined, !preserveDiceOrder);
 
     if (itemsToStay?.length) {
       diceAmount = diceAmount + itemsToStay.length;
@@ -84,9 +86,6 @@ export default (store: any) => (next: any) => (action: any) => {
         result.results.push(itemsToStay[i]);
       }
     }
-
-    // Sort results
-    result.results = result.results.sort((a: number, b: number) => a - b);
 
     result.totalWithModifier = result.results.reduce(
       (a, b) => Number(a) + Number(b),

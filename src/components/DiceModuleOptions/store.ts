@@ -40,13 +40,16 @@ export const disallowModifierFor: Mode[] = [
 
 type State = {
   useModifier: boolean;
+  preserveDiceOrder: boolean;
   mode: Mode;
   toggleMode: (mode: Mode) => void;
   toggleModifier: () => void;
+  togglePreserveDiceOrder: () => void;
 };
 
 const useStore = create<State>((set, get) => ({
   useModifier: false,
+  preserveDiceOrder: false,
   mode: "none",
   toggleMode: (mode) => {
     if (mode && modes.includes(mode)) {
@@ -61,6 +64,10 @@ const useStore = create<State>((set, get) => ({
   toggleModifier: () => {
     const state = get();
     set({ useModifier: !state.useModifier });
+  },
+  togglePreserveDiceOrder: () => {
+    const state = get();
+    set({ preserveDiceOrder: !state.preserveDiceOrder });
   },
 }));
 

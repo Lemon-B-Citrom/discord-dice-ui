@@ -3,6 +3,7 @@ import { D10, RING_DIE } from "../../consts/diceConstants";
 import getDieNumberVal from "../../utils/getDieNumberVal";
 import getResultsArray from "../../utils/getResultsArray";
 import mapValueToL5r from "../utils/mapValueToL5r";
+import diceModuleOptionsStore from "../../components/DiceModuleOptions/store";
 
 export default (store: any) => (next: any) => (action: any) => {
   if (action.type === L5R_ROLL_REQUESTED) {
@@ -19,7 +20,8 @@ export default (store: any) => (next: any) => (action: any) => {
       .forEach((diceType: string) => {
         const diceTypeNum = getDieNumberVal(diceType);
         const diceAmount: number = pool[diceType];
-        const resultsArray = getResultsArray(diceTypeNum, diceAmount);
+        const { preserveDiceOrder } = diceModuleOptionsStore.getState();
+        const resultsArray = getResultsArray(diceTypeNum, diceAmount, undefined, !preserveDiceOrder);
         resultsArray.forEach((value: number) => {
           results.push(mapValueToL5r(diceType, value));
         });
