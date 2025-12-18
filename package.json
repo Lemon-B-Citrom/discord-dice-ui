@@ -42,9 +42,9 @@
   },
   "scripts": {
     "prettier": "prettier --write .",
-    "dev": "react-scripts start",
+    "dev": "GENERATE_SOURCEMAP=false react-scripts start",
     "start": "serve -s build",
-    "build": "react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "heroku-postbuild": "npm run build"
