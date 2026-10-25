@@ -11,6 +11,10 @@ export const CLOSE_MODIFIER_MODAL = "CLOSE_MODIFIER_MODAL";
 
 export const OPEN_WARHAMMER_MONEY_MODAL = "OPEN_WARHAMMER_MONEY_MODAL";
 export const CLOSE_WARHAMMER_MONEY_MODAL = "CLOSE_WARHAMMER_MONEY_MODAL";
+export const OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL =
+  "OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL";
+export const CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL =
+  "CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL";
 
 export const OPEN_CONAN_MODAL = "OPEN_CONAN_MODAL";
 export const CLOSE_CONAN_MODAL = "CLOSE_CONAN_MODAL";
@@ -147,6 +151,18 @@ export function openWarhammerMoneyModal() {
 export function closeWarhammerMoneyModal() {
   return {
     type: CLOSE_WARHAMMER_MONEY_MODAL,
+  };
+}
+
+export function openWarhammerAttackCalculatorModal() {
+  return {
+    type: OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL,
+  };
+}
+
+export function closeWarhammerAttackCalculatorModal() {
+  return {
+    type: CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL,
   };
 }
 

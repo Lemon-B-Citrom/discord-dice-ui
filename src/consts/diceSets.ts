@@ -32,6 +32,7 @@ import {
   INFINITY_TOKENS,
   NARRATIVE_TOKENS,
   WARHAMMER_MONEY,
+  WARHAMMER_ATTACK_CALCULATOR,
   CTHULHU_SHEET_MODAL,
   COMBAT_TRACKER,
   WRATH_AND_GLORY_SKILL_TEST,
@@ -168,6 +169,12 @@ export const warhammerSet = [
     diceType: WARHAMMER_MONEY,
     label: "Money converter",
     diceImg: "warhammer_money/gold.png",
+    noDropdown: true,
+  },
+  {
+    diceType: WARHAMMER_ATTACK_CALCULATOR,
+    label: "Attack Calculator",
+    diceImg: "d100-skill-test.png",
     noDropdown: true,
   },
 ];

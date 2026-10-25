@@ -6,6 +6,7 @@ import ModifierModalContainer from "../ModifierModal/ModifierModalContainer";
 import CthulhuModalContainer from "../CthulhuModal/CthulhuModalContainer";
 import WarhammerModalContainer from "../WarhammerModal/WarhammerModalContainer";
 import WarhammerMoneyModalContainer from "../WarhammerMoneyModal/WarhammerMoneyModalContainer";
+import WarhammerAttackCalculatorModalContainer from "../WarhammerAttackCalculatorModal/WarhammerAttackCalculatorModalContainer";
 import ConanModalContainer from "../ConanModal/ConanModalContainer";
 import InfinityModalContainer from "../InfinityModal/InfinityModalContainer";
 import PoolBuilderModalContainer from "../PoolBuilderModal/PoolBuilderModalContainer";
@@ -63,6 +64,9 @@ function Modals({
       <WarhammerModalContainer showModal={warhammerState.showModal} />
       <WarhammerMoneyModalContainer
         showModal={modalsState.isWarhammerMoneyModalOpen}
+      />
+      <WarhammerAttackCalculatorModalContainer
+        showModal={modalsState.isWarhammerAttackCalculatorModalOpen}
       />
       <ConanModalContainer showModal={modalsState.isConanModalOpen} />
       <InfinityModalContainer showModal={modalsState.isInfinityModalOpen} />

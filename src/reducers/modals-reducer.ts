@@ -7,6 +7,8 @@ import {
   CLOSE_MODIFIER_MODAL,
   OPEN_WARHAMMER_MONEY_MODAL,
   CLOSE_WARHAMMER_MONEY_MODAL,
+  OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL,
+  CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL,
   OPEN_SETTINGS_MODAL,
   CLOSE_SETTINGS_MODAL,
   OPEN_POOL_BUILDER_MODAL,
@@ -26,6 +28,7 @@ export interface ModalsStateTypes {
   isPoolBuilderModalOpen: boolean;
   isCopyrightModalOpen: boolean;
   isWarhammerMoneyModalOpen: boolean;
+  isWarhammerAttackCalculatorModalOpen: boolean;
 }
 
 const initialState = {
@@ -37,6 +40,7 @@ const initialState = {
   isPoolBuilderModalOpen: false,
   isCopyrightModalOpen: false,
   isWarhammerMoneyModalOpen: false,
+  isWarhammerAttackCalculatorModalOpen: false,
 };
 
 function modalsReducer(state: ModalsStateTypes = initialState, action: any) {
@@ -120,6 +124,16 @@ function modalsReducer(state: ModalsStateTypes = initialState, action: any) {
       return {
         ...state,
         isWarhammerMoneyModalOpen: false,
+      };
+    case OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL:
+      return {
+        ...state,
+        isWarhammerAttackCalculatorModalOpen: true,
+      };
+    case CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL:
+      return {
+        ...state,
+        isWarhammerAttackCalculatorModalOpen: false,
       };
   }
   return state;
