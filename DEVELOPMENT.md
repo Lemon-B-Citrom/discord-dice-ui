@@ -3,13 +3,17 @@
 ## Getting Started
 
 ### Prerequisites
-- Node.js 14.7.0
-- npm 6.13.4
+- Node.js 24.22.1 or a later Node 24 patch
+- npm 11.19.1 or a later npm 11 release (bundled with the Node.js version above)
 
 ### Installation
 ```bash
-npm install
+npm ci
 ```
+
+Use the same npm commands on Windows 10 and Debian 12. The project launcher is
+Node-based and keeps the legacy OpenSSL workaround scoped to the CRA
+development/build processes; do not add shell-specific environment assignments.
 
 ### Development Server
 ```bash

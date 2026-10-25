@@ -3,8 +3,8 @@
   "version": "16.1.1",
   "private": true,
   "engines": {
-    "node": "14.7.0",
-    "npm": "6.13.4"
+    "node": ">=24.22.1 <25",
+    "npm": ">=11.19.1 <12"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.13.0",
@@ -42,18 +42,9 @@
   },
   "scripts": {
     "prettier": "prettier --write .",
-    "dev": "NODE_OPTIONS=--openssl-legacy-provider GENERATE_SOURCEMAP=false react-scripts start",
+    "dev": "node scripts/react-scripts-wrapper.js start",
     "start": "serve -s build",
-    "build": "NODE_OPTIONS=--openssl-legacy-provider GENERATE_SOURCEMAP=false react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject",
-    "heroku-postbuild": "npm run build"
-  },
-  "scripts_UNLOADED": {
-    "prettier": "prettier --write .",
-    "dev": "GENERATE_SOURCEMAP=false react-scripts start",
-    "start": "serve -s build",
-    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "build": "node scripts/react-scripts-wrapper.js build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "heroku-postbuild": "npm run build"
