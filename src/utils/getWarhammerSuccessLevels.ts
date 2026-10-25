@@ -22,7 +22,7 @@ export default ({
   let autoSuccessMin;
   let autoSuccessMax;
 
-  if (useDarkHeresySL) {
+  if (useDarkHeresySL || useOnlyWarSL) {
     autoFailureMin = 100;
     autoFailureMax = 100;
     autoSuccessMin = 1;
