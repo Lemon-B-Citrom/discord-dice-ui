@@ -159,6 +159,19 @@ test("uses the existing missing-username fallback", () => {
   );
 });
 
+test("derives the summary line from the validated request, not the raw draft", () => {
+  const result = singleResult();
+  result.draft = {
+    ...draft,
+    attackSummaryString: "  `Pen 0 , Fel 0 :  10`  ",
+  };
+
+  const message = getWarhammerDamageRequestMsg(result, "Alex");
+
+  expect(message.description).toContain("`Pen 0, Fel 0: 10`");
+  expect(message.description).not.toContain("summary shortened");
+});
+
 test.each(["0", "2", "12", "13"])("formats protected Toughness consistently at Felling %s", (felling) => {
   const input = { ...draft, attackSummaryString: `Pen 0, Fel ${felling}: 20, 20,`, toughnessBonus: "6", fortitude: "1" };
   const normalized = normalizeWarhammerDamage(input);

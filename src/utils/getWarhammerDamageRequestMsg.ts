@@ -4,7 +4,21 @@ import {
   WarhammerDamageRequest,
   WarhammerDamageResult,
 } from "../components/WarhammerDamageCalculatorModal/WarhammerDamageCalculatorTypes";
+import {
+  EMBED_DESCRIPTION_MAX,
+  EMBED_FIELD_MAX,
+  EMBED_FIELD_NAME_MAX,
+  EMBED_FIELD_VALUE_MAX,
+  EMBED_TITLE_MAX,
+  EMBED_TOTAL_BUDGET,
+} from "../consts/discordEmbed";
 import { getColor } from "./getColor";
+import { requireSafeInteger } from "./safeInteger";
+import sanitizeDiscordUsername from "./sanitizeDiscordUsername";
+import {
+  getWarhammerMagnitudeBasis,
+  getWarhammerToughnessTerm,
+} from "./warhammerDamageLabels";
 
 export interface WarhammerDamageRequestMsgField {
   name: string;
@@ -18,70 +32,13 @@ export interface WarhammerDamageRequestMsg {
   fields: WarhammerDamageRequestMsgField[];
 }
 
-const MAX_TITLE_LENGTH = 256;
-const MAX_DESCRIPTION_LENGTH = 4096;
-const MAX_FIELD_NAME_LENGTH = 32;
-const MAX_FIELD_VALUE_LENGTH = 1024;
-const MAX_FIELDS = 25;
-const MAX_TOTAL_LENGTH = 5800;
-const MAX_USERNAME_LENGTH = 180;
 const OMITTED_NOTICE = (first: number, last: number, count: number) =>
   `Hits #${first}–#${last} (${count} hit${count === 1 ? "" : "s"}) omitted. Totals include all hits; full breakdown is available in the app.`;
 const DETAILS_OMITTED_NOTICE =
   "Equations shortened; full breakdown is available in the app.";
 
-const markdownCharacters = new Set([
-  "\\",
-  "`",
-  "*",
-  "_",
-  "{",
-  "}",
-  "[",
-  "]",
-  "(",
-  ")",
-  "#",
-  "+",
-  "-",
-  ".",
-  "!",
-  "|",
-  ">",
-  "~",
-  "<",
-  ">",
-]);
-
-function sanitizeUsername(username: string): string {
-  const tokens = Array.from(username || "USERNAME_MISSING")
-    .map((character) => {
-      const code = character.charCodeAt(0);
-      if (
-        code <= 0x1f ||
-        code === 0x7f ||
-        code === 0x2028 ||
-        code === 0x2029
-      ) {
-        return " ";
-      }
-      if (character === "@") return "@\u200b";
-      return markdownCharacters.has(character) ? `\\${character}` : character;
-    });
-  let bounded = "";
-  tokens.forEach((token) => {
-    if (bounded.length + token.length <= MAX_USERNAME_LENGTH) {
-      bounded += token;
-    }
-  });
-  return bounded.trim() || "USERNAME\\_MISSING";
-}
-
-function assertSafeInteger(value: number): void {
-  if (!Number.isSafeInteger(value)) {
-    throw new Error("Invalid Warhammer damage result");
-  }
-}
+const assertSafeInteger = (value: number): number =>
+  requireSafeInteger(value, "Damage value");
 
 function locationLabel(location: DamageLocation): string {
   switch (location) {
@@ -139,16 +96,16 @@ function formatHit(
   const armor = entry.showArmorTerm
     ? ` − Armor (${formatReduction(entry.armorBeforePenetration, request.summary.penetration, entry.effectiveArmor)})`
     : "";
-  const reducedToughness = formatReduction(
-    entry.toughnessBeforeFelling,
-    request.summary.felling,
-    entry.effectiveToughnessBonus
-  );
-  const toughness = entry.fortitudeApplied
-    ? `\`${request.toughnessBonus}\` × \`2\`${request.summary.felling > 0 && entry.toughnessBeforeFelling > 0
-      ? ` − \`${request.summary.felling}\`${request.summary.felling > entry.toughnessBeforeFelling ? " → " : " = "}\`${entry.effectiveToughnessBonus}\``
-      : ` = \`${entry.effectiveToughnessBonus}\``}`
-    : reducedToughness;
+  const toughnessTerm = getWarhammerToughnessTerm(entry, request);
+  const toughness = toughnessTerm.fortitudeApplied
+    ? `\`${request.toughnessBonus}\` × \`2\`${toughnessTerm.reduced
+      ? ` − \`${toughnessTerm.felling}\`${toughnessTerm.overridden ? " → " : " = "}\`${toughnessTerm.effective}\``
+      : ` = \`${toughnessTerm.effective}\``}`
+    : formatReduction(
+        toughnessTerm.beforeFelling,
+        toughnessTerm.felling,
+        toughnessTerm.effective
+      );
   const damageExpression = `\`${entry.originalDamage}\`${armor} − Toughness (${toughness})`;
   const damageEquation = `${entry.mode === "horde" ? "Damage: " : ""}**\`${entry.finalDamage}\`** = ${damageExpression}`;
   const heading = `#${entry.number}${entry.mode === "horde" && entry.role === "bonus" ? " (Bonus)" : ""}: :arrow_right:`;
@@ -179,13 +136,13 @@ function formatHit(
         throw new Error("Invalid Warhammer damage result");
     }
   })();
-  const magnitudeBase = entry.classification === "overkill"
-    ? `Per-unit Magnitude (\`${entry.baseMagnitude}\`)`
-    : entry.classification === "partial-overkill"
-    ? `Halved Per-unit Magnitude (\`${entry.baseMagnitude}\`)`
-    : entry.classification === "no-damage" || entry.finalDamage <= 0
-    ? "Nonpositive Damage (0)"
-    : "Nonzero Damage (1)";
+  const magnitudeBasis = getWarhammerMagnitudeBasis(entry);
+  const showsMagnitudeOperand =
+    entry.classification === "overkill" ||
+    entry.classification === "partial-overkill";
+  const magnitudeBase = `${magnitudeBasis.label}${
+    showsMagnitudeOperand ? ` (\`${magnitudeBasis.operand}\`)` : ""
+  }`;
   const magnitudeEquation = `Magnitude: **\`${entry.magnitude}\`** = ${magnitudeBase}${entry.devastatingAdded > 0 ? ` + Devastating (\`${entry.devastatingAdded}\`)` : ""}`;
   return {
     essential: `${heading}${classification ? ` ${classification}` : ""} **${entry.finalDamage}** Damage, **${entry.magnitude}** Magnitude\n${location}`,
@@ -199,11 +156,11 @@ function makeEntryFields(rows: string[]): WarhammerDamageRequestMsgField[] {
   let value = "";
 
   rows.forEach((row) => {
-    if (row.length > MAX_FIELD_VALUE_LENGTH) {
+    if (row.length > EMBED_FIELD_VALUE_MAX) {
       throw new Error("Invalid Warhammer damage result");
     }
     const nextValue = value ? `${value}\n\n${row}` : row;
-    if (nextValue.length > MAX_FIELD_VALUE_LENGTH) {
+    if (nextValue.length > EMBED_FIELD_VALUE_MAX) {
       fields.push({
         name: fields.length === 0 ? "Damage by hit" : "\u200b",
         value,
@@ -241,15 +198,15 @@ function checkPayload(
   fields: WarhammerDamageRequestMsgField[]
 ): boolean {
   return (
-    title.length <= MAX_TITLE_LENGTH &&
-    description.length <= MAX_DESCRIPTION_LENGTH &&
-    fields.length <= MAX_FIELDS &&
+    title.length <= EMBED_TITLE_MAX &&
+    description.length <= EMBED_DESCRIPTION_MAX &&
+    fields.length <= EMBED_FIELD_MAX &&
     fields.every(
       (field) =>
-        field.name.length <= MAX_FIELD_NAME_LENGTH &&
-        field.value.length <= MAX_FIELD_VALUE_LENGTH
+        field.name.length <= EMBED_FIELD_NAME_MAX &&
+        field.value.length <= EMBED_FIELD_VALUE_MAX
     ) &&
-    totalLength(title, description, fields) <= MAX_TOTAL_LENGTH
+    totalLength(title, description, fields) <= EMBED_TOTAL_BUDGET
   );
 }
 
@@ -261,12 +218,9 @@ function getContext(result: WarhammerDamageResult): string {
     request.armor.armsAP,
     request.armor.legsAP,
   ].forEach(assertSafeInteger);
-  // The saved, validated input contains only the summary grammar. Remove copy
-  // wrappers and line breaks so its inline code cannot change Discord markup.
-  const rawSummary = result.draft.attackSummaryString.replace(/`/g, "").replace(/\s+/g, " ").trim();
-  const summary = rawSummary.length > 3500
-    ? `${rawSummary.slice(0, 3500)}… (summary shortened)`
-    : rawSummary;
+  // Derive the summary from the validated request so the embed always matches
+  // the numbers that are shown, independent of the raw draft text.
+  const summary = `Pen ${request.summary.penetration}, Fel ${request.summary.felling}: ${request.summary.damages.join(", ")}`;
   const hitCount = request.summary.damages.length;
   const hitBreakdown = request.mode === "horde"
     ? ` (${request.trueHits} True, ${hitCount - request.trueHits} Bonus)`
@@ -301,11 +255,10 @@ function getTotalsField(result: WarhammerDamageResult): WarhammerDamageRequestMs
   return { name: ":boom: Summary", value: rows.join("\n") };
 }
 
-/** Format one completed Damage Calculator result as a bounded Discord embed. */
-export default function getWarhammerDamageRequestMsg(
-  result: WarhammerDamageResult,
-  username: string
-): WarhammerDamageRequestMsg {
+/** Validate a saved result before any of it is formatted for Discord. */
+function assertValidWarhammerDamageResult(
+  result: WarhammerDamageResult
+): void {
   if (
     !result ||
     !result.request ||
@@ -359,16 +312,53 @@ export default function getWarhammerDamageRequestMsg(
   ) {
     throw new Error("Invalid Warhammer damage result");
   }
-  const msgTitle = `${sanitizeUsername(username)} calculated damage. ${
+}
+
+/**
+ * Remove the last remaining real hit row while preserving an appended synthetic
+ * Bonus Devastating row. Shared by both packing sites so the rule cannot drift.
+ */
+function dropLastRealEntry(
+  retainedIndices: number[],
+  formattedEntries: FormattedEntry[]
+): void {
+  const syntheticIndex = retainedIndices.findIndex(
+    (index) => formattedEntries[index].isSynthetic
+  );
+  const trailingSynthetic =
+    syntheticIndex >= 0 && syntheticIndex === retainedIndices.length - 1;
+  const lastRealIndex = trailingSynthetic
+    ? syntheticIndex - 1
+    : retainedIndices.length - 1;
+  if (lastRealIndex < 0) {
+    throw new Error("Unable to fit Warhammer damage webhook message");
+  }
+  retainedIndices.splice(lastRealIndex, 1);
+}
+
+/** Format one completed Damage Calculator result as a bounded Discord embed. */
+export default function getWarhammerDamageRequestMsg(
+  result: WarhammerDamageResult,
+  username: string
+): WarhammerDamageRequestMsg {
+  assertValidWarhammerDamageResult(result);
+
+  const mode = result.request.mode;
+  const msgTitle = `${sanitizeDiscordUsername(username)} calculated damage. ${
     mode === "horde" ? "Horde" : "Single target"
   }`;
   const context = getContext(result);
-  if (msgTitle.length > MAX_TITLE_LENGTH || context.length > MAX_DESCRIPTION_LENGTH) {
+  if (
+    msgTitle.length > EMBED_TITLE_MAX ||
+    context.length > EMBED_DESCRIPTION_MAX
+  ) {
     throw new Error("Invalid Warhammer damage result");
   }
 
   const formattedEntries = result.entries.map((entry) => formatHit(entry, result.request));
-  const totalRealHits = realEntries.length;
+  const totalRealHits = result.entries.filter(
+    (entry) => entry.kind === "hit"
+  ).length;
   const totalsField = getTotalsField(result);
   let retainedIndices = formattedEntries.map((_, index) => index);
   const includedDetails: boolean[] = formattedEntries.map(() => false);
@@ -404,28 +394,7 @@ export default function getWarhammerDamageRequestMsg(
     updateOmissionDescription();
 
     if (checkPayload(msgTitle, description, fields)) break;
-    if (retainedIndices.length === 0) {
-      throw new Error("Unable to fit Warhammer damage webhook message");
-    }
-
-    // Keep an appended synthetic Bonus Devastating entry even if some real
-    // hit rows must be omitted to satisfy Discord's single-embed budget.
-    const syntheticIndex = retainedIndices.findIndex(
-      (index) => formattedEntries[index].isSynthetic
-    );
-    if (
-      syntheticIndex >= 0 &&
-      syntheticIndex === retainedIndices.length - 1
-    ) {
-      const lastRealIndex = syntheticIndex - 1;
-      if (lastRealIndex < 0) {
-        throw new Error("Unable to fit Warhammer damage webhook message");
-      } else {
-        retainedIndices.splice(lastRealIndex, 1);
-      }
-    } else {
-      retainedIndices.pop();
-    }
+    dropLastRealEntry(retainedIndices, formattedEntries);
   }
 
   // Optional equations are packed only after the maximum ordered prefix of
@@ -454,17 +423,7 @@ export default function getWarhammerDamageRequestMsg(
         .reverse()
         .find((index) => includedDetails[index]);
       if (lastDetailed === undefined) {
-        const syntheticIndex = retainedIndices.findIndex(
-          (index) => formattedEntries[index].isSynthetic
-        );
-        const lastRealIndex =
-          syntheticIndex === retainedIndices.length - 1
-            ? syntheticIndex - 1
-            : retainedIndices.length - 1;
-        if (lastRealIndex < 0) {
-          throw new Error("Unable to fit Warhammer damage webhook message");
-        }
-        retainedIndices.splice(lastRealIndex, 1);
+        dropLastRealEntry(retainedIndices, formattedEntries);
         updateOmissionDescription();
         fields = [...createFields(), totalsField];
         continue;
