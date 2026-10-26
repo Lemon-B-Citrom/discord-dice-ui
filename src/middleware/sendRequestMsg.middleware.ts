@@ -29,9 +29,22 @@ export default (store: any) => (next: any) => (action: any) => {
         body: JSON.stringify(msg),
       };
 
-      // @TODO Add error handling
-      fetch(hookUrl, data);
+      try {
+        fetch(hookUrl, data)
+          .then((response) => {
+            if (!response.ok) {
+              console.error(
+                `Discord webhook request failed with status ${response.status}.`
+              );
+            }
+          })
+          .catch(() => {
+            console.error("Discord webhook request failed.");
+          });
+      } catch (_error) {
+        console.error("Discord webhook request failed.");
+      }
     }
   }
-  next(action);
+  return next(action);
 };
