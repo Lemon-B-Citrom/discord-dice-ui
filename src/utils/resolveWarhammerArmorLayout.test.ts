@@ -1,11 +1,11 @@
 import {
-  EMPTY_DAMAGE_DRAFT,
-  WarhammerDamageDraft,
-} from "../components/WarhammerDamageCalculatorModal/WarhammerDamageCalculatorTypes";
+  EMPTY_DEFENDER_DAMAGE_DRAFT,
+  WarhammerDefenderDamageDraft,
+} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import resolveWarhammerArmorLayout from "./resolveWarhammerArmorLayout";
 
-const resolve = (patch: Partial<WarhammerDamageDraft>) =>
-  resolveWarhammerArmorLayout({ ...EMPTY_DAMAGE_DRAFT, ...patch });
+const resolve = (patch: Partial<WarhammerDefenderDamageDraft>) =>
+  resolveWarhammerArmorLayout({ ...EMPTY_DEFENDER_DAMAGE_DRAFT, ...patch });
 
 test("inherits Body alone and one supplied non-Body part, preserving explicit zero", () => {
   expect(resolve({ armorBody: "4" }).armor).toEqual({

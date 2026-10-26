@@ -6,10 +6,10 @@ import ModifierModalContainer from "../ModifierModal/ModifierModalContainer";
 import CthulhuModalContainer from "../CthulhuModal/CthulhuModalContainer";
 import WarhammerModalContainer from "../WarhammerModal/WarhammerModalContainer";
 import WarhammerMoneyModalContainer from "../WarhammerMoneyModal/WarhammerMoneyModalContainer";
-import WarhammerAttackCalculatorModalContainer from "../WarhammerAttackCalculatorModal/WarhammerAttackCalculatorModalContainer";
-import WarhammerDamageCalculatorModalContainer from "../WarhammerDamageCalculatorModal/WarhammerDamageCalculatorModalContainer";
-import WarhammerAttackResultsModal from "../WarhammerAttackResultsModal/WarhammerAttackResultsModal";
-import WarhammerDamageResultsModal from "../WarhammerDamageResultsModal/WarhammerDamageResultsModal";
+import WarhammerAttackerDamageModalContainer from "../WarhammerAttackerDamageModal/WarhammerAttackerDamageModalContainer";
+import WarhammerDefenderDamageModalContainer from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageModalContainer";
+import WarhammerAttackerDamageResultsModal from "../WarhammerAttackerDamageResultsModal/WarhammerAttackerDamageResultsModal";
+import WarhammerDefenderDamageResultsModal from "../WarhammerDefenderDamageResultsModal/WarhammerDefenderDamageResultsModal";
 import ConanModalContainer from "../ConanModal/ConanModalContainer";
 import InfinityModalContainer from "../InfinityModal/InfinityModalContainer";
 import PoolBuilderModalContainer from "../PoolBuilderModal/PoolBuilderModalContainer";
@@ -68,14 +68,14 @@ function Modals({
       <WarhammerMoneyModalContainer
         showModal={modalsState.isWarhammerMoneyModalOpen}
       />
-      <WarhammerAttackCalculatorModalContainer
-        showModal={modalsState.isWarhammerAttackCalculatorModalOpen}
+      <WarhammerAttackerDamageModalContainer
+        showModal={modalsState.isWarhammerAttackerDamageModalOpen}
       />
-      <WarhammerDamageCalculatorModalContainer
-        showModal={modalsState.isWarhammerDamageCalculatorModalOpen}
+      <WarhammerDefenderDamageModalContainer
+        showModal={modalsState.isWarhammerDefenderDamageModalOpen}
       />
-      <WarhammerAttackResultsModal />
-      <WarhammerDamageResultsModal />
+      <WarhammerAttackerDamageResultsModal />
+      <WarhammerDefenderDamageResultsModal />
       <ConanModalContainer showModal={modalsState.isConanModalOpen} />
       <InfinityModalContainer showModal={modalsState.isInfinityModalOpen} />
       <DuneModalContainer showModal={modalsState.isDuneModalOpen} />

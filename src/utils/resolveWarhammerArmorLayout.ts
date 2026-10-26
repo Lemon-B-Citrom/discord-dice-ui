@@ -1,9 +1,9 @@
 import {
   ArmorSlot,
-  DamageValidationErrors,
+  DefenderDamageValidationErrors,
   WarhammerArmorLayout,
-  WarhammerDamageDraft,
-} from "../components/WarhammerDamageCalculatorModal/WarhammerDamageCalculatorTypes";
+  WarhammerDefenderDamageDraft,
+} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import {
   NON_NEGATIVE_INTEGER_ERROR,
   requireNonNegativeInteger,
@@ -11,7 +11,7 @@ import {
 
 export interface ResolveArmorResult {
   armor: WarhammerArmorLayout | null;
-  errors: DamageValidationErrors;
+  errors: DefenderDamageValidationErrors;
 }
 
 type ArmorField = "armorHead" | "armorBody" | "armorArms" | "armorLegs";
@@ -24,9 +24,9 @@ const fieldSlots: Array<{ field: ArmorField; slot: ArmorSlot }> = [
 ];
 
 export default function resolveWarhammerArmorLayout(
-  draft: WarhammerDamageDraft
+  draft: WarhammerDefenderDamageDraft
 ): ResolveArmorResult {
-  const errors: DamageValidationErrors = {};
+  const errors: DefenderDamageValidationErrors = {};
   const parsed: Partial<Record<ArmorSlot, number>> = {};
   const supplied: ArmorSlot[] = [];
 

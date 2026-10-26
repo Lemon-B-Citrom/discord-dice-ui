@@ -7,8 +7,8 @@ import {
   INFINITY_TOKENS,
   NARRATIVE_TOKENS,
   WARHAMMER_MONEY,
-  WARHAMMER_ATTACK_CALCULATOR,
-  WARHAMMER_DAMAGE_CALCULATOR,
+  WARHAMMER_ATTACKER_DAMAGE,
+  WARHAMMER_DEFENDER_DAMAGE,
   CTHULHU_SHEET_MODAL,
   COMBAT_TRACKER,
   TOR_SKILL_TEST,
@@ -22,8 +22,8 @@ import {
   openModifierModal,
   openPoolBuilderModal,
   openWarhammerMoneyModal,
-  openWarhammerAttackCalculatorModal,
-  openWarhammerDamageCalculatorModal,
+  openWarhammerAttackerDamageModal,
+  openWarhammerDefenderDamageModal,
 } from "../actions/modals";
 import {
   requestRoll,
@@ -122,10 +122,10 @@ export default (store: any) => (next: any) => (action: any) => {
       store.dispatch(openNarrativeTokensModal());
     } else if (diceType === WARHAMMER_MONEY) {
       store.dispatch(openWarhammerMoneyModal());
-    } else if (diceType === WARHAMMER_ATTACK_CALCULATOR) {
-      store.dispatch(openWarhammerAttackCalculatorModal());
-    } else if (diceType === WARHAMMER_DAMAGE_CALCULATOR) {
-      store.dispatch(openWarhammerDamageCalculatorModal());
+    } else if (diceType === WARHAMMER_ATTACKER_DAMAGE) {
+      store.dispatch(openWarhammerAttackerDamageModal());
+    } else if (diceType === WARHAMMER_DEFENDER_DAMAGE) {
+      store.dispatch(openWarhammerDefenderDamageModal());
     } else if (diceType === CTHULHU_SHEET_MODAL) {
       store.dispatch(openCthulhuSheetModal());
     } else if (useModifier) {

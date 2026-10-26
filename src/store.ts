@@ -20,10 +20,10 @@ import warhammerRollRequested from "./middleware/warhammer/warhammerRollRequeste
 import warhammerRerollRequested from "./middleware/warhammer/warhammerRerollRequested.middleware";
 import warhammerSendResults from "./middleware/warhammer/warhammerSendResults.middleware";
 import warhammerMoneyRecalculated from "./middleware/warhammerMoneyRecalculated.middleware";
-import warhammerAttackRollRequested from "./middleware/warhammer/warhammerAttackRollRequested.middleware";
-import warhammerAttackSendResults from "./middleware/warhammer/warhammerAttackSendResults.middleware";
-import warhammerDamageCalculationRequested from "./middleware/warhammer/warhammerDamageCalculationRequested.middleware";
-import warhammerDamageSendResults from "./middleware/warhammer/warhammerDamageSendResults.middleware";
+import warhammerAttackerDamageRollRequested from "./middleware/warhammer/warhammerAttackerDamageRollRequested.middleware";
+import warhammerAttackerDamageSendResults from "./middleware/warhammer/warhammerAttackerDamageSendResults.middleware";
+import warhammerDefenderDamageCalculationRequested from "./middleware/warhammer/warhammerDefenderDamageCalculationRequested.middleware";
+import warhammerDefenderDamageSendResults from "./middleware/warhammer/warhammerDefenderDamageSendResults.middleware";
 // 2d20
 import { get2d20LocalMsg } from "./middleware/2d20/get-2d20-local-msg.middleware";
 import { get2d20RequestMsg } from "./middleware/2d20/get-2d20-request-msg.middleware";
@@ -91,10 +91,10 @@ export const rollMiddleware = [
   warhammerRollRequested,
   warhammerRerollRequested,
   warhammerMoneyRecalculated,
-  warhammerAttackRollRequested,
-  warhammerAttackSendResults,
-  warhammerDamageCalculationRequested,
-  warhammerDamageSendResults,
+  warhammerAttackerDamageRollRequested,
+  warhammerAttackerDamageSendResults,
+  warhammerDefenderDamageCalculationRequested,
+  warhammerDefenderDamageSendResults,
 
   get2d20LocalMsg,
   get2d20RequestMsg,

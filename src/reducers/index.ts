@@ -14,8 +14,8 @@ import narrativeDiceData from "./narrative-dice-reducer";
 import { reducer as form } from "redux-form";
 import lastRollOptions from "./last-roll-options-reducer";
 import rerollCount from "./reroll-count-reducer";
-import warhammerAttackCalculator from "./warhammer-attack-calculator-reducer";
-import warhammerDamageCalculator from "./warhammer-damage-calculator-reducer";
+import warhammerAttackerDamage from "./warhammer-attacker-damage-reducer";
+import warhammerDefenderDamage from "./warhammer-defender-damage-reducer";
 
 export default combineReducers({
   userSettings,
@@ -33,6 +33,6 @@ export default combineReducers({
   narrativeDiceData,
   lastRollOptions,
   rerollCount,
-  warhammerAttackCalculator,
-  warhammerDamageCalculator,
+  warhammerAttackerDamage,
+  warhammerDefenderDamage,
 });

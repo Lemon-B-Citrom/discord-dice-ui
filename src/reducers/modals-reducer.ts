@@ -7,10 +7,10 @@ import {
   CLOSE_MODIFIER_MODAL,
   OPEN_WARHAMMER_MONEY_MODAL,
   CLOSE_WARHAMMER_MONEY_MODAL,
-  OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL,
-  CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL,
-  OPEN_WARHAMMER_DAMAGE_CALCULATOR_MODAL,
-  CLOSE_WARHAMMER_DAMAGE_CALCULATOR_MODAL,
+  OPEN_WARHAMMER_ATTACKER_DAMAGE_MODAL,
+  CLOSE_WARHAMMER_ATTACKER_DAMAGE_MODAL,
+  OPEN_WARHAMMER_DEFENDER_DAMAGE_MODAL,
+  CLOSE_WARHAMMER_DEFENDER_DAMAGE_MODAL,
   OPEN_SETTINGS_MODAL,
   CLOSE_SETTINGS_MODAL,
   OPEN_POOL_BUILDER_MODAL,
@@ -21,9 +21,9 @@ import {
   CLOSE_DUNE_MODAL,
 } from "../actions/modals";
 import {
-  WARHAMMER_DAMAGE_BACK_TO_FORM,
-  WARHAMMER_DAMAGE_RESULTS_SAVED,
-} from "../actions/warhammerDamageCalculator.actions";
+  WARHAMMER_DEFENDER_DAMAGE_BACK_TO_FORM,
+  WARHAMMER_DEFENDER_DAMAGE_RESULTS_SAVED,
+} from "../actions/warhammerDefenderDamage.actions";
 
 export interface ModalsStateTypes {
   isConanModalOpen: boolean;
@@ -34,9 +34,9 @@ export interface ModalsStateTypes {
   isPoolBuilderModalOpen: boolean;
   isCopyrightModalOpen: boolean;
   isWarhammerMoneyModalOpen: boolean;
-  isWarhammerAttackCalculatorModalOpen: boolean;
-  isWarhammerDamageCalculatorModalOpen: boolean;
-  isWarhammerDamageResultsModalOpen: boolean;
+  isWarhammerAttackerDamageModalOpen: boolean;
+  isWarhammerDefenderDamageModalOpen: boolean;
+  isWarhammerDefenderDamageResultsModalOpen: boolean;
 }
 
 const initialState = {
@@ -48,24 +48,24 @@ const initialState = {
   isPoolBuilderModalOpen: false,
   isCopyrightModalOpen: false,
   isWarhammerMoneyModalOpen: false,
-  isWarhammerAttackCalculatorModalOpen: false,
-  isWarhammerDamageCalculatorModalOpen: false,
-  isWarhammerDamageResultsModalOpen: false,
+  isWarhammerAttackerDamageModalOpen: false,
+  isWarhammerDefenderDamageModalOpen: false,
+  isWarhammerDefenderDamageResultsModalOpen: false,
 };
 
 function modalsReducer(state: ModalsStateTypes = initialState, action: any) {
   switch (action.type) {
-    case WARHAMMER_DAMAGE_RESULTS_SAVED:
+    case WARHAMMER_DEFENDER_DAMAGE_RESULTS_SAVED:
       return {
         ...state,
-        isWarhammerDamageCalculatorModalOpen: false,
-        isWarhammerDamageResultsModalOpen: true,
+        isWarhammerDefenderDamageModalOpen: false,
+        isWarhammerDefenderDamageResultsModalOpen: true,
       };
-    case WARHAMMER_DAMAGE_BACK_TO_FORM:
+    case WARHAMMER_DEFENDER_DAMAGE_BACK_TO_FORM:
       return {
         ...state,
-        isWarhammerDamageCalculatorModalOpen: true,
-        isWarhammerDamageResultsModalOpen: false,
+        isWarhammerDefenderDamageModalOpen: true,
+        isWarhammerDefenderDamageResultsModalOpen: false,
       };
     case CLOSE_SETTINGS_MODAL:
       return {
@@ -147,25 +147,25 @@ function modalsReducer(state: ModalsStateTypes = initialState, action: any) {
         ...state,
         isWarhammerMoneyModalOpen: false,
       };
-    case OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL:
+    case OPEN_WARHAMMER_ATTACKER_DAMAGE_MODAL:
       return {
         ...state,
-        isWarhammerAttackCalculatorModalOpen: true,
+        isWarhammerAttackerDamageModalOpen: true,
       };
-    case CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL:
+    case CLOSE_WARHAMMER_ATTACKER_DAMAGE_MODAL:
       return {
         ...state,
-        isWarhammerAttackCalculatorModalOpen: false,
+        isWarhammerAttackerDamageModalOpen: false,
       };
-    case OPEN_WARHAMMER_DAMAGE_CALCULATOR_MODAL:
+    case OPEN_WARHAMMER_DEFENDER_DAMAGE_MODAL:
       return {
         ...state,
-        isWarhammerDamageCalculatorModalOpen: true,
+        isWarhammerDefenderDamageModalOpen: true,
       };
-    case CLOSE_WARHAMMER_DAMAGE_CALCULATOR_MODAL:
+    case CLOSE_WARHAMMER_DEFENDER_DAMAGE_MODAL:
       return {
         ...state,
-        isWarhammerDamageCalculatorModalOpen: false,
+        isWarhammerDefenderDamageModalOpen: false,
       };
   }
   return state;

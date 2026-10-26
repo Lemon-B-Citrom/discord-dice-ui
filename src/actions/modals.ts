@@ -11,14 +11,14 @@ export const CLOSE_MODIFIER_MODAL = "CLOSE_MODIFIER_MODAL";
 
 export const OPEN_WARHAMMER_MONEY_MODAL = "OPEN_WARHAMMER_MONEY_MODAL";
 export const CLOSE_WARHAMMER_MONEY_MODAL = "CLOSE_WARHAMMER_MONEY_MODAL";
-export const OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL =
-  "OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL";
-export const CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL =
-  "CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL";
-export const OPEN_WARHAMMER_DAMAGE_CALCULATOR_MODAL =
-  "OPEN_WARHAMMER_DAMAGE_CALCULATOR_MODAL";
-export const CLOSE_WARHAMMER_DAMAGE_CALCULATOR_MODAL =
-  "CLOSE_WARHAMMER_DAMAGE_CALCULATOR_MODAL";
+export const OPEN_WARHAMMER_ATTACKER_DAMAGE_MODAL =
+  "OPEN_WARHAMMER_ATTACKER_DAMAGE_MODAL";
+export const CLOSE_WARHAMMER_ATTACKER_DAMAGE_MODAL =
+  "CLOSE_WARHAMMER_ATTACKER_DAMAGE_MODAL";
+export const OPEN_WARHAMMER_DEFENDER_DAMAGE_MODAL =
+  "OPEN_WARHAMMER_DEFENDER_DAMAGE_MODAL";
+export const CLOSE_WARHAMMER_DEFENDER_DAMAGE_MODAL =
+  "CLOSE_WARHAMMER_DEFENDER_DAMAGE_MODAL";
 
 export const OPEN_CONAN_MODAL = "OPEN_CONAN_MODAL";
 export const CLOSE_CONAN_MODAL = "CLOSE_CONAN_MODAL";
@@ -158,27 +158,27 @@ export function closeWarhammerMoneyModal() {
   };
 }
 
-export function openWarhammerAttackCalculatorModal() {
+export function openWarhammerAttackerDamageModal() {
   return {
-    type: OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL,
+    type: OPEN_WARHAMMER_ATTACKER_DAMAGE_MODAL,
   };
 }
 
-export function closeWarhammerAttackCalculatorModal() {
+export function closeWarhammerAttackerDamageModal() {
   return {
-    type: CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL,
+    type: CLOSE_WARHAMMER_ATTACKER_DAMAGE_MODAL,
   };
 }
 
-export function openWarhammerDamageCalculatorModal() {
+export function openWarhammerDefenderDamageModal() {
   return {
-    type: OPEN_WARHAMMER_DAMAGE_CALCULATOR_MODAL,
+    type: OPEN_WARHAMMER_DEFENDER_DAMAGE_MODAL,
   };
 }
 
-export function closeWarhammerDamageCalculatorModal() {
+export function closeWarhammerDefenderDamageModal() {
   return {
-    type: CLOSE_WARHAMMER_DAMAGE_CALCULATOR_MODAL,
+    type: CLOSE_WARHAMMER_DEFENDER_DAMAGE_MODAL,
   };
 }
 
