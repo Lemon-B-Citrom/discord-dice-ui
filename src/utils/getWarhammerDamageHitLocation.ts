@@ -1,6 +1,6 @@
 import { DamageLocation } from "../components/WarhammerDamageCalculatorModal/WarhammerDamageCalculatorTypes";
 
-const locationCycles: Record<DamageLocation, DamageLocation[]> = {
+const locationCycles: Record<DamageLocation, readonly DamageLocation[]> = {
   Head: ["Head", "Right Arm", "Body", "Left Arm", "Body", "Head"],
   "Right Arm": ["Right Arm", "Body", "Head", "Left Arm", "Body", "Head"],
   "Left Arm": ["Left Arm", "Body", "Head", "Right Arm", "Body", "Head"],

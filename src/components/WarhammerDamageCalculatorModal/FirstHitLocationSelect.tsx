@@ -1,19 +1,25 @@
 import React, { useEffect, useRef, useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
+import {
+  DAMAGE_LOCATIONS,
+  DamageLocation,
+} from "./WarhammerDamageCalculatorTypes";
 import styles from "./FirstHitLocationSelect.module.css";
 
-const locations = [
-  "Head",
-  "Body",
-  "Left Arm",
-  "Right Arm",
-  "Left Leg",
-  "Right Leg",
+const locations = DAMAGE_LOCATIONS;
+
+// Menu row layout: single locations are full width, the limbs pair up. Keyboard
+// horizontal navigation is derived from this layout, never from literal indexes.
+const ROWS: ReadonlyArray<ReadonlyArray<DamageLocation>> = [
+  ["Head"],
+  ["Body"],
+  ["Left Arm", "Right Arm"],
+  ["Left Leg", "Right Leg"],
 ];
 
 interface FirstHitLocationSelectProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: DamageLocation) => void;
   ariaDescribedBy?: string;
 }
 
@@ -41,7 +47,9 @@ function FirstHitLocationSelect({
   const handleToggleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key === "ArrowDown" || event.key === "ArrowUp") {
       event.preventDefault();
-      const selectedIndex = locations.indexOf(value);
+      const selectedIndex = locations.findIndex(
+        (location) => location === value
+      );
       setPendingFocusIndex(
         selectedIndex >= 0
           ? selectedIndex
@@ -57,17 +65,21 @@ function FirstHitLocationSelect({
     event: React.KeyboardEvent<HTMLButtonElement>,
     index: number
   ) => {
+    const location = locations[index];
+    const row =
+      ROWS.find((candidate) => candidate.indexOf(location) !== -1) || [location];
+    const position = row.indexOf(location);
     let nextIndex: number | undefined;
-    if (event.key === "ArrowDown") nextIndex = Math.min(index + 1, 5);
+    if (event.key === "ArrowDown") nextIndex = Math.min(index + 1, locations.length - 1);
     if (event.key === "ArrowUp") nextIndex = Math.max(index - 1, 0);
-    if (event.key === "ArrowRight" && (index === 2 || index === 4)) {
+    if (event.key === "ArrowRight" && position < row.length - 1) {
       nextIndex = index + 1;
     }
-    if (event.key === "ArrowLeft" && (index === 3 || index === 5)) {
+    if (event.key === "ArrowLeft" && position > 0) {
       nextIndex = index - 1;
     }
     if (event.key === "Home") nextIndex = 0;
-    if (event.key === "End") nextIndex = 5;
+    if (event.key === "End") nextIndex = locations.length - 1;
 
     if (event.key === "Escape") {
       event.preventDefault();
@@ -79,7 +91,7 @@ function FirstHitLocationSelect({
       focusOption(nextIndex);
     } else if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      onChange(locations[index]);
+      onChange(location);
       setOpen(false);
       toggleRef.current?.focus();
     } else if (event.key === "Tab") {
@@ -87,7 +99,7 @@ function FirstHitLocationSelect({
     }
   };
 
-  const renderOption = (location: string, index: number) => (
+  const renderOption = (location: DamageLocation, index: number) => (
     <Dropdown.Item
       as="button"
       type="button"
@@ -135,22 +147,23 @@ function FirstHitLocationSelect({
         aria-label="First Hit Location options"
         className={styles.menu}
       >
-        <div className={styles.fullRow}>{renderOption("Head", 0)}</div>
-        <div className={styles.fullRow}>{renderOption("Body", 1)}</div>
-        <div className={styles.pairedRow}>
-          {renderOption("Left Arm", 2)}
-          <span className={styles.divider} aria-hidden="true">
-            |
-          </span>
-          {renderOption("Right Arm", 3)}
-        </div>
-        <div className={styles.pairedRow}>
-          {renderOption("Left Leg", 4)}
-          <span className={styles.divider} aria-hidden="true">
-            |
-          </span>
-          {renderOption("Right Leg", 5)}
-        </div>
+        {ROWS.map((row) => (
+          <div
+            key={row[0]}
+            className={row.length === 1 ? styles.fullRow : styles.pairedRow}
+          >
+            {row.map((location, position) => (
+              <React.Fragment key={location}>
+                {position > 0 && (
+                  <span className={styles.divider} aria-hidden="true">
+                    |
+                  </span>
+                )}
+                {renderOption(location, locations.indexOf(location))}
+              </React.Fragment>
+            ))}
+          </div>
+        ))}
       </Dropdown.Menu>
     </Dropdown>
   );

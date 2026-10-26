@@ -1,10 +1,15 @@
-export type DamageLocation =
-  | "Head"
-  | "Body"
-  | "Left Arm"
-  | "Right Arm"
-  | "Left Leg"
-  | "Right Leg";
+export const DAMAGE_LOCATIONS = [
+  "Head",
+  "Body",
+  "Left Arm",
+  "Right Arm",
+  "Left Leg",
+  "Right Leg",
+] as const;
+
+export type DamageLocation = typeof DAMAGE_LOCATIONS[number];
+
+export type ArmorSlot = "headAP" | "bodyAP" | "armsAP" | "legsAP";
 
 export interface WarhammerDamageDraft {
   attackSummaryString: string;
@@ -102,7 +107,7 @@ export interface DamageEntryBase {
   index: number;
   number: number;
   location: DamageLocation;
-  armorSlot: "headAP" | "bodyAP" | "armsAP" | "legsAP";
+  armorSlot: ArmorSlot;
   originalDamage: number;
   armorBeforePenetration: number;
   effectiveArmor: number;

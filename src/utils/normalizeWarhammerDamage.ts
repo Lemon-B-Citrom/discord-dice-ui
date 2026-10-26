@@ -1,4 +1,5 @@
 import {
+  DAMAGE_LOCATIONS,
   DamageLocation,
   DamageValidationErrors,
   NormalizeDamageResult,
@@ -7,15 +8,10 @@ import {
 } from "../components/WarhammerDamageCalculatorModal/WarhammerDamageCalculatorTypes";
 import parseWarhammerAttackSummary from "./parseWarhammerAttackSummary";
 import resolveWarhammerArmorLayout from "./resolveWarhammerArmorLayout";
-
-const locations: DamageLocation[] = [
-  "Head",
-  "Body",
-  "Left Arm",
-  "Right Arm",
-  "Left Leg",
-  "Right Leg",
-];
+import {
+  NON_NEGATIVE_INTEGER_ERROR,
+  requireNonNegativeInteger,
+} from "./safeInteger";
 
 const parseNonNegative = (
   value: string,
@@ -28,11 +24,12 @@ const parseNonNegative = (
     if (required) errors[field] = "This field is required";
     return required ? null : 0;
   }
-  if (!/^\d+$/.test(text) || !Number.isSafeInteger(Number(text))) {
-    errors[field] = "Enter a non-negative safe whole number";
+  const parsed = requireNonNegativeInteger(text);
+  if (parsed === null) {
+    errors[field] = NON_NEGATIVE_INTEGER_ERROR;
     return null;
   }
-  return Number(text);
+  return parsed;
 };
 
 export default function normalizeWarhammerDamage(
@@ -53,10 +50,13 @@ export default function normalizeWarhammerDamage(
   Object.assign(errors, armor.errors);
 
   let firstHitLocation: DamageLocation | null = null;
-  if (locations.indexOf(draft.firstHitLocation as DamageLocation) === -1) {
+  // The draft keeps raw strings, so this is the single documented cast that
+  // lets a programmatic request be validated against the shared location list.
+  const selectedLocation = draft.firstHitLocation as DamageLocation;
+  if (DAMAGE_LOCATIONS.indexOf(selectedLocation) === -1) {
     errors.firstHitLocation = "Choose a first hit location";
   } else {
-    firstHitLocation = draft.firstHitLocation as DamageLocation;
+    firstHitLocation = selectedLocation;
   }
 
   const hordeValues = [draft.trueHits, draft.magPer, draft.devastating, draft.woundsPer];
