@@ -7,6 +7,10 @@ import {
   WarhammerHordeDamageHit,
   WarhammerDamageRequest,
 } from "../WarhammerDamageCalculatorModal/WarhammerDamageCalculatorTypes";
+import {
+  getWarhammerMagnitudeBasis,
+  getWarhammerToughnessTerm,
+} from "../../utils/warhammerDamageLabels";
 import styles from "./WarhammerDamageHitBreakdown.module.css";
 
 interface WarhammerDamageHitBreakdownProps {
@@ -21,10 +25,7 @@ const classificationLabel = (hit: WarhammerHordeDamageHit): string => {
       return "Overkill!";
     case "partial-overkill":
       return "Partial Overkill!";
-    case "ordinary":
-    case "no-damage":
-      return "";
-    case "bonus":
+    default:
       return "";
   }
 };
@@ -58,8 +59,12 @@ function WarhammerDamageHitBreakdown({
   const classification = hordeHit ? classificationLabel(hordeHit) : "";
   const penetration = request.summary.penetration;
   const armorWasReduced = entry.effectiveArmor < entry.armorBeforePenetration;
-  const toughnessWasReduced =
-    entry.effectiveToughnessBonus < entry.toughnessBeforeFelling;
+  const toughnessTerm = getWarhammerToughnessTerm(entry, request);
+  const magnitudeBasis = hordeHit ? getWarhammerMagnitudeBasis(hordeHit) : null;
+  const showsMagnitudeOperand =
+    hordeHit !== null &&
+    (hordeHit.classification === "overkill" ||
+      hordeHit.classification === "partial-overkill");
   const damageEquation = (
     <div className={styles.equation}>
       {hordeHit && "Damage: "}
@@ -82,18 +87,18 @@ function WarhammerDamageHitBreakdown({
         </>
       )}
       {" − Toughness ("}
-      {entry.fortitudeApplied && (
-        <><CodeSpan>{request.toughnessBonus}</CodeSpan>{" × "}<CodeSpan>{2}</CodeSpan>{toughnessWasReduced ? " − " : " = "}</>
+      {toughnessTerm.fortitudeApplied && (
+        <><CodeSpan>{request.toughnessBonus}</CodeSpan>{" × "}<CodeSpan>{2}</CodeSpan>{toughnessTerm.reduced ? " − " : " = "}</>
       )}
-      {toughnessWasReduced ? (
+      {toughnessTerm.reduced ? (
         <>
-          {!entry.fortitudeApplied && <><CodeSpan>{entry.toughnessBeforeFelling}</CodeSpan>{" − "}</>}
-          <CodeSpan>{request.summary.felling}</CodeSpan>
-          {request.summary.felling > entry.toughnessBeforeFelling ? " → " : " = "}
-          <CodeSpan>{entry.effectiveToughnessBonus}</CodeSpan>
+          {!toughnessTerm.fortitudeApplied && <><CodeSpan>{toughnessTerm.beforeFelling}</CodeSpan>{" − "}</>}
+          <CodeSpan>{toughnessTerm.felling}</CodeSpan>
+          {toughnessTerm.overridden ? " → " : " = "}
+          <CodeSpan>{toughnessTerm.effective}</CodeSpan>
         </>
       ) : (
-        <CodeSpan>{entry.effectiveToughnessBonus}</CodeSpan>
+        <CodeSpan>{toughnessTerm.effective}</CodeSpan>
       )}
       {")"
       }
@@ -118,21 +123,14 @@ function WarhammerDamageHitBreakdown({
       </div>
       <div className={styles.location}>{entry.location}</div>
       {damageEquation}
-      {hordeHit && (
+      {hordeHit && magnitudeBasis && (
         <div className={styles.equation}>
           {"Magnitude: "}
           <strong><CodeSpan>{hordeHit.magnitude}</CodeSpan></strong>
           {" = "}
-          {hordeHit.classification === "overkill" && (
-            <>Per-unit Magnitude (<CodeSpan>{hordeHit.baseMagnitude}</CodeSpan>)</>
-          )}
-          {hordeHit.classification === "partial-overkill" && (
-            <>Halved Per-unit Magnitude (<CodeSpan>{hordeHit.baseMagnitude}</CodeSpan>)</>
-          )}
-          {hordeHit.classification === "ordinary" && <>Nonzero Damage (1)</>}
-          {hordeHit.classification === "no-damage" && <>Nonpositive Damage (0)</>}
-          {hordeHit.classification === "bonus" && (
-            <>{entry.finalDamage > 0 ? "Nonzero Damage (1)" : "Nonpositive Damage (0)"}</>
+          {magnitudeBasis.label}
+          {showsMagnitudeOperand && (
+            <> (<CodeSpan>{magnitudeBasis.operand}</CodeSpan>)</>
           )}
           {hordeHit.devastatingAdded > 0 && (
             <> + Devastating (<CodeSpan>{hordeHit.devastatingAdded}</CodeSpan>)</>
