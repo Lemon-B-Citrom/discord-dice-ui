@@ -56,7 +56,7 @@ import reducers from "./reducers/index";
 // Combat Tracker
 import combatTrackerSendRequested from "./middleware/combatTracker/combatTrackerSendRequested.middleware";
 
-const rollMiddleware = [
+export const rollMiddleware = [
   handleRoll,
   rollRequested,
   poolRollRequested,

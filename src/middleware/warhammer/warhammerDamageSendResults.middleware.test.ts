@@ -14,10 +14,12 @@ import {
 import warhammerDamageCalculator from "../../reducers/warhammer-damage-calculator-reducer";
 import userSettings from "../../reducers/user-settings-reducer";
 import modalsState from "../../reducers/modals-reducer";
+import reducers from "../../reducers";
 import sendRequestMsg from "../sendRequestMsg.middleware";
 import { createWarhammerDamageCalculationRequestedMiddleware } from "./warhammerDamageCalculationRequested.middleware";
+import warhammerDamageCalculationRequested from "./warhammerDamageCalculationRequested.middleware";
 import warhammerDamageSendResults from "./warhammerDamageSendResults.middleware";
-import appStore from "../../store";
+import { rollMiddleware } from "../../store";
 
 const reducer = combineReducers({
   userSettings,
@@ -173,21 +175,45 @@ test("notification preparation failures do not replace the saved result with a c
   expect(fetchMock).not.toHaveBeenCalled();
 });
 
-test("the production middleware chain registers Damage completion notifications", () => {
-  appStore.dispatch(
+test("the production middleware chain sends the damage result and opens the results modal", () => {
+  // Compose the same middleware chain and root reducer that `src/store.ts` ships,
+  // but into an isolated store so no shared production state is touched.
+  const productionStore = createStore(
+    reducers,
+    applyMiddleware(...rollMiddleware)
+  );
+  productionStore.dispatch(
     saveUserSettings({ username: "Alex", hookUrl: "https://example.test/hook" })
   );
-  appStore.dispatch(requestWarhammerDamage(draft));
+  let resultSavedAtSend = false;
+  fetchMock.mockImplementation(() => {
+    resultSavedAtSend =
+      productionStore.getState().warhammerDamageCalculator.results !== null &&
+      productionStore.getState().modalsState.isWarhammerDamageResultsModalOpen;
+    return Promise.resolve({ ok: true, status: 204 } as Response);
+  });
+
+  productionStore.dispatch(requestWarhammerDamage(draft));
 
   expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(resultSavedAtSend).toBe(true);
+  const [url, init] = fetchMock.mock.calls[0];
+  expect(url).toBe("https://example.test/hook");
+  expect(init.method).toBe("POST");
+  expect(init.headers["content-type"]).toBe("application/json");
+  const body = JSON.parse(init.body);
+  expect(body.username).toBe("Dice Roller");
+  expect(body.embeds).toHaveLength(1);
+  expect(body.embeds[0].title).toBe("Alex calculated damage. Single target");
+  expect(body.embeds[0].fields[0].value).toContain("#1: :arrow_right: **10**\n-# Head");
+  expect(productionStore.getState().warhammerDamageCalculator.results).not.toBeNull();
+  expect(productionStore.getState().warhammerDamageCalculator.errors).toEqual({});
   expect(
-    appStore.getState().warhammerDamageCalculator.results
-  ).not.toBeNull();
-  expect(
-    appStore.getState().modalsState.isWarhammerDamageResultsModalOpen
+    productionStore.getState().modalsState.isWarhammerDamageResultsModalOpen
   ).toBe(true);
+});
 
-  appStore.dispatch(
-    saveUserSettings({ username: "", hookUrl: "" })
-  );
+test("the production middleware chain registers Damage completion notifications", () => {
+  expect(rollMiddleware).toContain(warhammerDamageCalculationRequested);
+  expect(rollMiddleware).toContain(warhammerDamageSendResults);
 });
