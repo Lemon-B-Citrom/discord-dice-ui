@@ -12,6 +12,7 @@ import {
   EMBED_TITLE_MAX,
   EMBED_TOTAL_BUDGET,
 } from "../consts/discordEmbed";
+import formatWarhammerAttackerDamageSummary from "./formatWarhammerAttackerDamageSummary";
 import { getColor } from "./getColor";
 import { requireSafeInteger } from "./safeInteger";
 import sanitizeDiscordUsername from "./sanitizeDiscordUsername";
@@ -220,7 +221,7 @@ function getContext(result: WarhammerDefenderDamageResult): string {
   ].forEach(assertSafeInteger);
   // Derive the summary from the validated request so the embed always matches
   // the numbers that are shown, independent of the raw draft text.
-  const summary = `Pen ${request.summary.penetration}, Fel ${request.summary.felling}: ${request.summary.damages.join(", ")}`;
+  const summary = formatWarhammerAttackerDamageSummary(request.summary);
   const hitCount = request.summary.damages.length;
   const hitBreakdown = request.mode === "horde"
     ? ` (${request.trueHits} True, ${hitCount - request.trueHits} Bonus)`
@@ -230,9 +231,7 @@ function getContext(result: WarhammerDefenderDamageResult): string {
     `:mens: Starting at ${locationLabel(request.firstHitLocation)}`,
   ];
   if (request.mode === "horde") {
-    [request.trueHits, request.magPer, request.devastating, request.woundsPer].forEach(
-      assertSafeInteger
-    );
+    [request.trueHits, request.magPer, request.woundsPer].forEach(assertSafeInteger);
   }
   return lines.join("\n");
 }
@@ -271,6 +270,7 @@ function assertValidWarhammerDefenderDamageResult(
 
   assertSafeInteger(result.request.summary.penetration);
   assertSafeInteger(result.request.summary.felling);
+  assertSafeInteger(result.request.summary.devastating);
   assertSafeInteger(result.request.toughnessBonus);
   assertSafeInteger(result.request.fortitude);
   if (!Array.isArray(result.request.summary.damages)) {

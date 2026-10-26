@@ -46,6 +46,8 @@ function WarhammerDefenderDamageResultsModal() {
             <strong>Attack Summary</strong>
             <div>
               Penetration {results.request.summary.penetration} · Fel {results.request.summary.felling}
+              {results.request.summary.devastating !== 0 &&
+                ` · Dev ${results.request.summary.devastating}`}
             </div>
           </div>
         </div>

@@ -9,6 +9,7 @@ import {
   requestWarhammerAttackerDamage,
 } from "../../actions/warhammerAttackerDamage.actions";
 import { WarhammerAttackerDamageState } from "../../reducers/warhammer-attacker-damage-reducer";
+import formatWarhammerAttackerDamageSummary from "../../utils/formatWarhammerAttackerDamageSummary";
 import CodeSpan from "../CodeSpan/CodeSpan";
 import WarhammerAttackerDamageHitBreakdown from "./WarhammerAttackerDamageHitBreakdown";
 import styles from "./WarhammerAttackerDamageResultsModal.module.css";
@@ -33,9 +34,12 @@ function WarhammerAttackerDamageResultsModal() {
     dispatch(openWarhammerAttackerDamageModal());
   };
   const rerollAttack = () => dispatch(requestWarhammerAttackerDamage(results.input));
-  const summary = `Pen ${results.input.penetration}, Fel ${
-    results.input.felling
-  }: ${results.damages.join(", ")}`;
+  const summary = formatWarhammerAttackerDamageSummary({
+    penetration: results.input.penetration,
+    felling: results.input.felling,
+    devastating: results.input.devastating,
+    damages: results.damages,
+  });
   const copySummary = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(summary).catch(() => {});
@@ -91,6 +95,11 @@ function WarhammerAttackerDamageResultsModal() {
               <span>
                 Penetration <CodeSpan>{results.input.penetration}</CodeSpan>
               </span>
+              {results.input.devastating > 0 && (
+                <span>
+                  Devastating <CodeSpan>{results.input.devastating}</CodeSpan>
+                </span>
+              )}
               {results.input.proven > 0 && (
                 <span>
                   Proven <CodeSpan>{results.input.proven}</CodeSpan>

@@ -6,6 +6,7 @@ export interface AttackerDamageValues {
   damageModifier: string;
   penetration: string;
   felling: string;
+  devastating: string;
   proven: string;
   rfOn: string;
   rfConfirmsOn: string;
@@ -18,6 +19,7 @@ export interface WarhammerAttackerDamageInput {
   damageModifier: number;
   penetration: number;
   felling: number;
+  devastating: number;
   proven: number;
   rfOn: number;
   rfConfirmsOn: number;

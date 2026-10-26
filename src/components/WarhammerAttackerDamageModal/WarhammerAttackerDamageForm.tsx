@@ -17,6 +17,7 @@ type NonNegativeField =
   | "damageDice"
   | "penetration"
   | "felling"
+  | "devastating"
   | "proven"
   | "rfOn"
   | "rfConfirmsOn";
@@ -38,6 +39,7 @@ const toFormValues = (
   damageModifier: input ? `${input.damageModifier}` : "",
   penetration: input ? `${input.penetration}` : "",
   felling: input ? `${input.felling}` : "",
+  devastating: input ? `${input.devastating}` : "",
   proven: input ? `${input.proven}` : "",
   rfOn: input ? `${input.rfOn}` : "",
   rfConfirmsOn: input ? `${input.rfConfirmsOn}` : "",
@@ -219,6 +221,29 @@ function WarhammerAttackerDamageForm({
                 value={values.felling}
                 onChange={(event) =>
                   updateNonNegativeValue("felling", event.target.value)
+                }
+              />
+            </Col>
+          </Form.Group>
+          <Form.Group as={Row} className={styles.detailRow}>
+            <Form.Label
+              column
+              xs="auto"
+              className={styles.alignedLabel}
+              htmlFor="attacker-damage-devastating"
+            >
+              Devastating
+            </Form.Label>
+            <Col xs="auto">
+              <Form.Control
+                id="attacker-damage-devastating"
+                className={styles.compactInput}
+                type="number"
+                min={0}
+                placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.devastating}`}
+                value={values.devastating}
+                onChange={(event) =>
+                  updateNonNegativeValue("devastating", event.target.value)
                 }
               />
             </Col>

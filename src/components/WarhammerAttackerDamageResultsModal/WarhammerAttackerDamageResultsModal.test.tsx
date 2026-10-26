@@ -13,6 +13,7 @@ const attack = {
   damageModifier: 0,
   penetration: 3,
   felling: 2,
+  devastating: 0,
   proven: 0,
   rfOn: 10,
   rfConfirmsOn: 0,

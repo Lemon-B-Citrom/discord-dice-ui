@@ -25,7 +25,6 @@ const draft: WarhammerDefenderDamageDraft = {
   firstHitLocation: "Head",
   trueHits: "",
   magPer: "",
-  devastating: "",
   woundsPer: "",
 };
 

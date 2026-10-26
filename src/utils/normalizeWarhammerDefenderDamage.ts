@@ -59,17 +59,15 @@ export default function normalizeWarhammerDefenderDamage(
     firstHitLocation = selectedLocation;
   }
 
-  const hordeValues = [draft.trueHits, draft.magPer, draft.devastating, draft.woundsPer];
+  const hordeValues = [draft.trueHits, draft.magPer, draft.woundsPer];
   const isHorde = hordeValues.some((value) => value.trim().length > 0);
 
   let trueHits: number | null = null;
   let magPer: number | null = null;
-  let devastating: number | null = null;
   let woundsPer: number | null = null;
   if (isHorde) {
     trueHits = parseNonNegative(draft.trueHits, "trueHits", errors, true);
     magPer = parseNonNegative(draft.magPer, "magPer", errors, true);
-    devastating = parseNonNegative(draft.devastating, "devastating", errors, false);
     woundsPer = parseNonNegative(draft.woundsPer, "woundsPer", errors, true);
     if (
       trueHits !== null &&
@@ -111,7 +109,6 @@ export default function normalizeWarhammerDefenderDamage(
     mode: "horde",
     trueHits,
     magPer,
-    devastating: devastating === null ? 0 : devastating,
     woundsPer,
   };
   return { request, errors };

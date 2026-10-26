@@ -7,6 +7,7 @@ const input: WarhammerAttackerDamageResult["input"] = {
   damageModifier: 2,
   penetration: 3,
   felling: 2,
+  devastating: 0,
   proven: 0,
   rfOn: 10,
   rfConfirmsOn: 50,
@@ -86,6 +87,36 @@ test("formats the profile, ordered hit totals, selected attempts, and comparison
     name: ":boom: Summary",
     value: "` Pen 3, Fel 2: 16, 11`",
   });
+});
+
+test("includes Devastating in the profile and summary only when it is not zero", () => {
+  const attack = result();
+  attack.input = { ...input, devastating: 3 };
+
+  const message = getWarhammerAttackerDamageRequestMsg(attack, "Alex");
+
+  expect(message.description).toContain("Devastating 3");
+  expect(message.description.split("\n")[0]).toBe(
+    ":crossed_swords: Penetration 3 · Felling 2 · Devastating 3 · Tearing"
+  );
+  expect(message.fields[message.fields.length - 1]).toEqual({
+    name: ":boom: Summary",
+    value: "` Pen 3, Fel 2, Dev 3: 16, 11`",
+  });
+});
+
+test("omits zero-valued traits from the summary while keeping the header order canonical", () => {
+  const attack = result();
+  attack.input = { ...input, felling: 0, devastating: 4 };
+
+  const message = getWarhammerAttackerDamageRequestMsg(attack, "Alex");
+
+  expect(message.description.split("\n")[0]).toBe(
+    ":crossed_swords: Penetration 3 · Devastating 4 · Tearing"
+  );
+  expect(message.fields[message.fields.length - 1].value).toBe(
+    "` Pen 3, Dev 4: 16, 11`"
+  );
 });
 
 test("renders each hit with modal-style monospaced dice, bold totals, and greater-than comparisons", () => {

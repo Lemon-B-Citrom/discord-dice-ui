@@ -35,7 +35,6 @@ test("keeps the existing field controls and zero minimums", () => {
     "AP Legs",
     "True Hits",
     "Mag per",
-    "Devastating",
     "Wounds per",
   ].forEach((label) => {
     const input = getByLabelText(label) as HTMLInputElement;
@@ -61,7 +60,7 @@ test("blocks invalid submission and associates the summary error with its input"
     "aria-describedby",
     "defender-damage-attack-summary-error"
   );
-  expect(getByText(/Use the format: Pen X, Fel Y/)).toBeInTheDocument();
+  expect(getByText(/Use the format: Pen X/)).toBeInTheDocument();
 });
 
 test("passes a valid raw draft to calculation", () => {

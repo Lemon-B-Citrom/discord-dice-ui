@@ -23,7 +23,6 @@ const draft: WarhammerDefenderDamageDraft = {
   firstHitLocation: "Head",
   trueHits: "",
   magPer: "",
-  devastating: "",
   woundsPer: "",
 };
 
@@ -87,9 +86,9 @@ test("Horde modal labels the damage and magnitude equations after the hit headin
   const store = createDamageStore();
   store.dispatch(requestWarhammerDefenderDamage({
     ...draft,
+    attackSummaryString: "Pen 0, Dev 1: 12, 8",
     trueHits: "1",
     magPer: "6",
-    devastating: "1",
     woundsPer: "10",
   }));
   const { getByRole } = render(

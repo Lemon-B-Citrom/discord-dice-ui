@@ -32,7 +32,6 @@ const draft = {
   firstHitLocation: "Body",
   trueHits: "",
   magPer: "",
-  devastating: "",
   woundsPer: "",
 };
 
@@ -59,7 +58,7 @@ function singleResult(): WarhammerDefenderDamageResult {
     draft,
     request: {
       mode: "single",
-      summary: { penetration: 0, felling: 0, damages: [10] },
+      summary: { penetration: 0, felling: 0, devastating: 0, damages: [10] },
       toughnessBonus: 0,
       fortitude: 0,
       armor,
@@ -86,17 +85,16 @@ function hordeResult(): WarhammerDefenderDamageResult {
     magnitude: 1,
   };
   return {
-    draft: { ...draft, trueHits: "1", magPer: "6", devastating: "1", woundsPer: "10" },
+    draft: { ...draft, attackSummaryString: "Pen 0, Dev 1: 10", trueHits: "1", magPer: "6", woundsPer: "10" },
     request: {
       mode: "horde",
-      summary: { penetration: 0, felling: 0, damages: [10] },
+      summary: { penetration: 0, felling: 0, devastating: 1, damages: [10] },
       toughnessBonus: 0,
       fortitude: 0,
       armor,
       firstHitLocation: "Body",
       trueHits: 1,
       magPer: 6,
-      devastating: 1,
       woundsPer: 10,
     },
     entries: [trueHit, synthetic],
@@ -108,7 +106,7 @@ test("formats an ordered single-target breakdown with omitted armor and totals",
   const message = getWarhammerDefenderDamageRequestMsg(singleResult(), "Alex");
 
   expect(message.msgTitle).toBe("Alex calculated damage. Single target");
-  expect(message.description).toBe(":dart: Single target x1: `Pen 0, Fel 0: 10`\n:mens: Starting at Body");
+  expect(message.description).toBe(":dart: Single target x1: `Pen 0: 10`\n:mens: Starting at Body");
   expect(message.fields[0].value).toContain(
     "#1: :arrow_right: **10**\n-# Body"
   );
@@ -128,7 +126,7 @@ test("formats Horde classification operands and a separate Bonus Devastating ent
 
   expect(message.msgTitle).toContain("Horde");
   expect(values).toContain("**Overkill!**");
-  expect(message.description).toBe(":dart: Horde x1 (1 True, 0 Bonus): `Pen 0, Fel 0: 10`\n:mens: Starting at Body");
+  expect(message.description).toBe(":dart: Horde x1 (1 True, 0 Bonus): `Pen 0, Dev 1: 10`\n:mens: Starting at Body");
   expect(values).toContain("#1: :arrow_right: **Overkill!** **10** Damage, **7** Magnitude\n-# Body");
   expect(values).toContain("Damage: **`10`** = `10` − Toughness (`0`)");
   expect(values).toContain("Magnitude: **`7`** = Per-unit Magnitude (`6`) + Devastating (`1`)");
@@ -163,12 +161,12 @@ test("derives the summary line from the validated request, not the raw draft", (
   const result = singleResult();
   result.draft = {
     ...draft,
-    attackSummaryString: "  `Pen 0 , Fel 0 :  10`  ",
+    attackSummaryString: "  `Pen 0 :  10`  ",
   };
 
   const message = getWarhammerDefenderDamageRequestMsg(result, "Alex");
 
-  expect(message.description).toContain("`Pen 0, Fel 0: 10`");
+  expect(message.description).toContain("`Pen 0: 10`");
   expect(message.description).not.toContain("summary shortened");
 });
 
@@ -187,9 +185,9 @@ test.each(["0", "2", "12", "13"])("formats protected Toughness consistently at F
 test("bounds maximum-size Horde results with Fortitude equations", () => {
   const input = {
     ...draft,
-    attackSummaryString: `Pen 0, Fel 1: ${Array(100).fill(0).join(",")},`,
+    attackSummaryString: `Pen 0, Fel 1, Dev 1: ${Array(100).fill(0).join(",")},`,
     toughnessBonus: "4503599627370495", fortitude: String(Number.MAX_SAFE_INTEGER),
-    trueHits: "50", magPer: "6", woundsPer: "20", devastating: "1",
+    trueHits: "50", magPer: "6", woundsPer: "20",
   };
   const normalized = normalizeWarhammerDefenderDamage(input);
   if (!normalized.request) throw new Error("Expected valid request");
@@ -203,8 +201,8 @@ test("bounds maximum-size Horde results with Fortitude equations", () => {
 
 test("shows true and bonus counts beside the Horde hit count without a settings line", () => {
   const input = {
-    ...draft, attackSummaryString: `Pen 0, Fel 0: ${Array(9).fill(20).join(", ")}`,
-    trueHits: "3", magPer: "10", devastating: "0", woundsPer: "20",
+    ...draft, attackSummaryString: `Pen 0: ${Array(9).fill(20).join(", ")}`,
+    trueHits: "3", magPer: "10", woundsPer: "20",
   };
   const normalized = normalizeWarhammerDefenderDamage(input);
   if (!normalized.request) throw new Error("Expected valid request");
@@ -260,7 +258,7 @@ test("keeps totals and complete rows within a bounded embed for 100 large hits",
 test("matches modal reduction equations and separates hits with a blank line", () => {
   const result = singleResult();
   result.draft = { ...draft, attackSummaryString: "Pen 3, Fel 5: 10, 10" };
-  result.request.summary = { penetration: 3, felling: 5, damages: [10, 10] };
+  result.request.summary = { penetration: 3, felling: 5, devastating: 0, damages: [10, 10] };
   result.request.toughnessBonus = 3;
   result.entries = [
     { ...singleHit, toughnessBeforeFelling: 3, showArmorTerm: true, armorBeforePenetration: 4, effectiveArmor: 1, finalDamage: 9 },
@@ -280,8 +278,8 @@ test("matches modal reduction equations and separates hits with a blank line", (
 
 test("shows an exact armor reduction to zero without max notation", () => {
   const result = singleResult();
-  result.draft = { ...draft, attackSummaryString: "Pen 8, Fel 0: 30" };
-  result.request.summary = { penetration: 8, felling: 0, damages: [30] };
+  result.draft = { ...draft, attackSummaryString: "Pen 8: 30" };
+  result.request.summary = { penetration: 8, felling: 0, devastating: 0, damages: [30] };
   result.request.toughnessBonus = 12;
   result.entries = [{
     ...singleHit,
@@ -303,8 +301,8 @@ test("shows an exact armor reduction to zero without max notation", () => {
 
 test("shows zero received damage without wrapping the equation or a minimum notice", () => {
   const result = singleResult();
-  result.draft = { ...draft, attackSummaryString: "Pen 3, Fel 0: 17" };
-  result.request.summary = { penetration: 3, felling: 0, damages: [17] };
+  result.draft = { ...draft, attackSummaryString: "Pen 3: 17" };
+  result.request.summary = { penetration: 3, felling: 0, devastating: 0, damages: [17] };
   result.request.toughnessBonus = 20;
   result.entries = [{
     ...singleHit,

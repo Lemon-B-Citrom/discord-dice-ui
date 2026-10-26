@@ -10,6 +10,7 @@ const attack: WarhammerAttackerDamageInput = {
   damageModifier: 0,
   penetration: 3,
   felling: 2,
+  devastating: 0,
   proven: 0,
   rfOn: 10,
   rfConfirmsOn: 50,
@@ -187,6 +188,22 @@ test("uses the selected DoS mode for RF confirmations", () => {
   );
 
   expect(result.damages).toEqual([10]);
+});
+
+test("treats Devastating as a pass-through that does not change rolled damage", () => {
+  const withDevastating = calculateWarhammerAttackerDamage(
+    { ...attack, devastating: 5 },
+    sl.wfrp4e,
+    diceSource([7], [])
+  );
+  const withoutDevastating = calculateWarhammerAttackerDamage(
+    { ...attack, devastating: 0 },
+    sl.wfrp4e,
+    diceSource([7], [])
+  );
+
+  expect(withDevastating.damages).toEqual(withoutDevastating.damages);
+  expect(withDevastating.hitDetails).toEqual(withoutDevastating.hitDetails);
 });
 
 test("enforces a roll budget for large multi-hit attacks", () => {

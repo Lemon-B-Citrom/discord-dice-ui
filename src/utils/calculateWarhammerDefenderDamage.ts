@@ -128,7 +128,7 @@ function calculateWarhammerDefenderDamage(
       }
 
       if (role === "true" && baseMagnitude !== 0) {
-        devastatingAdded = request.devastating;
+        devastatingAdded = request.summary.devastating;
       }
       const magnitude = checkedAdd(
         baseMagnitude,
@@ -160,11 +160,11 @@ function calculateWarhammerDefenderDamage(
   }
 
   const hasBonusHits = request.trueHits < request.summary.damages.length;
-  if (hasBonusHits && request.devastating > 0) {
+  if (hasBonusHits && request.summary.devastating > 0) {
     const synthetic = {
       kind: "bonus-devastating" as const,
       number: request.summary.damages.length + 1,
-      magnitude: request.devastating,
+      magnitude: request.summary.devastating,
     };
     entries.push(synthetic);
     totalMagnitude = checkedAdd(

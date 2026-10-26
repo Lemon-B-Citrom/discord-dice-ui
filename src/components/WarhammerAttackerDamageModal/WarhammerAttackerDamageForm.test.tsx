@@ -21,6 +21,8 @@ test("renders editable attack fields and defaults to no tearing", () => {
   expect(getByLabelText("Pen")).toHaveAttribute("placeholder", "0");
   expect(getByLabelText("Felling")).toHaveValue(null);
   expect(getByLabelText("Felling")).toHaveAttribute("placeholder", "0");
+  expect(getByLabelText("Devastating")).toHaveValue(null);
+  expect(getByLabelText("Devastating")).toHaveAttribute("placeholder", "0");
   expect(getByLabelText("Proven")).toHaveValue(null);
   expect(getByLabelText("Proven")).toHaveAttribute("placeholder", "0");
   expect(getByLabelText("RF on...")).toHaveValue(null);
@@ -59,6 +61,7 @@ test("rejects negative values in non-negative fields", () => {
     "Damage dice count",
     "Pen",
     "Felling",
+    "Devastating",
     "Proven",
     "RF on...",
     "Confirms on",

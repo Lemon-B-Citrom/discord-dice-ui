@@ -29,8 +29,8 @@ test("doubles Toughness before Felling for the first N single hits including zer
 
 test("uses independent true and double-sized bonus Fortitude quotas", () => {
   const result = makeResult({
-    attackSummaryString: "Pen 0, Fel 2: 20, 20, 20, 20, 20,",
-    toughnessBonus: "6", fortitude: "1", trueHits: "2", magPer: "6", woundsPer: "20", devastating: "1",
+    attackSummaryString: "Pen 0, Fel 2, Dev 1: 20, 20, 20, 20, 20,",
+    toughnessBonus: "6", fortitude: "1", trueHits: "2", magPer: "6", woundsPer: "20",
   });
   expect(result.entries.map((hit) => hit.kind === "hit" && hit.fortitudeApplied))
     .toEqual([true, false, true, true, false, false]);
@@ -40,8 +40,9 @@ test("uses independent true and double-sized bonus Fortitude quotas", () => {
 
 test.each(["0", "1", "4"])("accepts excess Fortitude with %s true hits and preserves synthetic Devastating", (trueHits) => {
   const result = makeResult({
+    attackSummaryString: "Pen 0, Dev 1: 20, 10, 5, 55",
     toughnessBonus: "6", fortitude: String(Number.MAX_SAFE_INTEGER),
-    trueHits, magPer: "6", woundsPer: "20", devastating: "1",
+    trueHits, magPer: "6", woundsPer: "20",
   });
   expect(result.entries.filter((hit) => hit.kind === "hit").every((hit) => hit.kind === "hit" && hit.fortitudeApplied)).toBe(true);
   expect(result.entries.filter((hit) => hit.kind === "bonus-devastating")).toHaveLength(trueHits === "4" ? 0 : 1);
@@ -72,9 +73,9 @@ test("accepts single-target Fortitude beyond the number of hits", () => {
 
 test("calculates the specified Horde totals and separate synthetic contribution", () => {
   const result = makeResult({
+    attackSummaryString: "Pen 0, Dev 1: 20, 10, 5, 55",
     trueHits: "3",
     magPer: "6",
-    devastating: "1",
     woundsPer: "20",
   });
   expect(
@@ -99,10 +100,9 @@ test("calculates the specified Horde totals and separate synthetic contribution"
 
 test("clamps received damage to zero and avoids Overkill at zero wounds", () => {
   const result = makeResult({
-    attackSummaryString: "Pen 0, Fel 0: 0, -1",
+    attackSummaryString: "Pen 0, Dev 4: 0, -1",
     trueHits: "2",
     magPer: "6",
-    devastating: "4",
     woundsPer: "0",
   });
   expect(

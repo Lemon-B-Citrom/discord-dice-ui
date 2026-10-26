@@ -22,7 +22,6 @@ export interface WarhammerDefenderDamageDraft {
   firstHitLocation: string;
   trueHits: string;
   magPer: string;
-  devastating: string;
   woundsPer: string;
 }
 
@@ -37,13 +36,13 @@ export const EMPTY_DEFENDER_DAMAGE_DRAFT: WarhammerDefenderDamageDraft = {
   firstHitLocation: "",
   trueHits: "",
   magPer: "",
-  devastating: "",
   woundsPer: "",
 };
 
 export interface WarhammerAttackerDamageSummary {
   penetration: number;
   felling: number;
+  devastating: number;
   damages: number[];
 }
 
@@ -94,7 +93,7 @@ export interface WarhammerDefenderHordeDamageRequest
   mode: "horde";
   trueHits: number;
   magPer: number;
-  devastating: number;
+  // Devastating is owned by the attack summary, not by this request.
   woundsPer: number;
 }
 

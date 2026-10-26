@@ -1,8 +1,9 @@
 .dialog {
-  max-width: 480px;
+  /* Wider than the Defender dialog to fit the Devastating label column. */
+  max-width: 520px;
 }
 
-@media (max-width: 512px) {
+@media (max-width: 551.98px) {
   .dialog {
     max-width: calc(100% - 1rem);
   }

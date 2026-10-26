@@ -30,7 +30,6 @@ const fieldControlIds: Record<keyof WarhammerDefenderDamageDraft, string> = {
   firstHitLocation: "defender-damage-first-hit-location",
   trueHits: "defender-damage-true-hits",
   magPer: "defender-damage-mag-per",
-  devastating: "defender-damage-devastating",
   woundsPer: "defender-damage-wounds-per",
 };
 
@@ -192,13 +191,6 @@ function WarhammerDefenderDamageForm({
             value={draft.trueHits}
             error={visibleErrors.trueHits}
             onChange={(value) => onChange("trueHits", value)}
-          />
-          <DefenderDamageNumericField
-            id="defender-damage-devastating"
-            label="Devastating"
-            value={draft.devastating}
-            error={visibleErrors.devastating}
-            onChange={(value) => onChange("devastating", value)}
           />
           <DefenderDamageNumericField
             id="defender-damage-mag-per"

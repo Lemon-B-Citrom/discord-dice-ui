@@ -9,6 +9,7 @@ const emptyValues: AttackerDamageValues = {
   damageModifier: "",
   penetration: "",
   felling: "",
+  devastating: "",
   proven: "",
   rfOn: "",
   rfConfirmsOn: "",
@@ -36,6 +37,26 @@ test("preserves explicit zeroes and permits a signed damage modifier", () => {
     proven: 0,
   });
   expect(result.errors).toEqual({});
+});
+
+test("parses Devastating and rejects values that are not whole numbers", () => {
+  const parsed = normalizeWarhammerAttackerDamage({
+    ...emptyValues,
+    devastating: "4",
+  });
+  const negative = normalizeWarhammerAttackerDamage({
+    ...emptyValues,
+    devastating: "-2",
+  });
+  const fractional = normalizeWarhammerAttackerDamage({
+    ...emptyValues,
+    devastating: "1.5",
+  });
+
+  expect(parsed.input?.devastating).toBe(4);
+  expect(parsed.errors).toEqual({});
+  expect(negative.errors.devastating).toBeDefined();
+  expect(fractional.errors.devastating).toBeDefined();
 });
 
 test("rejects negative non-modifier values and invalid hit counts", () => {

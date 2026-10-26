@@ -2,10 +2,12 @@ import {
   WarhammerAttackerDamageAttempt,
   WarhammerAttackerDamageResult,
 } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import {
   EMBED_FIELD_VALUE_MAX,
   EMBED_TOTAL_MAX,
 } from "../consts/discordEmbed";
+import { formatWarhammerAttackerDamageSummaryHeader } from "./formatWarhammerAttackerDamageSummary";
 import { getColor } from "./getColor";
 import sanitizeDiscordUsername from "./sanitizeDiscordUsername";
 
@@ -65,13 +67,14 @@ function chunkHitRows(rows: string[]): WarhammerAttackerDamageRequestMsgField[] 
 }
 
 function createSummaryFields(
-  penetration: number,
-  felling: number,
-  damages: number[]
+  summary: WarhammerAttackerDamageSummary
 ): WarhammerAttackerDamageRequestMsgField[] {
+  const header = formatWarhammerAttackerDamageSummaryHeader(summary);
   const parts = [
-    ` Pen ${penetration}, Fel ${felling}: `,
-    ...damages.map((damage, index) => `${index > 0 ? ", " : ""}${damage}`),
+    ` ${header} `,
+    ...summary.damages.map(
+      (damage, index) => `${index > 0 ? ", " : ""}${damage}`
+    ),
   ];
   const values: string[] = [];
   let value = "";
@@ -287,6 +290,7 @@ export default function getWarhammerAttackerDamageRequestMsg(
   const profile = [
     `Penetration ${input.penetration}`,
     input.felling !== 0 ? `Felling ${input.felling}` : "",
+    input.devastating !== 0 ? `Devastating ${input.devastating}` : "",
     input.proven !== 0 ? `Proven ${input.proven}` : "",
     tearingLabel,
   ].filter(Boolean);
@@ -294,11 +298,12 @@ export default function getWarhammerAttackerDamageRequestMsg(
   const description = furySettings
     ? `:crossed_swords: ${profileLine}\n:drop_of_blood: ${furySettings}`
     : `:crossed_swords: ${profileLine}`;
-  const summaryFields = createSummaryFields(
-    input.penetration,
-    input.felling,
-    damages
-  );
+  const summaryFields = createSummaryFields({
+    penetration: input.penetration,
+    felling: input.felling,
+    devastating: input.devastating,
+    damages,
+  });
 
   const hitBlocks = damages.map((damage, index) => {
     const selectedAttempt =
