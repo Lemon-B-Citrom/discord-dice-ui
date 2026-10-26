@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
 import FirstHitLocationSelect from "./FirstHitLocationSelect";
+import DamageCalculatorNumericField from "./DamageCalculatorNumericField";
 import styles from "./WarhammerDamageCalculatorForm.module.css";
 import {
   DamageValidationErrors,
@@ -33,42 +34,6 @@ const fieldControlIds: Record<keyof WarhammerDamageDraft, string> = {
   woundsPer: "damage-calculator-wounds-per",
 };
 
-interface NumericFieldProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  error?: string;
-}
-
-function NumericField({ id, label, value, onChange, error }: NumericFieldProps) {
-  const errorId = `${id}-error`;
-  return (
-    <Form.Group className={styles.numericField}>
-      <Form.Label htmlFor={id} className={error ? "text-danger" : undefined}>
-        {label}
-      </Form.Label>
-      <Form.Control
-        id={id}
-        className={styles.numericInput}
-        type="number"
-        min={0}
-        step={1}
-        placeholder="0"
-        value={value}
-        isInvalid={Boolean(error)}
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? errorId : undefined}
-        onChange={(event) => {
-          const nextValue = event.target.value;
-          if (nextValue === "" || Number(nextValue) >= 0) onChange(nextValue);
-        }}
-      />
-      {error && <Form.Control.Feedback id={errorId} type="invalid">{error}</Form.Control.Feedback>}
-    </Form.Group>
-  );
-}
-
 function WarhammerDamageCalculatorForm({
   draft,
   errors,
@@ -84,9 +49,7 @@ function WarhammerDamageCalculatorForm({
     ? normalizeWarhammerDamage(draft).errors
     : {};
   const visibleErrors = { ...liveErrors, ...errors };
-  const updateValue = (field: keyof WarhammerDamageDraft, value: string) => {
-    onChange(field, value);
-  };
+  const summaryErrorId = `${fieldControlIds.attackSummaryString}-error`;
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -117,32 +80,27 @@ function WarhammerDamageCalculatorForm({
       )}
       <Form.Group className={styles.summaryField}>
         <Form.Label
-          htmlFor="damage-calculator-attack-summary"
+          htmlFor={fieldControlIds.attackSummaryString}
           className={visibleErrors.attackSummaryString ? "text-danger" : undefined}
         >
           Input
         </Form.Label>
         <Form.Control
-          id="damage-calculator-attack-summary"
+          id={fieldControlIds.attackSummaryString}
           type="text"
           placeholder="Attack summary string"
           value={draft.attackSummaryString}
           isInvalid={Boolean(visibleErrors.attackSummaryString)}
           aria-invalid={Boolean(visibleErrors.attackSummaryString)}
           aria-describedby={
-            visibleErrors.attackSummaryString
-              ? "damage-calculator-attack-summary-error"
-              : undefined
+            visibleErrors.attackSummaryString ? summaryErrorId : undefined
           }
           onChange={(event) =>
-            updateValue("attackSummaryString", event.target.value)
+            onChange("attackSummaryString", event.target.value)
           }
         />
         {visibleErrors.attackSummaryString && (
-          <Form.Control.Feedback
-            id="damage-calculator-attack-summary-error"
-            type="invalid"
-          >
+          <Form.Control.Feedback id={summaryErrorId} type="invalid">
             {visibleErrors.attackSummaryString}
           </Form.Control.Feedback>
         )}
@@ -150,19 +108,19 @@ function WarhammerDamageCalculatorForm({
 
       <div className={styles.defenseGrid}>
         <div className={styles.defensePrimary}>
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-toughness-bonus"
             label="Toughness Bonus"
             value={draft.toughnessBonus}
             error={visibleErrors.toughnessBonus}
-            onChange={(value) => updateValue("toughnessBonus", value)}
+            onChange={(value) => onChange("toughnessBonus", value)}
           />
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-fortitude"
             label="Fortitude #"
             value={draft.fortitude}
             error={visibleErrors.fortitude}
-            onChange={(value) => updateValue("fortitude", value)}
+            onChange={(value) => onChange("fortitude", value)}
           />
           <Form.Group className={styles.locationField}>
             <Form.Label
@@ -173,7 +131,7 @@ function WarhammerDamageCalculatorForm({
             </Form.Label>
             <FirstHitLocationSelect
               value={draft.firstHitLocation}
-              onChange={(value) => updateValue("firstHitLocation", value)}
+              onChange={(value) => onChange("firstHitLocation", value)}
               ariaDescribedBy={
                 visibleErrors.firstHitLocation
                   ? "damage-calculator-first-hit-location-error"
@@ -192,33 +150,33 @@ function WarhammerDamageCalculatorForm({
           </Form.Group>
         </div>
         <div className={styles.armorFields}>
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-armor-head"
             label="AP Head"
             value={draft.armorHead}
             error={visibleErrors.armorHead}
-            onChange={(value) => updateValue("armorHead", value)}
+            onChange={(value) => onChange("armorHead", value)}
           />
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-armor-body"
             label="AP Body"
             value={draft.armorBody}
             error={visibleErrors.armorBody}
-            onChange={(value) => updateValue("armorBody", value)}
+            onChange={(value) => onChange("armorBody", value)}
           />
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-armor-arms"
             label="AP Arms"
             value={draft.armorArms}
             error={visibleErrors.armorArms}
-            onChange={(value) => updateValue("armorArms", value)}
+            onChange={(value) => onChange("armorArms", value)}
           />
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-armor-legs"
             label="AP Legs"
             value={draft.armorLegs}
             error={visibleErrors.armorLegs}
-            onChange={(value) => updateValue("armorLegs", value)}
+            onChange={(value) => onChange("armorLegs", value)}
           />
         </div>
       </div>
@@ -228,33 +186,33 @@ function WarhammerDamageCalculatorForm({
       <fieldset className={styles.hordeOptions}>
         <legend>Horde Options</legend>
         <div className={styles.hordeGrid}>
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-true-hits"
             label="True Hits"
             value={draft.trueHits}
             error={visibleErrors.trueHits}
-            onChange={(value) => updateValue("trueHits", value)}
+            onChange={(value) => onChange("trueHits", value)}
           />
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-devastating"
             label="Devastating"
             value={draft.devastating}
             error={visibleErrors.devastating}
-            onChange={(value) => updateValue("devastating", value)}
+            onChange={(value) => onChange("devastating", value)}
           />
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-mag-per"
             label="Mag per"
             value={draft.magPer}
             error={visibleErrors.magPer}
-            onChange={(value) => updateValue("magPer", value)}
+            onChange={(value) => onChange("magPer", value)}
           />
-          <NumericField
+          <DamageCalculatorNumericField
             id="damage-calculator-wounds-per"
             label="Wounds per"
             value={draft.woundsPer}
             error={visibleErrors.woundsPer}
-            onChange={(value) => updateValue("woundsPer", value)}
+            onChange={(value) => onChange("woundsPer", value)}
           />
         </div>
       </fieldset>
