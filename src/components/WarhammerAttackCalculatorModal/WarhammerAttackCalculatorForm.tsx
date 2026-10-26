@@ -1,42 +1,104 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import styles from "./WarhammerAttackCalculatorForm.module.css";
+import normalizeWarhammerAttack, {
+  WARHAMMER_ATTACK_DEFAULTS,
+} from "../../utils/normalizeWarhammerAttack";
+import {
+  AttackCalculatorErrors,
+  AttackCalculatorValues,
+  WarhammerAttackInput,
+} from "./WarhammerAttackCalculatorTypes";
 
-type TearingOption = "none" | "tearing" | "tripleTearing";
+type NonNegativeField =
+  | "hits"
+  | "damageDice"
+  | "penetration"
+  | "felling"
+  | "proven"
+  | "rfOn"
+  | "rfConfirmsOn";
 
-interface AttackCalculatorValues {
-  hits: string;
-  damageDice: string;
-  damageModifier: string;
-  penetration: string;
-  felling: string;
-  proven: string;
-  rfOn: string;
-  rfConfirmsOn: string;
-  tearing: TearingOption;
+const FORM_ID = "warhammer-attack-calculator-form";
+
+interface WarhammerAttackCalculatorFormProps {
+  onRoll: (input: WarhammerAttackInput) => void;
+  calculationError?: string;
+  initialInput?: WarhammerAttackInput | null;
+  resetCounter?: number;
 }
 
-function WarhammerAttackCalculatorForm() {
-  const [values, setValues] = useState<AttackCalculatorValues>({
-    hits: "",
-    damageDice: "",
-    damageModifier: "",
-    penetration: "",
-    felling: "",
-    proven: "",
-    rfOn: "",
-    rfConfirmsOn: "",
-    tearing: "none",
-  });
+const toFormValues = (
+  input?: WarhammerAttackInput | null
+): AttackCalculatorValues => ({
+  hits: input ? `${input.hits}` : "",
+  damageDice: input ? `${input.damageDice}` : "",
+  damageModifier: input ? `${input.damageModifier}` : "",
+  penetration: input ? `${input.penetration}` : "",
+  felling: input ? `${input.felling}` : "",
+  proven: input ? `${input.proven}` : "",
+  rfOn: input ? `${input.rfOn}` : "",
+  rfConfirmsOn: input ? `${input.rfConfirmsOn}` : "",
+  tearing: input ? input.tearing : "none",
+});
+
+function WarhammerAttackCalculatorForm({
+  onRoll,
+  calculationError,
+  initialInput,
+  resetCounter = 0,
+}: WarhammerAttackCalculatorFormProps) {
+  const [values, setValues] = useState<AttackCalculatorValues>(() =>
+    toFormValues(initialInput)
+  );
+  const [errors, setErrors] = useState<AttackCalculatorErrors>({});
+
+  useEffect(() => {
+    if (initialInput) {
+      setValues(toFormValues(initialInput));
+    }
+  }, [initialInput]);
+
+  useEffect(() => {
+    if (resetCounter > 0) {
+      setValues(toFormValues());
+      setErrors({});
+    }
+  }, [resetCounter]);
 
   const updateValue = (field: keyof AttackCalculatorValues, value: string) => {
     setValues((currentValues) => ({ ...currentValues, [field]: value }));
   };
 
+  const updateNonNegativeValue = (field: NonNegativeField, value: string) => {
+    if (value === "" || Number(value) >= 0) {
+      updateValue(field, value);
+    }
+  };
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const normalized = normalizeWarhammerAttack(values);
+    setErrors(normalized.errors);
+    if (normalized.input) {
+      onRoll(normalized.input);
+    }
+  };
+
   return (
-    <Form onSubmit={(event: React.FormEvent<HTMLFormElement>) => event.preventDefault()}>
+    <Form id={FORM_ID} onSubmit={handleSubmit}>
+      {calculationError && (
+        <Form.Text className="text-danger" role="alert">
+          {calculationError}
+        </Form.Text>
+      )}
+      {Object.keys(errors).length > 0 && (
+        <Form.Text className="text-danger d-block" role="alert">
+          {Object.values(errors).join(". ")}
+        </Form.Text>
+      )}
       <Form.Group as={Row} className={styles.hitsRow}>
         <Form.Label column xs="auto" htmlFor="attack-calculator-hits">
           # Hits
@@ -46,9 +108,12 @@ function WarhammerAttackCalculatorForm() {
             id="attack-calculator-hits"
             className={styles.compactInput}
             type="number"
-            placeholder="1"
+            min={0}
+            placeholder={`${WARHAMMER_ATTACK_DEFAULTS.hits}`}
             value={values.hits}
-            onChange={(event) => updateValue("hits", event.target.value)}
+            onChange={(event) =>
+              updateNonNegativeValue("hits", event.target.value)
+            }
           />
         </Col>
       </Form.Group>
@@ -62,16 +127,19 @@ function WarhammerAttackCalculatorForm() {
               aria-label="Damage dice count"
               className={styles.compactInput}
               type="number"
-              placeholder="1"
+              min={0}
+              placeholder={`${WARHAMMER_ATTACK_DEFAULTS.damageDice}`}
               value={values.damageDice}
-              onChange={(event) => updateValue("damageDice", event.target.value)}
+              onChange={(event) =>
+                updateNonNegativeValue("damageDice", event.target.value)
+              }
             />
             <span>d10 +</span>
             <Form.Control
               aria-label="Damage modifier"
               className={styles.compactInput}
               type="number"
-              placeholder="0"
+              placeholder={`${WARHAMMER_ATTACK_DEFAULTS.damageModifier}`}
               value={values.damageModifier}
               onChange={(event) =>
                 updateValue("damageModifier", event.target.value)
@@ -123,10 +191,11 @@ function WarhammerAttackCalculatorForm() {
                 id="attack-calculator-penetration"
                 className={styles.compactInput}
                 type="number"
-                placeholder="0"
+                min={0}
+                placeholder={`${WARHAMMER_ATTACK_DEFAULTS.penetration}`}
                 value={values.penetration}
                 onChange={(event) =>
-                  updateValue("penetration", event.target.value)
+                  updateNonNegativeValue("penetration", event.target.value)
                 }
               />
             </Col>
@@ -145,9 +214,12 @@ function WarhammerAttackCalculatorForm() {
                 id="attack-calculator-felling"
                 className={styles.compactInput}
                 type="number"
-                placeholder="0"
+                min={0}
+                placeholder={`${WARHAMMER_ATTACK_DEFAULTS.felling}`}
                 value={values.felling}
-                onChange={(event) => updateValue("felling", event.target.value)}
+                onChange={(event) =>
+                  updateNonNegativeValue("felling", event.target.value)
+                }
               />
             </Col>
           </Form.Group>
@@ -165,9 +237,12 @@ function WarhammerAttackCalculatorForm() {
                 id="attack-calculator-proven"
                 className={styles.compactInput}
                 type="number"
-                placeholder="0"
+                min={0}
+                placeholder={`${WARHAMMER_ATTACK_DEFAULTS.proven}`}
                 value={values.proven}
-                onChange={(event) => updateValue("proven", event.target.value)}
+                onChange={(event) =>
+                  updateNonNegativeValue("proven", event.target.value)
+                }
               />
             </Col>
           </Form.Group>
@@ -190,9 +265,12 @@ function WarhammerAttackCalculatorForm() {
             id="attack-calculator-rf-on"
             className={styles.compactInput}
             type="number"
-            placeholder="10"
+            min={0}
+            placeholder={`${WARHAMMER_ATTACK_DEFAULTS.rfOn}`}
             value={values.rfOn}
-            onChange={(event) => updateValue("rfOn", event.target.value)}
+            onChange={(event) =>
+              updateNonNegativeValue("rfOn", event.target.value)
+            }
           />
         </Col>
       </Form.Group>
@@ -211,9 +289,12 @@ function WarhammerAttackCalculatorForm() {
               id="attack-calculator-rf-confirms-on"
               className={styles.compactInput}
               type="number"
-              placeholder="0"
+              min={0}
+              placeholder={`${WARHAMMER_ATTACK_DEFAULTS.rfConfirmsOn}`}
               value={values.rfConfirmsOn}
-              onChange={(event) => updateValue("rfConfirmsOn", event.target.value)}
+              onChange={(event) =>
+                updateNonNegativeValue("rfConfirmsOn", event.target.value)
+              }
             />
             <span>%</span>
           </div>
@@ -224,3 +305,4 @@ function WarhammerAttackCalculatorForm() {
 }
 
 export default WarhammerAttackCalculatorForm;
+export { FORM_ID };

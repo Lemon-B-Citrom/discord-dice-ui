@@ -1,0 +1,96 @@
+.summary {
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.hitBreakdowns {
+  margin-bottom: 0.75rem;
+}
+
+.attackProfile {
+  align-items: center;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.profileDie {
+  flex: 0 0 48px;
+  height: 48px;
+  object-fit: contain;
+  width: 48px;
+}
+
+.profileDetails {
+  min-width: 0;
+}
+
+.damageExpression {
+  margin-bottom: 0.25rem;
+}
+
+.attackAttributes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+}
+
+.resultsModalHeader {
+  background: #6c757d;
+  color: #fff;
+  display: block;
+  position: relative;
+  text-align: center;
+}
+
+.resultsModalTitle {
+  color: #fff;
+  font-weight: bold;
+  margin: 2px 0 0;
+  text-align: center;
+}
+
+.resultsModalHeader :global(.close) {
+  color: #fff;
+  opacity: 1;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.resultsBody {
+  font-size: 1rem;
+}
+
+.summaryDivider {
+  border-top: 1px solid #bebebe;
+  margin: 0.75rem 0;
+}
+
+.rerollButtonContainer {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.error {
+  color: #dc3545;
+  margin-top: 0.5rem;
+}
+
+@media only screen and (min-width: 480px) {
+  .resultsBody {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .profileDie {
+    flex-basis: 40px;
+    height: 40px;
+    width: 40px;
+  }
+}

@@ -1,0 +1,74 @@
+.hitRow {
+  align-items: flex-start;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.hitArrow {
+  color: #6c757d;
+  flex: 0 0 auto;
+}
+
+.hitContent {
+  min-width: 0;
+  width: 100%;
+}
+
+.hitHeading {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-bottom: 0.15rem;
+}
+
+.hitLabel {
+  margin: 0;
+}
+
+.hitMath {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.35rem;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.selectedAttempt,
+.discardedAttempt {
+  overflow-wrap: anywhere;
+}
+
+.selectedDamage {
+  font-size: 1.05em;
+}
+
+.discardedAttempt,
+.attemptSeparator,
+.provenNote {
+  color: #6c757d;
+}
+
+.attemptSeparator {
+  font-weight: bold;
+  margin: 0 0.35rem;
+}
+
+.equation {
+  overflow-wrap: anywhere;
+}
+
+.operator {
+  white-space: pre;
+}
+
+.righteousFury {
+  white-space: nowrap;
+}
+
+.provenNote {
+  font-size: 0.8em;
+}

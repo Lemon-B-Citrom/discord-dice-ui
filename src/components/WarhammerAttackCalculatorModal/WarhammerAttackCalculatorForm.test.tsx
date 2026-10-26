@@ -1,10 +1,14 @@
 import React from "react";
 import { fireEvent, render } from "@testing-library/react";
 import WarhammerAttackCalculatorForm from "./WarhammerAttackCalculatorForm";
+import { WarhammerAttackInput } from "./WarhammerAttackCalculatorTypes";
+import { WARHAMMER_ATTACK_DEFAULTS } from "../../utils/normalizeWarhammerAttack";
+
+const onRoll = (_input: WarhammerAttackInput) => undefined;
 
 test("renders editable attack fields and defaults to no tearing", () => {
   const { getByLabelText, getByText } = render(
-    <WarhammerAttackCalculatorForm />
+    <WarhammerAttackCalculatorForm onRoll={onRoll} />
   );
 
   expect(getByLabelText("# Hits")).toHaveValue(null);
@@ -30,7 +34,9 @@ test("renders editable attack fields and defaults to no tearing", () => {
 });
 
 test("keeps numeric entries and allows changing the tearing selection", () => {
-  const { getByLabelText } = render(<WarhammerAttackCalculatorForm />);
+  const { getByLabelText } = render(
+    <WarhammerAttackCalculatorForm onRoll={onRoll} />
+  );
   const hits = getByLabelText("# Hits") as HTMLInputElement;
   const damageDice = getByLabelText("Damage dice count") as HTMLInputElement;
 
@@ -42,4 +48,42 @@ test("keeps numeric entries and allows changing the tearing selection", () => {
   expect(damageDice.value).toBe("2");
   expect(getByLabelText("Triple Tearing")).toBeChecked();
   expect(getByLabelText("No Tearing")).not.toBeChecked();
+});
+
+test("rejects negative values in non-negative fields", () => {
+  const { getByLabelText } = render(
+    <WarhammerAttackCalculatorForm onRoll={onRoll} />
+  );
+  const nonNegativeFields = [
+    "# Hits",
+    "Damage dice count",
+    "Pen",
+    "Felling",
+    "Proven",
+    "RF on...",
+    "Confirms on",
+  ];
+
+  nonNegativeFields.forEach((label) => {
+    const input = getByLabelText(label) as HTMLInputElement;
+    fireEvent.change(input, { target: { value: "-1" } });
+    expect(input).toHaveValue(null);
+  });
+
+  const damageModifier = getByLabelText("Damage modifier") as HTMLInputElement;
+  fireEvent.change(damageModifier, { target: { value: "-1" } });
+  expect(damageModifier).toHaveValue(-1);
+});
+
+test("submits normalized defaults when inputs are left blank", () => {
+  const onRollSpy = jest.fn();
+  const { container } = render(
+    <WarhammerAttackCalculatorForm onRoll={onRollSpy} />
+  );
+  const form = container.querySelector("form");
+
+  expect(form).not.toBeNull();
+  fireEvent.submit(form as HTMLFormElement);
+
+  expect(onRollSpy).toHaveBeenCalledWith(WARHAMMER_ATTACK_DEFAULTS);
 });
