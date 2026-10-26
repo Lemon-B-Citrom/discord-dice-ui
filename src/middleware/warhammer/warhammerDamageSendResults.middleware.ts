@@ -17,12 +17,12 @@ const warhammerDamageSendResults: Middleware<{}, RootState> =
     const nextResult = next(action);
 
     try {
-      const username =
-        store.getState().userSettings.username || "USERNAME_MISSING";
+      const username = store.getState().userSettings.username;
       store.dispatch(
         requestMsgReady(getWarhammerDamageRequestMsg(result, username))
       );
     } catch (_error) {
+      // A notification problem must not turn a successfully saved damage result into a failed calculation.
       console.error("Unable to prepare a Warhammer damage webhook message.");
     }
 

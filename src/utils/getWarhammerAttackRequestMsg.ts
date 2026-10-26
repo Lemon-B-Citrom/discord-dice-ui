@@ -2,7 +2,12 @@ import {
   WarhammerAttackAttempt,
   WarhammerAttackResult,
 } from "../components/WarhammerAttackCalculatorModal/WarhammerAttackCalculatorTypes";
+import {
+  EMBED_FIELD_VALUE_MAX,
+  EMBED_TOTAL_MAX,
+} from "../consts/discordEmbed";
 import { getColor } from "./getColor";
+import sanitizeDiscordUsername from "./sanitizeDiscordUsername";
 
 export interface WarhammerAttackRequestMsgField {
   name: string;
@@ -16,55 +21,9 @@ export interface WarhammerAttackRequestMsg {
   fields: WarhammerAttackRequestMsgField[];
 }
 
-const MAX_EMBED_TOTAL_CHARACTERS = 6000;
-const MAX_EMBED_FIELD_VALUE_CHARACTERS = 1024;
 const MAX_ATTEMPT_DETAIL_CHARACTERS = 280;
 const DETAILS_TRUNCATED_NOTICE =
   "Roll details shortened; full breakdown available in the app.";
-const MARKDOWN_CHARACTERS = new Set([
-  "\\",
-  "`",
-  "*",
-  "_",
-  "{",
-  "}",
-  "[",
-  "]",
-  "(",
-  ")",
-  "#",
-  "+",
-  "-",
-  ".",
-  "!",
-  "|",
-  ">",
-  "~",
-]);
-
-function formatUsername(username: string): string {
-  const sanitized = Array.from(username)
-    .map((character) => {
-      const codePoint = character.charCodeAt(0);
-      if (
-        codePoint <= 0x1f ||
-        codePoint === 0x7f ||
-        codePoint === 0x2028 ||
-        codePoint === 0x2029
-      ) {
-        return " ";
-      }
-      if (character === "@") {
-        return "@\u200b";
-      }
-      return MARKDOWN_CHARACTERS.has(character) ? `\\${character}` : character;
-    })
-    .join("")
-    .trim();
-  return Array.from(sanitized || "USERNAME_MISSING")
-    .slice(0, 180)
-    .join("");
-}
 
 function getTearingLabel(
   tearing: WarhammerAttackResult["input"]["tearing"]
@@ -85,7 +44,7 @@ function chunkHitRows(rows: string[]): WarhammerAttackRequestMsgField[] {
 
   rows.forEach((row) => {
     const nextValue = value ? `${value}\n${row}` : row;
-    if (nextValue.length > MAX_EMBED_FIELD_VALUE_CHARACTERS) {
+    if (nextValue.length > EMBED_FIELD_VALUE_MAX) {
       fields.push({
         name: fields.length === 0 ? "Damage by hit" : "Damage",
         value,
@@ -118,7 +77,7 @@ function createSummaryFields(
   let value = "";
 
   parts.forEach((part) => {
-    if (value.length + part.length + 2 > MAX_EMBED_FIELD_VALUE_CHARACTERS) {
+    if (value.length + part.length + 2 > EMBED_FIELD_VALUE_MAX) {
       values.push(value);
       value = part.trimStart();
     } else {
@@ -234,7 +193,7 @@ function appendAttemptDetails(
     0,
     Math.min(
       1000,
-      MAX_EMBED_TOTAL_CHARACTERS -
+      EMBED_TOTAL_MAX -
         initialCharacterCount -
         DETAILS_TRUNCATED_NOTICE.length -
         reservedFieldNameCharacters
@@ -277,7 +236,7 @@ function appendAttemptDetails(
 
   rows.forEach((row) => {
     const nextValue = value ? `${value}\n${row}` : row;
-    if (nextValue.length > MAX_EMBED_FIELD_VALUE_CHARACTERS) {
+    if (nextValue.length > EMBED_FIELD_VALUE_MAX) {
       flush();
       value = row;
     } else {
@@ -310,7 +269,7 @@ export default function getWarhammerAttackRequestMsg(
     input.damageModifier < 0
       ? `− \`${Math.abs(input.damageModifier)}\``
       : `+ \`${input.damageModifier}\``;
-  const msgTitle = `${formatUsername(username)} performed an attack. \`${
+  const msgTitle = `${sanitizeDiscordUsername(username)} performed an attack. \`${
     input.damageDice
   }d10\` ${modifier} x \`${input.hits}\``;
   const tearingLabel = getTearingLabel(input.tearing);

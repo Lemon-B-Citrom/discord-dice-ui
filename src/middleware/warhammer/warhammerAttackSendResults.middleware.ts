@@ -17,8 +17,7 @@ const warhammerAttackSendResults: Middleware<{}, RootState> =
     const nextResult = next(action);
 
     try {
-      const username =
-        store.getState().userSettings.username || "USERNAME_MISSING";
+      const username = store.getState().userSettings.username;
       store.dispatch(
         requestMsgReady(getWarhammerAttackRequestMsg(result, username))
       );

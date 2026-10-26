@@ -249,7 +249,7 @@ test("escapes and bounds a user name without creating a mention", () => {
   expect(message.msgTitle).not.toContain("\n");
   expect(message.msgTitle.length).toBeLessThanOrEqual(256);
   expect(getWarhammerAttackRequestMsg(result(), "").msgTitle).toContain(
-    "USERNAME_MISSING"
+    "USERNAME\\_MISSING"
   );
 });
 
