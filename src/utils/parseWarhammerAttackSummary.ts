@@ -1,4 +1,5 @@
 import { WarhammerAttackSummary } from "../components/WarhammerDamageCalculatorModal/WarhammerDamageCalculatorTypes";
+import { parseSafeInteger } from "./safeInteger";
 
 export const MAX_DAMAGE_HITS = 100;
 export const MAX_DAMAGE_SUMMARY_LENGTH = 4096;
@@ -6,12 +7,6 @@ export const MAX_DAMAGE_SUMMARY_LENGTH = 4096;
 export type ParseDamageSummaryResult =
   | { summary: WarhammerAttackSummary; error: null }
   | { summary: null; error: string };
-
-const parseSafeInteger = (text: string): number | null => {
-  if (!/^[+-]?\d+$/.test(text)) return null;
-  const value = Number(text);
-  return Number.isSafeInteger(value) ? value : null;
-};
 
 export default function parseWarhammerAttackSummary(
   rawSummary: string

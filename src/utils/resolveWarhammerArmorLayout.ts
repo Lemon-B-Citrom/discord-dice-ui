@@ -1,8 +1,13 @@
 import {
+  ArmorSlot,
   DamageValidationErrors,
   WarhammerArmorLayout,
   WarhammerDamageDraft,
 } from "../components/WarhammerDamageCalculatorModal/WarhammerDamageCalculatorTypes";
+import {
+  NON_NEGATIVE_INTEGER_ERROR,
+  requireNonNegativeInteger,
+} from "./safeInteger";
 
 export interface ResolveArmorResult {
   armor: WarhammerArmorLayout | null;
@@ -10,7 +15,6 @@ export interface ResolveArmorResult {
 }
 
 type ArmorField = "armorHead" | "armorBody" | "armorArms" | "armorLegs";
-type ArmorSlot = "headAP" | "bodyAP" | "armsAP" | "legsAP";
 
 const fieldSlots: Array<{ field: ArmorField; slot: ArmorSlot }> = [
   { field: "armorHead", slot: "headAP" },
@@ -30,11 +34,12 @@ export default function resolveWarhammerArmorLayout(
     const text = draft[field].trim();
     if (!text) return;
     supplied.push(slot);
-    if (!/^\d+$/.test(text) || !Number.isSafeInteger(Number(text))) {
-      errors[field] = "Enter a non-negative safe whole number";
+    const value = requireNonNegativeInteger(text);
+    if (value === null) {
+      errors[field] = NON_NEGATIVE_INTEGER_ERROR;
       return;
     }
-    parsed[slot] = Number(text);
+    parsed[slot] = value;
   });
 
   if (Object.keys(errors).length > 0) return { armor: null, errors };

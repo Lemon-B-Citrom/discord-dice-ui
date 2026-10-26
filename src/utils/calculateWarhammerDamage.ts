@@ -1,4 +1,5 @@
 import {
+  ArmorSlot,
   DamageLocation,
   WarhammerDamageEntry,
   WarhammerDamageRequest,
@@ -8,10 +9,9 @@ import {
   WarhammerDamageDraft,
 } from "../components/WarhammerDamageCalculatorModal/WarhammerDamageCalculatorTypes";
 import getWarhammerDamageHitLocation from "./getWarhammerDamageHitLocation";
+import { requireSafeInteger } from "./safeInteger";
 
-const getArmorSlot = (
-  location: DamageLocation
-): "headAP" | "bodyAP" | "armsAP" | "legsAP" => {
+const getArmorSlot = (location: DamageLocation): ArmorSlot => {
   switch (location) {
     case "Head":
       return "headAP";
@@ -24,13 +24,6 @@ const getArmorSlot = (
     case "Right Leg":
       return "legsAP";
   }
-};
-
-const requireSafeInteger = (value: number, description: string): number => {
-  if (!Number.isSafeInteger(value)) {
-    throw new Error(`${description} exceeds the safe whole-number range`);
-  }
-  return value;
 };
 
 const checkedAdd = (left: number, right: number, description: string): number =>

@@ -3,6 +3,7 @@ import {
   AttackCalculatorValues,
   WarhammerAttackInput,
 } from "../components/WarhammerAttackCalculatorModal/WarhammerAttackCalculatorTypes";
+import { parseSafeInteger } from "./safeInteger";
 
 export const WARHAMMER_ATTACK_DEFAULTS: WarhammerAttackInput = {
   hits: 1,
@@ -42,8 +43,11 @@ export default function normalizeWarhammerAttack(
 
   numericFields.forEach((field) => {
     const rawValue = values[field].trim();
-    const value = rawValue === "" ? WARHAMMER_ATTACK_DEFAULTS[field] : Number(rawValue);
-    if (!Number.isSafeInteger(value)) {
+    const value =
+      rawValue === ""
+        ? WARHAMMER_ATTACK_DEFAULTS[field]
+        : parseSafeInteger(rawValue);
+    if (value === null) {
       errors[field] = "Enter a whole number";
       return;
     }
@@ -59,7 +63,7 @@ export default function normalizeWarhammerAttack(
       errors[field] = `Enter between 1 and ${MAX_DAMAGE_DICE} damage dice`;
       return;
     }
-    parsed[field] = value as never;
+    parsed[field] = value;
   });
 
   if (values.tearing !== "none" && values.tearing !== "tearing" && values.tearing !== "tripleTearing") {
