@@ -1,0 +1,9 @@
+.dialog {
+  max-width: 480px;
+}
+
+@media (max-width: 512px) {
+  .dialog {
+    max-width: calc(100% - 1rem);
+  }
+}

@@ -1,0 +1,35 @@
+.toggle {
+  width: 100%;
+  text-align: left;
+}
+
+.menu {
+  width: 100%;
+  min-width: 15rem;
+}
+
+.fullRow,
+.pairedRow {
+  display: flex;
+  align-items: stretch;
+}
+
+.fullRow .option {
+  flex: 1 1 100%;
+}
+
+.pairedRow .option {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+}
+
+.option {
+  white-space: normal;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+}

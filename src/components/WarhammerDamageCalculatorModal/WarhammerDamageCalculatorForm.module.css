@@ -1,0 +1,70 @@
+.form {
+  min-width: 0;
+}
+
+.summaryField {
+  margin-bottom: 1rem;
+}
+
+.defenseGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+.defensePrimary,
+.armorFields {
+  min-width: 0;
+}
+
+.numericField {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.numericField label {
+  margin: 0;
+}
+
+.numericInput {
+  width: 5rem;
+  flex: 0 0 5rem;
+}
+
+.locationField {
+  margin-bottom: 0.65rem;
+}
+
+.locationField > label {
+  display: block;
+}
+
+.hordeOptions {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.hordeOptions legend {
+  float: none;
+  width: auto;
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.hordeGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1rem;
+}
+
+@media (max-width: 767.98px) {
+  .defenseGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+}

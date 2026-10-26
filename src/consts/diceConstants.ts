@@ -26,6 +26,7 @@ export const TOR_DICE = "TOR_DICE";
 export const D100_SL = "d100SL";
 export const WARHAMMER_MONEY = "WARHAMMER_MONEY";
 export const WARHAMMER_ATTACK_CALCULATOR = "WARHAMMER_ATTACK_CALCULATOR";
+export const WARHAMMER_DAMAGE_CALCULATOR = "WARHAMMER_DAMAGE_CALCULATOR";
 
 export const D6_CONAN = "d6conan";
 export const D20_CONAN_TEST = "d20conan-test";

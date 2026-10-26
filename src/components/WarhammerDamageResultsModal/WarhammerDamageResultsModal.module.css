@@ -1,0 +1,37 @@
+.body {
+  max-height: min(70vh, 48rem);
+  overflow-y: auto;
+}
+
+.entries {
+  min-width: 0;
+}
+
+.profile {
+  align-items: center;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.profile img {
+  flex: 0 0 48px;
+  height: 48px;
+  object-fit: contain;
+  width: 48px;
+}
+
+.totals {
+  margin-bottom: 0;
+}
+
+.totals strong {
+  display: inline-block;
+  margin-right: 0.25rem;
+}
+
+.footer {
+  justify-content: flex-start;
+}

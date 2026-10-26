@@ -33,6 +33,7 @@ import {
   NARRATIVE_TOKENS,
   WARHAMMER_MONEY,
   WARHAMMER_ATTACK_CALCULATOR,
+  WARHAMMER_DAMAGE_CALCULATOR,
   CTHULHU_SHEET_MODAL,
   COMBAT_TRACKER,
   WRATH_AND_GLORY_SKILL_TEST,
@@ -174,6 +175,12 @@ export const warhammerSet = [
   {
     diceType: WARHAMMER_ATTACK_CALCULATOR,
     label: "Attack Calculator",
+    diceImg: "d100-skill-test.png",
+    noDropdown: true,
+  },
+  {
+    diceType: WARHAMMER_DAMAGE_CALCULATOR,
+    label: "Damage Calculator",
     diceImg: "d100-skill-test.png",
     noDropdown: true,
   },

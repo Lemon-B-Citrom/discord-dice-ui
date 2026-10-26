@@ -21,6 +21,7 @@ import warhammerRerollRequested from "./middleware/warhammer/warhammerRerollRequ
 import warhammerSendResults from "./middleware/warhammer/warhammerSendResults.middleware";
 import warhammerMoneyRecalculated from "./middleware/warhammerMoneyRecalculated.middleware";
 import warhammerAttackRollRequested from "./middleware/warhammer/warhammerAttackRollRequested.middleware";
+import warhammerDamageCalculationRequested from "./middleware/warhammer/warhammerDamageCalculationRequested.middleware";
 // 2d20
 import { get2d20LocalMsg } from "./middleware/2d20/get-2d20-local-msg.middleware";
 import { get2d20RequestMsg } from "./middleware/2d20/get-2d20-request-msg.middleware";
@@ -89,6 +90,7 @@ const rollMiddleware = [
   warhammerRerollRequested,
   warhammerMoneyRecalculated,
   warhammerAttackRollRequested,
+  warhammerDamageCalculationRequested,
 
   get2d20LocalMsg,
   get2d20RequestMsg,

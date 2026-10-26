@@ -15,6 +15,10 @@ export const OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL =
   "OPEN_WARHAMMER_ATTACK_CALCULATOR_MODAL";
 export const CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL =
   "CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL";
+export const OPEN_WARHAMMER_DAMAGE_CALCULATOR_MODAL =
+  "OPEN_WARHAMMER_DAMAGE_CALCULATOR_MODAL";
+export const CLOSE_WARHAMMER_DAMAGE_CALCULATOR_MODAL =
+  "CLOSE_WARHAMMER_DAMAGE_CALCULATOR_MODAL";
 
 export const OPEN_CONAN_MODAL = "OPEN_CONAN_MODAL";
 export const CLOSE_CONAN_MODAL = "CLOSE_CONAN_MODAL";
@@ -163,6 +167,18 @@ export function openWarhammerAttackCalculatorModal() {
 export function closeWarhammerAttackCalculatorModal() {
   return {
     type: CLOSE_WARHAMMER_ATTACK_CALCULATOR_MODAL,
+  };
+}
+
+export function openWarhammerDamageCalculatorModal() {
+  return {
+    type: OPEN_WARHAMMER_DAMAGE_CALCULATOR_MODAL,
+  };
+}
+
+export function closeWarhammerDamageCalculatorModal() {
+  return {
+    type: CLOSE_WARHAMMER_DAMAGE_CALCULATOR_MODAL,
   };
 }
 

@@ -1,0 +1,28 @@
+.hitRow {
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.lastHitRow {
+  border-bottom: 0;
+}
+
+.hitHeading {
+  overflow-wrap: anywhere;
+}
+
+.arrow {
+  margin: 0 0.4rem;
+}
+
+.location {
+  margin-left: 0.25rem;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.equation {
+  margin-left: 0.25rem;
+  overflow-wrap: anywhere;
+  font-size: 0.95rem;
+}

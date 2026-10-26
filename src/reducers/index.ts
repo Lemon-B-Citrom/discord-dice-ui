@@ -15,6 +15,7 @@ import { reducer as form } from "redux-form";
 import lastRollOptions from "./last-roll-options-reducer";
 import rerollCount from "./reroll-count-reducer";
 import warhammerAttackCalculator from "./warhammer-attack-calculator-reducer";
+import warhammerDamageCalculator from "./warhammer-damage-calculator-reducer";
 
 export default combineReducers({
   userSettings,
@@ -33,4 +34,5 @@ export default combineReducers({
   lastRollOptions,
   rerollCount,
   warhammerAttackCalculator,
+  warhammerDamageCalculator,
 });
