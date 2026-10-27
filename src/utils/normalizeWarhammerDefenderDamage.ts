@@ -73,19 +73,23 @@ export default function normalizeWarhammerDefenderDamage(
   // Horde mode is opt-in: blank fields alone no longer select it.
   const isHorde = draft.hordeEnabled;
 
+  let bonusHits: number | null = null;
   let trueHits: number | null = null;
   let magPer: number | null = null;
   let woundsPer: number | null = null;
   if (isHorde) {
-    trueHits = parseNonNegative(draft.trueHits, "trueHits", errors, true);
+    // Zero bonus hits is the default, so a blank field is valid.
+    bonusHits = parseNonNegative(draft.bonusHits, "bonusHits", errors, false);
     magPer = parseNonNegative(draft.magPer, "magPer", errors, true);
     woundsPer = parseNonNegative(draft.woundsPer, "woundsPer", errors, true);
-    if (
-      trueHits !== null &&
-      parsed.summary &&
-      trueHits > parsed.summary.damages.length
-    ) {
-      errors.trueHits = `True Hits cannot exceed ${parsed.summary.damages.length}`;
+    if (bonusHits !== null && parsed.summary) {
+      if (bonusHits > parsed.summary.damages.length) {
+        errors.bonusHits = `Bonus Hits cannot exceed ${parsed.summary.damages.length}`;
+      } else {
+        // The request keeps the rules-facing count, so the calculator and the
+        // embed are unchanged: every hit that is not a bonus hit is a true hit.
+        trueHits = parsed.summary.damages.length - bonusHits;
+      }
     }
   }
 

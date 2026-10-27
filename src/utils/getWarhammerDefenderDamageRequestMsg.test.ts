@@ -82,7 +82,7 @@ function hordeResult(): WarhammerDefenderDamageResult {
     magnitude: 1,
   };
   return {
-    draft: { ...draft, attackSummaryString: "Pen 0, Dev 1: 10", trueHits: "1", magPer: "6", woundsPer: "10" },
+    draft: { ...draft, attackSummaryString: "Pen 0, Dev 1: 10", bonusHits: "0", magPer: "6", woundsPer: "10" },
     request: {
       mode: "horde",
       summary: { penetration: 0, felling: 0, devastating: 1, damages: [10] },
@@ -184,7 +184,7 @@ test("bounds maximum-size Horde results with Fortitude equations", () => {
     ...draft,
     attackSummaryString: `Pen 0, Fel 1, Dev 1: ${Array(100).fill(0).join(",")},`,
     toughnessBonus: "4503599627370495", fortitude: String(Number.MAX_SAFE_INTEGER),
-    hordeEnabled: true, trueHits: "50", magPer: "6", woundsPer: "20",
+    hordeEnabled: true, bonusHits: "50", magPer: "6", woundsPer: "20",
   };
   const normalized = normalizeWarhammerDefenderDamage(input);
   if (!normalized.request) throw new Error("Expected valid request");
@@ -199,7 +199,7 @@ test("bounds maximum-size Horde results with Fortitude equations", () => {
 test("shows true and bonus counts beside the Horde hit count without a settings line", () => {
   const input = {
     ...draft, attackSummaryString: `Pen 0: ${Array(9).fill(20).join(", ")}`,
-    hordeEnabled: true, trueHits: "3", magPer: "10", woundsPer: "20",
+    hordeEnabled: true, bonusHits: "6", magPer: "10", woundsPer: "20",
   };
   const normalized = normalizeWarhammerDefenderDamage(input);
   if (!normalized.request) throw new Error("Expected valid request");

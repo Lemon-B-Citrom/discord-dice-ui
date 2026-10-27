@@ -6,6 +6,10 @@ import {
   WarhammerDefenderDamageDraft,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import {
+  DAMAGE_LOCATION_ROWS,
+  DAMAGE_LOCATION_SHORT_LABELS,
+} from "./damageLocations";
+import {
   NON_NEGATIVE_INTEGER_ERROR,
   requireNonNegativeInteger,
 } from "./safeInteger";
@@ -25,37 +29,37 @@ export interface AdvancedDefenseFieldMap {
 export const ADVANCED_DEFENSE_FIELDS: ReadonlyArray<AdvancedDefenseFieldMap> = [
   {
     location: "Head",
-    label: "Head",
+    label: DAMAGE_LOCATION_SHORT_LABELS["Head"],
     armorField: "advancedArmorHead",
     toughnessField: "advancedToughnessHead",
   },
   {
     location: "Left Arm",
-    label: "L. Arm",
+    label: DAMAGE_LOCATION_SHORT_LABELS["Left Arm"],
     armorField: "advancedArmorLeftArm",
     toughnessField: "advancedToughnessLeftArm",
   },
   {
     location: "Body",
-    label: "Body",
+    label: DAMAGE_LOCATION_SHORT_LABELS["Body"],
     armorField: "advancedArmorBody",
     toughnessField: "advancedToughnessBody",
   },
   {
     location: "Right Arm",
-    label: "R. Arm",
+    label: DAMAGE_LOCATION_SHORT_LABELS["Right Arm"],
     armorField: "advancedArmorRightArm",
     toughnessField: "advancedToughnessRightArm",
   },
   {
     location: "Left Leg",
-    label: "L. Leg",
+    label: DAMAGE_LOCATION_SHORT_LABELS["Left Leg"],
     armorField: "advancedArmorLeftLeg",
     toughnessField: "advancedToughnessLeftLeg",
   },
   {
     location: "Right Leg",
-    label: "R. Leg",
+    label: DAMAGE_LOCATION_SHORT_LABELS["Right Leg"],
     armorField: "advancedArmorRightLeg",
     toughnessField: "advancedToughnessRightLeg",
   },
@@ -64,15 +68,12 @@ export const ADVANCED_DEFENSE_FIELDS: ReadonlyArray<AdvancedDefenseFieldMap> = [
 /**
  * The body diagram as rows, each horizontally centred. Every field is the same
  * width, so a row only says which parts share a line: one head, the arm/body/arm
- * line, then the centred pair of legs.
+ * line, then the centred pair of legs. Shared with the First Hit Location menu
+ * so the two diagrams cannot drift apart.
  */
 export const ADVANCED_DEFENSE_ROWS: ReadonlyArray<
   ReadonlyArray<DamageLocation>
-> = [
-  ["Head"],
-  ["Left Arm", "Body", "Right Arm"],
-  ["Left Leg", "Right Leg"],
-];
+> = DAMAGE_LOCATION_ROWS;
 
 export const ADVANCED_DEFENSE_BY_LOCATION: Record<
   DamageLocation,

@@ -86,7 +86,7 @@ test("renders the independent Horde Fortitude quotas in damage equations", () =>
   store.dispatch(requestWarhammerDefenderDamage({
     ...draft, attackSummaryString: "Pen 0, Fel 2: 20, 20, 20, 20, 20,",
     toughnessBonus: "6", fortitude: "1", hordeEnabled: true,
-    trueHits: "2", magPer: "6", woundsPer: "20",
+    bonusHits: "3", magPer: "6", woundsPer: "20",
   }));
   const { getByRole } = render(<Provider store={store}><WarhammerDefenderDamageResultsModal /></Provider>);
   [1, 3, 4].forEach((number) => expect(getByRole("group", { name: `Hit ${number}` })).toHaveTextContent("Damage: 10 = 20 − Toughness (6 × 2 − 2 = 10)"));
@@ -108,7 +108,7 @@ test("Horde modal labels the damage and magnitude equations after the hit headin
     ...draft,
     attackSummaryString: "Pen 0, Dev 1: 12, 8",
     hordeEnabled: true,
-    trueHits: "1",
+    bonusHits: "1",
     magPer: "6",
     woundsPer: "10",
   }));

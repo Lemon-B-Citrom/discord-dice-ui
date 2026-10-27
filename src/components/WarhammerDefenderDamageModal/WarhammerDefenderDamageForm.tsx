@@ -38,7 +38,7 @@ const fieldControlIds: Record<keyof WarhammerDefenderDamageDraft, string> = {
   armorArms: "defender-damage-armor-arms",
   armorLegs: "defender-damage-armor-legs",
   firstHitLocation: "defender-damage-first-hit-location",
-  trueHits: "defender-damage-true-hits",
+  bonusHits: "defender-damage-bonus-hits",
   magPer: "defender-damage-mag-per",
   woundsPer: "defender-damage-wounds-per",
   hordeEnabled: "defender-damage-horde-enabled",
@@ -248,13 +248,13 @@ function WarhammerDefenderDamageForm({
             onChange={(value) => onChange("woundsPer", value)}
           />
           <DefenderDamageNumericField
-            id="defender-damage-true-hits"
-            label="True Hits"
-            value={draft.trueHits}
-            error={visibleErrors.trueHits}
+            id="defender-damage-bonus-hits"
+            label="Bonus Hits"
+            value={draft.bonusHits}
+            error={visibleErrors.bonusHits}
             disabled={!draft.hordeEnabled}
             className={draft.hordeEnabled ? undefined : styles.hordeFieldDisabled}
-            onChange={(value) => onChange("trueHits", value)}
+            onChange={(value) => onChange("bonusHits", value)}
           />
           <DefenderDamageNumericField
             id="defender-damage-mag-per"

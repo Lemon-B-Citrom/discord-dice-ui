@@ -3,33 +3,28 @@
   text-align: left;
 }
 
+/* The options are a body diagram, so the menu is a centred stack of rows with
+   a little vertical padding between them. */
 .menu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 17rem;
+  padding: 0.5rem;
   width: 100%;
-  min-width: 15rem;
 }
 
-.fullRow,
-.pairedRow {
+.optionRow {
   display: flex;
-  align-items: stretch;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.15rem 0;
 }
 
-.fullRow .option {
-  flex: 1 1 100%;
-}
-
-.pairedRow .option {
-  flex: 1 1 0;
-  min-width: 0;
-  text-align: center;
-}
-
+/* Fixed width per cell, so Head is exactly as wide as Body and as wide as a
+   limb, matching the Advanced Defenses body diagram. */
 .option {
+  flex: 0 0 5rem;
+  min-width: 0;
   white-space: normal;
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  color: #6c757d;
 }

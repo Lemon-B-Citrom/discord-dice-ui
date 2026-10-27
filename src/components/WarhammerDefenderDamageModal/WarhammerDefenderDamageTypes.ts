@@ -38,7 +38,8 @@ export interface WarhammerDefenderDamageDraft {
   armorArms: string;
   armorLegs: string;
   firstHitLocation: string;
-  trueHits: string;
+  /** Hits beyond the true hits; blank is the default of zero bonus hits. */
+  bonusHits: string;
   magPer: string;
   woundsPer: string;
   hordeEnabled: boolean;
@@ -66,7 +67,7 @@ export const EMPTY_DEFENDER_DAMAGE_DRAFT: WarhammerDefenderDamageDraft = {
   armorArms: "",
   armorLegs: "",
   firstHitLocation: "",
-  trueHits: "",
+  bonusHits: "",
   magPer: "",
   woundsPer: "",
   hordeEnabled: false,
@@ -151,6 +152,7 @@ export interface WarhammerDefenderSingleDamageRequest
 export interface WarhammerDefenderHordeDamageRequest
   extends WarhammerDefenderDamageCommonRequest {
   mode: "horde";
+  /** Derived from the summary: every hit that is not a bonus hit. */
   trueHits: number;
   magPer: number;
   // Devastating is owned by the attack summary, not by this request.

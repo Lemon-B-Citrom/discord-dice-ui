@@ -33,7 +33,7 @@ test("keeps the existing field controls and zero minimums", () => {
     "AP Body",
     "AP Arms",
     "AP Legs",
-    "True Hits",
+    "Bonus Hits",
     "Mag per",
     "Wounds per",
   ].forEach((label) => {
@@ -88,16 +88,16 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
 
   const enable = off.getByLabelText("Enable");
   expect(enable).not.toBeChecked();
-  ["Wounds per", "True Hits", "Mag per"].forEach((label) => {
+  ["Wounds per", "Bonus Hits", "Mag per"].forEach((label) => {
     expect(off.getByLabelText(label)).toBeDisabled();
   });
 
   // Grid flow fills two columns in DOM order, so this is Enable / Wounds per on
-  // the first line and True Hits / Mag per on the second.
+  // the first line and Bonus Hits / Mag per on the second.
   const order = [
     enable,
     off.getByLabelText("Wounds per"),
-    off.getByLabelText("True Hits"),
+    off.getByLabelText("Bonus Hits"),
     off.getByLabelText("Mag per"),
   ];
   order.slice(1).forEach((field, index) => {
@@ -119,7 +119,7 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
     />
   );
   expect(on.getByLabelText("Enable")).toBeChecked();
-  ["Wounds per", "True Hits", "Mag per"].forEach((label) => {
+  ["Wounds per", "Bonus Hits", "Mag per"].forEach((label) => {
     expect(on.getByLabelText(label)).not.toBeDisabled();
   });
 });

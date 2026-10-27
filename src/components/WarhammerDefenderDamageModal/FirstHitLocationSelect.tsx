@@ -1,21 +1,27 @@
 import React, { useEffect, useRef, useState } from "react";
+import Button from "react-bootstrap/Button";
 import Dropdown from "react-bootstrap/Dropdown";
 import {
-  DAMAGE_LOCATIONS,
-  DamageLocation,
-} from "./WarhammerDefenderDamageTypes";
+  DAMAGE_LOCATION_READING_ORDER,
+  DAMAGE_LOCATION_ROWS,
+  DAMAGE_LOCATION_SHORT_LABELS,
+  getAdjacentLocation,
+  MenuMoveKey,
+} from "../../utils/damageLocations";
+import { DamageLocation } from "./WarhammerDefenderDamageTypes";
 import styles from "./FirstHitLocationSelect.module.css";
 
-const locations = DAMAGE_LOCATIONS;
-
-// Menu row layout: single locations are full width, the limbs pair up. Keyboard
-// horizontal navigation is derived from this layout, never from literal indexes.
-const ROWS: ReadonlyArray<ReadonlyArray<DamageLocation>> = [
-  ["Head"],
-  ["Body"],
-  ["Left Arm", "Right Arm"],
-  ["Left Leg", "Right Leg"],
+const MENU_MOVE_KEYS: ReadonlyArray<MenuMoveKey> = [
+  "ArrowUp",
+  "ArrowDown",
+  "ArrowLeft",
+  "ArrowRight",
+  "Home",
+  "End",
 ];
+
+const isMenuMoveKey = (key: string): key is MenuMoveKey =>
+  MENU_MOVE_KEYS.indexOf(key as MenuMoveKey) !== -1;
 
 interface FirstHitLocationSelectProps {
   value: string;
@@ -29,100 +35,71 @@ function FirstHitLocationSelect({
   ariaDescribedBy,
 }: FirstHitLocationSelectProps) {
   const [open, setOpen] = useState(false);
-  const [pendingFocusIndex, setPendingFocusIndex] = useState<number | null>(null);
-  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const [pendingFocus, setPendingFocus] = useState<DamageLocation | null>(null);
+  const optionRefs = useRef<
+    Partial<Record<DamageLocation, HTMLButtonElement | null>>
+  >({});
   const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    if (open && pendingFocusIndex !== null) {
-      optionRefs.current[pendingFocusIndex]?.focus();
-      setPendingFocusIndex(null);
+    if (open && pendingFocus) {
+      optionRefs.current[pendingFocus]?.focus();
+      setPendingFocus(null);
     }
-  }, [open, pendingFocusIndex]);
+  }, [open, pendingFocus]);
 
-  const focusOption = (index: number) => {
-    optionRefs.current[index]?.focus();
+  const focusOption = (location: DamageLocation) => {
+    optionRefs.current[location]?.focus();
   };
 
+  const closeMenu = () => {
+    setOpen(false);
+    toggleRef.current?.focus();
+  };
+
+  const select = (location: DamageLocation) => {
+    onChange(location);
+    closeMenu();
+  };
+
+  const selectedLocation =
+    DAMAGE_LOCATION_READING_ORDER.find((location) => location === value) || null;
+
   const handleToggleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      event.preventDefault();
-      const selectedIndex = locations.findIndex(
-        (location) => location === value
-      );
-      setPendingFocusIndex(
-        selectedIndex >= 0
-          ? selectedIndex
-          : event.key === "ArrowDown"
-          ? 0
-          : locations.length - 1
-      );
-      setOpen(true);
-    }
+    if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
+    event.preventDefault();
+    // Both keys open the menu on the current choice, or on Head when empty.
+    setPendingFocus(selectedLocation || DAMAGE_LOCATION_READING_ORDER[0]);
+    setOpen(true);
   };
 
   const handleOptionKeyDown = (
     event: React.KeyboardEvent<HTMLButtonElement>,
-    index: number
+    location: DamageLocation
   ) => {
-    const location = locations[index];
-    const row =
-      ROWS.find((candidate) => candidate.indexOf(location) !== -1) || [location];
-    const position = row.indexOf(location);
-    let nextIndex: number | undefined;
-    if (event.key === "ArrowDown") nextIndex = Math.min(index + 1, locations.length - 1);
-    if (event.key === "ArrowUp") nextIndex = Math.max(index - 1, 0);
-    if (event.key === "ArrowRight" && position < row.length - 1) {
-      nextIndex = index + 1;
-    }
-    if (event.key === "ArrowLeft" && position > 0) {
-      nextIndex = index - 1;
-    }
-    if (event.key === "Home") nextIndex = 0;
-    if (event.key === "End") nextIndex = locations.length - 1;
-
     if (event.key === "Escape") {
       event.preventDefault();
       event.stopPropagation();
-      setOpen(false);
-      toggleRef.current?.focus();
-    } else if (nextIndex !== undefined) {
+      closeMenu();
+      return;
+    }
+    if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
-      focusOption(nextIndex);
-    } else if (event.key === "Enter" || event.key === " ") {
+      select(location);
+      return;
+    }
+    if (event.key === "Tab") {
+      // Let the browser continue the tab order after the menu has closed.
+      setOpen(false);
+      return;
+    }
+    if (!isMenuMoveKey(event.key)) return;
+    const nextLocation = getAdjacentLocation(location, event.key);
+    if (nextLocation) {
       event.preventDefault();
-      onChange(location);
-      setOpen(false);
-      toggleRef.current?.focus();
-    } else if (event.key === "Tab") {
-      setOpen(false);
+      focusOption(nextLocation);
     }
   };
-
-  const renderOption = (location: DamageLocation, index: number) => (
-    <Dropdown.Item
-      as="button"
-      type="button"
-      role="menuitemradio"
-      aria-checked={value === location}
-      key={location}
-      className={styles.option}
-      active={value === location}
-      ref={(element: HTMLButtonElement | null) => {
-        optionRefs.current[index] = element;
-      }}
-      onClick={() => {
-        onChange(location);
-        setOpen(false);
-        toggleRef.current?.focus();
-      }}
-      onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>
-        handleOptionKeyDown(event, index)
-      }
-    >
-      {location}
-    </Dropdown.Item>
-  );
 
   return (
     <Dropdown show={open} onToggle={(show) => setOpen(show)}>
@@ -147,20 +124,28 @@ function FirstHitLocationSelect({
         aria-label="First Hit Location options"
         className={styles.menu}
       >
-        {ROWS.map((row) => (
-          <div
-            key={row[0]}
-            className={row.length === 1 ? styles.fullRow : styles.pairedRow}
-          >
-            {row.map((location, position) => (
-              <React.Fragment key={location}>
-                {position > 0 && (
-                  <span className={styles.divider} aria-hidden="true">
-                    |
-                  </span>
-                )}
-                {renderOption(location, locations.indexOf(location))}
-              </React.Fragment>
+        {DAMAGE_LOCATION_ROWS.map((row) => (
+          <div key={row[0]} className={styles.optionRow} role="none">
+            {row.map((location) => (
+              <Button
+                key={location}
+                type="button"
+                role="menuitemradio"
+                aria-checked={value === location}
+                aria-label={location}
+                variant="outline-secondary"
+                active={value === location}
+                className={styles.option}
+                ref={(element: HTMLButtonElement | null) => {
+                  optionRefs.current[location] = element;
+                }}
+                onClick={() => select(location)}
+                onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) =>
+                  handleOptionKeyDown(event, location)
+                }
+              >
+                {DAMAGE_LOCATION_SHORT_LABELS[location]}
+              </Button>
             ))}
           </div>
         ))}

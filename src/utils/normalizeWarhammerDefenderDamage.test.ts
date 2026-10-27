@@ -33,7 +33,7 @@ const validDraft = (patch: Partial<WarhammerDefenderDamageDraft> = {}) => ({
   // Horde mode is opt-in, so a patch that supplies Horde fields ticks the box.
   hordeEnabled:
     patch.hordeEnabled ??
-    ("trueHits" in patch || "magPer" in patch || "woundsPer" in patch),
+    ("bonusHits" in patch || "magPer" in patch || "woundsPer" in patch),
 });
 
 test.each(["", "0", "2", String(Number.MAX_SAFE_INTEGER)])("accepts Fortitude %p without enabling Horde", (fortitude) => {
@@ -52,8 +52,9 @@ test("distinguishes all-blank single mode from explicit-zero Horde mode", () => 
   const single = normalizeWarhammerDefenderDamage(validDraft());
   expect(single.request && single.request.mode).toBe("single");
 
+  // Two hits, both of them bonus hits, so no true hits are left.
   const horde = normalizeWarhammerDefenderDamage(
-    validDraft({ trueHits: "0", magPer: "0", woundsPer: "0" })
+    validDraft({ bonusHits: "2", magPer: "0", woundsPer: "0" })
   );
   expect(horde.request).toMatchObject({
     mode: "horde",
@@ -68,7 +69,7 @@ test("ignores Horde fields until the Enable box is ticked", () => {
     ...EMPTY_DEFENDER_DAMAGE_DRAFT,
     attackSummaryString: "Pen 0, Fel 0: 5, 6",
     firstHitLocation: "Body",
-    trueHits: "3",
+    bonusHits: "3",
     magPer: "2",
     woundsPer: "-1",
   });
@@ -77,23 +78,29 @@ test("ignores Horde fields until the Enable box is ticked", () => {
   expect(normalized.errors).toEqual({});
 });
 
-test("requires complete Horde fields and rejects a true-hit count above the parsed count", () => {
-  const incomplete = normalizeWarhammerDefenderDamage(validDraft({ trueHits: "0" }));
+test("defaults Bonus Hits to zero and rejects more bonus hits than the parsed count", () => {
+  const blank = normalizeWarhammerDefenderDamage(
+    validDraft({ magPer: "2", woundsPer: "4" })
+  );
+  expect(blank.errors).toEqual({});
+  expect(blank.request).toMatchObject({ mode: "horde", trueHits: 2 });
+
+  const incomplete = normalizeWarhammerDefenderDamage(validDraft({ bonusHits: "0" }));
   expect(incomplete.request).toBeNull();
   expect(incomplete.errors.magPer).toBeTruthy();
 
   const tooMany = normalizeWarhammerDefenderDamage(
-    validDraft({ trueHits: "3", magPer: "1", woundsPer: "1" })
+    validDraft({ bonusHits: "3", magPer: "1", woundsPer: "1" })
   );
   expect(tooMany.request).toBeNull();
-  expect(tooMany.errors.trueHits).toBeTruthy();
+  expect(tooMany.errors.bonusHits).toBeTruthy();
 });
 
 test("reads Devastating from the parsed summary and defaults it to zero when absent", () => {
   const withDevastating = normalizeWarhammerDefenderDamage(
     validDraft({
       attackSummaryString: "Pen 0, Dev 3: 5, 6",
-      trueHits: "1",
+      bonusHits: "1",
       magPer: "2",
       woundsPer: "4",
     })
@@ -104,7 +111,7 @@ test("reads Devastating from the parsed summary and defaults it to zero when abs
   });
 
   const withoutDevastating = normalizeWarhammerDefenderDamage(
-    validDraft({ trueHits: "1", magPer: "2", woundsPer: "4" })
+    validDraft({ bonusHits: "1", magPer: "2", woundsPer: "4" })
   );
   expect(withoutDevastating.request).toMatchObject({
     mode: "horde",

@@ -8,7 +8,7 @@ import normalizeWarhammerDefenderDamage from "./normalizeWarhammerDefenderDamage
 const makeResult = (patch: Partial<WarhammerDefenderDamageDraft>) => {
   // Horde mode is opt-in, so a patch that supplies Horde fields ticks the box.
   const suppliesHordeFields =
-    "trueHits" in patch || "magPer" in patch || "woundsPer" in patch;
+    "bonusHits" in patch || "magPer" in patch || "woundsPer" in patch;
   const draft = {
     ...EMPTY_DEFENDER_DAMAGE_DRAFT,
     attackSummaryString: "Pen 0, Fel 0: 20, 10, 5, 55",
@@ -34,7 +34,7 @@ test("doubles Toughness before Felling for the first N single hits including zer
 test("uses independent true and double-sized bonus Fortitude quotas", () => {
   const result = makeResult({
     attackSummaryString: "Pen 0, Fel 2, Dev 1: 20, 20, 20, 20, 20,",
-    toughnessBonus: "6", fortitude: "1", trueHits: "2", magPer: "6", woundsPer: "20",
+    toughnessBonus: "6", fortitude: "1", bonusHits: "3", magPer: "6", woundsPer: "20",
   });
   expect(result.entries.map((hit) => hit.kind === "hit" && hit.fortitudeApplied))
     .toEqual([true, false, true, true, false, false]);
@@ -42,14 +42,15 @@ test("uses independent true and double-sized bonus Fortitude quotas", () => {
   expect(result.totals).toEqual({ damage: 62, magnitude: 12, killCount: 2 });
 });
 
-test.each(["0", "1", "4"])("accepts excess Fortitude with %s true hits and preserves synthetic Devastating", (trueHits) => {
+test.each(["0", "3", "4"])("accepts excess Fortitude with %s bonus hits and preserves synthetic Devastating", (bonusHits) => {
   const result = makeResult({
     attackSummaryString: "Pen 0, Dev 1: 20, 10, 5, 55",
     toughnessBonus: "6", fortitude: String(Number.MAX_SAFE_INTEGER),
-    trueHits, magPer: "6", woundsPer: "20",
+    bonusHits, magPer: "6", woundsPer: "20",
   });
   expect(result.entries.filter((hit) => hit.kind === "hit").every((hit) => hit.kind === "hit" && hit.fortitudeApplied)).toBe(true);
-  expect(result.entries.filter((hit) => hit.kind === "bonus-devastating")).toHaveLength(trueHits === "4" ? 0 : 1);
+  // Zero bonus hits leaves no bonus hit, so no synthetic Devastating entry.
+  expect(result.entries.filter((hit) => hit.kind === "bonus-devastating")).toHaveLength(bonusHits === "0" ? 0 : 1);
 });
 
 test.each(["12", "13"])("clamps doubled Toughness at Felling %s", (felling) => {
@@ -64,7 +65,7 @@ test("rejects unsafe doubled Toughness", () => {
 test("does not transfer unused true-hit protection to bonus hits", () => {
   const result = makeResult({
     attackSummaryString: "Pen 0, Fel 0: 20, 20, 20, 20, 20, 20",
-    toughnessBonus: "6", fortitude: "2", trueHits: "1", magPer: "6", woundsPer: "20",
+    toughnessBonus: "6", fortitude: "2", bonusHits: "5", magPer: "6", woundsPer: "20",
   });
   expect(result.entries.map((hit) => hit.kind === "hit" && hit.fortitudeApplied))
     .toEqual([true, true, true, true, true, false]);
@@ -78,7 +79,7 @@ test("accepts single-target Fortitude beyond the number of hits", () => {
 test("calculates the specified Horde totals and separate synthetic contribution", () => {
   const result = makeResult({
     attackSummaryString: "Pen 0, Dev 1: 20, 10, 5, 55",
-    trueHits: "3",
+    bonusHits: "1",
     magPer: "6",
     woundsPer: "20",
   });
@@ -105,7 +106,7 @@ test("calculates the specified Horde totals and separate synthetic contribution"
 test("clamps received damage to zero and avoids Overkill at zero wounds", () => {
   const result = makeResult({
     attackSummaryString: "Pen 0, Dev 4: 0, -1",
-    trueHits: "2",
+    bonusHits: "0",
     magPer: "6",
     woundsPer: "0",
   });
@@ -153,7 +154,7 @@ test("clamps both true and bonus Horde hits before assigning magnitude", () => {
     attackSummaryString: "Pen 0, Fel 0: 1, 5, 20",
     armorBody: "4",
     toughnessBonus: "3",
-    trueHits: "1",
+    bonusHits: "2",
     magPer: "6",
     woundsPer: "20",
   });
@@ -295,7 +296,7 @@ test("applies per-location armor to Horde bonus hits", () => {
     attackSummaryString: "Pen 0, Fel 0: 20, 20, 20",
     firstHitLocation: "Body",
     toughnessBonus: "0",
-    trueHits: "1",
+    bonusHits: "2",
     magPer: "6",
     woundsPer: "20",
     advancedEnabled: true,
