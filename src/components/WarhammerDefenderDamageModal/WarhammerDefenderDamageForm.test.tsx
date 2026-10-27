@@ -75,6 +75,55 @@ test("passes a valid raw draft to calculation", () => {
   expect(onCalculate).toHaveBeenCalledWith(draft);
 });
 
+test("gates Horde mode behind a labelled Enable box in the first grid cell", () => {
+  const onChange = jest.fn();
+  const off = render(
+    <WarhammerDefenderDamageForm
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }}
+      errors={{}}
+      onChange={onChange}
+      onCalculate={jest.fn()}
+    />
+  );
+
+  const enable = off.getByLabelText("Enable");
+  expect(enable).not.toBeChecked();
+  ["Wounds per", "True Hits", "Mag per"].forEach((label) => {
+    expect(off.getByLabelText(label)).toBeDisabled();
+  });
+
+  // Grid flow fills two columns in DOM order, so this is Enable / Wounds per on
+  // the first line and True Hits / Mag per on the second.
+  const order = [
+    enable,
+    off.getByLabelText("Wounds per"),
+    off.getByLabelText("True Hits"),
+    off.getByLabelText("Mag per"),
+  ];
+  order.slice(1).forEach((field, index) => {
+    expect(
+      order[index].compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  fireEvent.click(enable);
+  expect(onChange).toHaveBeenCalledWith("hordeEnabled", true);
+  off.unmount();
+
+  const on = render(
+    <WarhammerDefenderDamageForm
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, hordeEnabled: true }}
+      errors={{}}
+      onChange={jest.fn()}
+      onCalculate={jest.fn()}
+    />
+  );
+  expect(on.getByLabelText("Enable")).toBeChecked();
+  ["Wounds per", "True Hits", "Mag per"].forEach((label) => {
+    expect(on.getByLabelText(label)).not.toBeDisabled();
+  });
+});
+
 test("places Fortitude between Toughness and the location selector and forwards edits", () => {
   const onChange = jest.fn();
   const { getByLabelText } = render(<WarhammerDefenderDamageForm draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }} errors={{}} onChange={onChange} onCalculate={jest.fn()} />);
@@ -94,4 +143,91 @@ test("blocks invalid Fortitude and associates its error with the input", () => {
   expect(onCalculate).not.toHaveBeenCalled();
   expect(getByLabelText("Fortitude #")).toHaveAttribute("aria-invalid", "true");
   expect(getByLabelText("Fortitude #")).toHaveAttribute("aria-describedby", "defender-damage-fortitude-error");
+});
+
+const ARMOR_LABELS = ["AP Head", "AP Body", "AP Arms", "AP Legs"];
+
+test("disables the simple armor fields only while advanced mode is on", () => {
+  const enabled = renderForm({
+    ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+    advancedEnabled: true,
+  });
+  ARMOR_LABELS.forEach((label) => {
+    expect(enabled.getByLabelText(label)).toBeDisabled();
+  });
+  enabled.unmount();
+
+  const disabled = renderForm();
+  ARMOR_LABELS.forEach((label) => {
+    expect(disabled.getByLabelText(label)).not.toBeDisabled();
+  });
+});
+
+test("toggles advanced mode as a boolean draft field", () => {
+  const onChange = jest.fn();
+  const { getByRole } = render(
+    <WarhammerDefenderDamageForm
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }}
+      errors={{}}
+      onChange={onChange}
+      onCalculate={jest.fn()}
+    />
+  );
+
+  fireEvent.click(getByRole("checkbox", { name: "Advanced" }));
+  expect(onChange).toHaveBeenCalledWith("advancedEnabled", true);
+});
+
+test("opens the advanced editor from its button only once advanced is on", () => {
+  const onOpenAdvanced = jest.fn();
+  const off = render(
+    <WarhammerDefenderDamageForm
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }}
+      errors={{}}
+      onChange={jest.fn()}
+      onCalculate={jest.fn()}
+      onOpenAdvanced={onOpenAdvanced}
+    />
+  );
+  const offButton = off.getByRole("button", { name: "Advanced" });
+  expect(offButton).toBeDisabled();
+  fireEvent.click(offButton);
+  expect(onOpenAdvanced).not.toHaveBeenCalled();
+  off.unmount();
+
+  const on = render(
+    <WarhammerDefenderDamageForm
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, advancedEnabled: true }}
+      errors={{}}
+      onChange={jest.fn()}
+      onCalculate={jest.fn()}
+      onOpenAdvanced={onOpenAdvanced}
+    />
+  );
+  const onButton = on.getByRole("button", { name: "Advanced" });
+  expect(onButton).not.toBeDisabled();
+  fireEvent.click(onButton);
+  expect(onOpenAdvanced).toHaveBeenCalledTimes(1);
+});
+
+test("blocks the calculation and points at the advanced values", () => {
+  const onCalculate = jest.fn();
+  const { getByText, getByPlaceholderText } = renderForm(
+    {
+      ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+      attackSummaryString: "Pen 0, Fel 0: 12",
+      firstHitLocation: "Body",
+      advancedEnabled: true,
+      advancedArmorHead: "1.5",
+    },
+    onCalculate
+  );
+
+  fireEvent.submit(
+    getByPlaceholderText("Attack summary string").closest("form") as HTMLFormElement
+  );
+  expect(onCalculate).not.toHaveBeenCalled();
+  expect(
+    getByText("Check the Advanced armor and Toughness values")
+  ).toBeInTheDocument();
 });

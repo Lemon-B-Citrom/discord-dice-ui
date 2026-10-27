@@ -5,7 +5,9 @@ import {
   NormalizeDefenderDamageResult,
   WarhammerDefenderDamageDraft,
   WarhammerDefenderDamageRequest,
+  WarhammerDefenderDefenses,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import normalizeAdvancedDefenses from "./advancedDefenses";
 import parseWarhammerAttackerDamageSummary from "./parseWarhammerAttackerDamageSummary";
 import resolveWarhammerArmorLayout from "./resolveWarhammerArmorLayout";
 import {
@@ -46,8 +48,17 @@ export default function normalizeWarhammerDefenderDamage(
     false
   );
   const fortitude = parseNonNegative(draft.fortitude, "fortitude", errors, false);
-  const armor = resolveWarhammerArmorLayout(draft);
-  Object.assign(errors, armor.errors);
+  // Advanced mode replaces the four inherited slots entirely, so their rules
+  // can never block a calculation that does not read them.
+  const armor = draft.advancedEnabled ? null : resolveWarhammerArmorLayout(draft);
+  if (armor) Object.assign(errors, armor.errors);
+  const advanced = normalizeAdvancedDefenses(draft);
+  Object.assign(errors, advanced.errors);
+  const defenses: WarhammerDefenderDefenses | null = advanced.defenses
+    ? { mode: "advanced", ...advanced.defenses }
+    : armor && armor.armor
+    ? { mode: "simple", armor: armor.armor }
+    : null;
 
   let firstHitLocation: DamageLocation | null = null;
   // The draft keeps raw strings, so this is the single documented cast that
@@ -59,8 +70,8 @@ export default function normalizeWarhammerDefenderDamage(
     firstHitLocation = selectedLocation;
   }
 
-  const hordeValues = [draft.trueHits, draft.magPer, draft.woundsPer];
-  const isHorde = hordeValues.some((value) => value.trim().length > 0);
+  // Horde mode is opt-in: blank fields alone no longer select it.
+  const isHorde = draft.hordeEnabled;
 
   let trueHits: number | null = null;
   let magPer: number | null = null;
@@ -83,7 +94,7 @@ export default function normalizeWarhammerDefenderDamage(
     !parsed.summary ||
     toughnessBonus === null ||
     fortitude === null ||
-    !armor.armor ||
+    !defenses ||
     !firstHitLocation
   ) {
     return { request: null, errors };
@@ -93,7 +104,7 @@ export default function normalizeWarhammerDefenderDamage(
     summary: parsed.summary,
     toughnessBonus,
     fortitude,
-    armor: armor.armor,
+    defenses,
     firstHitLocation,
   };
   if (!isHorde) {

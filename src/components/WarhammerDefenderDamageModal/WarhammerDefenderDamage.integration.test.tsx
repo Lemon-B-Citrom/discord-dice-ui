@@ -10,24 +10,43 @@ import {
 import { openWarhammerDefenderDamageModal } from "../../actions/modals";
 import { createWarhammerDefenderDamageCalculationRequestedMiddleware } from "../../middleware/warhammer/warhammerDefenderDamageCalculationRequested.middleware";
 import WarhammerDefenderDamageResultsModal from "../WarhammerDefenderDamageResultsModal/WarhammerDefenderDamageResultsModal";
-import { WarhammerDefenderDamageDraft } from "./WarhammerDefenderDamageTypes";
+import {
+  EMPTY_DEFENDER_DAMAGE_DRAFT,
+  WarhammerDefenderDamageDraft,
+} from "./WarhammerDefenderDamageTypes";
 
 const draft: WarhammerDefenderDamageDraft = {
+  ...EMPTY_DEFENDER_DAMAGE_DRAFT,
   attackSummaryString: "Pen 0, Fel 0: 12, 8",
   toughnessBonus: "2",
-  fortitude: "",
-  armorHead: "",
-  armorBody: "",
-  armorArms: "",
-  armorLegs: "",
   firstHitLocation: "Head",
-  trueHits: "",
-  magPer: "",
-  woundsPer: "",
 };
 
 const createDamageStore = () =>
   createStore(reducers, applyMiddleware(createWarhammerDefenderDamageCalculationRequestedMiddleware()));
+
+test("returns to the form when the side of the results modal is clicked", () => {
+  const store = createDamageStore();
+  store.dispatch(openWarhammerDefenderDamageModal());
+  store.dispatch(requestWarhammerDefenderDamage({ ...draft }));
+  render(
+    <Provider store={store}>
+      <WarhammerDefenderDamageResultsModal />
+    </Provider>
+  );
+
+  expect(
+    store.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen
+  ).toBe(true);
+  const modalRoot = document.querySelector(".modal") as HTMLElement;
+  fireEvent.click(modalRoot);
+
+  expect(
+    store.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen
+  ).toBe(false);
+  expect(store.getState().modalsState.isWarhammerDefenderDamageModalOpen).toBe(true);
+  expect(store.getState().warhammerDefenderDamage.results).not.toBeNull();
+});
 
 test("Back returns to the exact raw draft without recalculating", () => {
   const draftWithFortitude = { ...draft, fortitude: "02", attackSummaryString: "Pen 0, Fel 0: 12, 8, " };
@@ -66,7 +85,8 @@ test("renders the independent Horde Fortitude quotas in damage equations", () =>
   const store = createDamageStore();
   store.dispatch(requestWarhammerDefenderDamage({
     ...draft, attackSummaryString: "Pen 0, Fel 2: 20, 20, 20, 20, 20,",
-    toughnessBonus: "6", fortitude: "1", trueHits: "2", magPer: "6", woundsPer: "20",
+    toughnessBonus: "6", fortitude: "1", hordeEnabled: true,
+    trueHits: "2", magPer: "6", woundsPer: "20",
   }));
   const { getByRole } = render(<Provider store={store}><WarhammerDefenderDamageResultsModal /></Provider>);
   [1, 3, 4].forEach((number) => expect(getByRole("group", { name: `Hit ${number}` })).toHaveTextContent("Damage: 10 = 20 − Toughness (6 × 2 − 2 = 10)"));
@@ -87,6 +107,7 @@ test("Horde modal labels the damage and magnitude equations after the hit headin
   store.dispatch(requestWarhammerDefenderDamage({
     ...draft,
     attackSummaryString: "Pen 0, Dev 1: 12, 8",
+    hordeEnabled: true,
     trueHits: "1",
     magPer: "6",
     woundsPer: "10",
@@ -145,4 +166,31 @@ test("renders fully mitigated damage as zero instead of subtracting it from the 
     "0 = 1 − Armor (4) − Toughness (3)"
   );
   expect(store.getState().warhammerDefenderDamage.results?.totals.damage).toBe(13);
+});
+
+test("calculates per-location advanced defenses through the production store", () => {
+  const store = createDamageStore();
+  store.dispatch(
+    requestWarhammerDefenderDamage({
+      ...draft,
+      attackSummaryString: "Pen 0, Fel 0: 12",
+      toughnessBonus: "2",
+      advancedEnabled: true,
+      advancedArmorHead: "4",
+      advancedToughnessHead: "1",
+    })
+  );
+  const { getByRole } = render(
+    <Provider store={store}>
+      <WarhammerDefenderDamageResultsModal />
+    </Provider>
+  );
+
+  expect(getByRole("group", { name: "Hit 1" })).toHaveTextContent(
+    "5 = 12 − Armor (4) − Toughness (2 + 1 = 3)"
+  );
+  expect(document.body.textContent).toContain("Total Damage: 5");
+  expect(store.getState().warhammerDefenderDamage.results?.request.defenses.mode).toBe(
+    "advanced"
+  );
 });

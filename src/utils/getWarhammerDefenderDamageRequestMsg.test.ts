@@ -2,37 +2,34 @@ import getWarhammerDefenderDamageRequestMsg from "./getWarhammerDefenderDamageRe
 import calculateWarhammerDefenderDamage from "./calculateWarhammerDefenderDamage";
 import normalizeWarhammerDefenderDamage from "./normalizeWarhammerDefenderDamage";
 import {
+  EMPTY_DEFENDER_DAMAGE_DRAFT,
   WarhammerDefenderDamageResult,
   WarhammerDefenderSingleDamageHit,
   WarhammerDefenderHordeDamageHit,
   WarhammerBonusDevastatingEntry,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
-const armor = {
-  headAP: 0,
-  bodyAP: 0,
-  armsAP: 0,
-  legsAP: 0,
-  sources: {
-    headAP: "omitted" as const,
-    bodyAP: "omitted" as const,
-    armsAP: "omitted" as const,
-    legsAP: "omitted" as const,
+const defenses = {
+  mode: "simple" as const,
+  armor: {
+    headAP: 0,
+    bodyAP: 0,
+    armsAP: 0,
+    legsAP: 0,
+    sources: {
+      headAP: "omitted" as const,
+      bodyAP: "omitted" as const,
+      armsAP: "omitted" as const,
+      legsAP: "omitted" as const,
+    },
   },
 };
 
 const draft = {
+  ...EMPTY_DEFENDER_DAMAGE_DRAFT,
   attackSummaryString: "Pen 0, Fel 0: 10",
   toughnessBonus: "0",
-  fortitude: "",
-  armorHead: "",
-  armorBody: "",
-  armorArms: "",
-  armorLegs: "",
   firstHitLocation: "Body",
-  trueHits: "",
-  magPer: "",
-  woundsPer: "",
 };
 
 const singleHit: WarhammerDefenderSingleDamageHit = {
@@ -61,7 +58,7 @@ function singleResult(): WarhammerDefenderDamageResult {
       summary: { penetration: 0, felling: 0, devastating: 0, damages: [10] },
       toughnessBonus: 0,
       fortitude: 0,
-      armor,
+      defenses,
       firstHitLocation: "Body",
     },
     entries: [singleHit],
@@ -91,7 +88,7 @@ function hordeResult(): WarhammerDefenderDamageResult {
       summary: { penetration: 0, felling: 0, devastating: 1, damages: [10] },
       toughnessBonus: 0,
       fortitude: 0,
-      armor,
+      defenses,
       firstHitLocation: "Body",
       trueHits: 1,
       magPer: 6,
@@ -187,7 +184,7 @@ test("bounds maximum-size Horde results with Fortitude equations", () => {
     ...draft,
     attackSummaryString: `Pen 0, Fel 1, Dev 1: ${Array(100).fill(0).join(",")},`,
     toughnessBonus: "4503599627370495", fortitude: String(Number.MAX_SAFE_INTEGER),
-    trueHits: "50", magPer: "6", woundsPer: "20",
+    hordeEnabled: true, trueHits: "50", magPer: "6", woundsPer: "20",
   };
   const normalized = normalizeWarhammerDefenderDamage(input);
   if (!normalized.request) throw new Error("Expected valid request");
@@ -202,7 +199,7 @@ test("bounds maximum-size Horde results with Fortitude equations", () => {
 test("shows true and bonus counts beside the Horde hit count without a settings line", () => {
   const input = {
     ...draft, attackSummaryString: `Pen 0: ${Array(9).fill(20).join(", ")}`,
-    trueHits: "3", magPer: "10", woundsPer: "20",
+    hordeEnabled: true, trueHits: "3", magPer: "10", woundsPer: "20",
   };
   const normalized = normalizeWarhammerDefenderDamage(input);
   if (!normalized.request) throw new Error("Expected valid request");
@@ -297,6 +294,124 @@ test("shows an exact armor reduction to zero without max notation", () => {
     "**`18`** = `30` − Armor (`8` − `8` = `0`) − Toughness (`12`)"
   );
   expect(message.fields[0].value).not.toContain("max(");
+});
+
+test("formats the per-location Toughness add-on inside the equation", () => {
+  const result = singleResult();
+  result.request.defenses = {
+    mode: "advanced",
+    armor: {
+      Head: 4,
+      Body: 2,
+      "Left Arm": 1,
+      "Right Arm": 1,
+      "Left Leg": 0,
+      "Right Leg": 0,
+    },
+    toughnessBonus: {
+      Head: 0,
+      Body: 1,
+      "Left Arm": 0,
+      "Right Arm": 0,
+      "Left Leg": 0,
+      "Right Leg": 0,
+    },
+  };
+  result.request.toughnessBonus = 2;
+  result.request.fortitude = 1;
+  result.request.summary = {
+    penetration: 0,
+    felling: 1,
+    devastating: 0,
+    damages: [12],
+  };
+  result.entries = [
+    {
+      ...singleHit,
+      originalDamage: 12,
+      armorBeforePenetration: 2,
+      effectiveArmor: 2,
+      showArmorTerm: true,
+      fortitudeApplied: true,
+      toughnessBeforeFelling: 6,
+      effectiveToughnessBonus: 5,
+      finalDamage: 5,
+    },
+  ];
+  result.totals.damage = 5;
+
+  const message = getWarhammerDefenderDamageRequestMsg(result, "Alex");
+
+  expect(message.description).toBe(
+    ":dart: Single target x1: `Pen 0, Fel 1: 12`\n:mens: Starting at Body"
+  );
+  expect(message.fields[0].value).toContain(
+    "**`5`** = `12` − Armor (`2`) − Toughness ((`2` + `1`) × `2` − `1` = `5`)"
+  );
+});
+
+test("shows the advanced Toughness sum without Fortitude", () => {
+  const result = singleResult();
+  result.request.defenses = {
+    mode: "advanced",
+    armor: {
+      Head: 0,
+      Body: 0,
+      "Left Arm": 0,
+      "Right Arm": 0,
+      "Left Leg": 0,
+      "Right Leg": 0,
+    },
+    toughnessBonus: {
+      Head: 0,
+      Body: 1,
+      "Left Arm": 0,
+      "Right Arm": 0,
+      "Left Leg": 0,
+      "Right Leg": 0,
+    },
+  };
+  result.request.toughnessBonus = 2;
+  result.entries = [
+    {
+      ...singleHit,
+      toughnessBeforeFelling: 3,
+      effectiveToughnessBonus: 3,
+      finalDamage: 7,
+    },
+  ];
+  result.totals.damage = 7;
+  result.draft = { ...draft };
+
+  const message = getWarhammerDefenderDamageRequestMsg(result, "Alex");
+  expect(message.fields[0].value).toContain("Toughness (`2` + `1` = `3`)");
+});
+
+test("rejects an unsafe advanced defense before formatting", () => {
+  const result = singleResult();
+  result.request.defenses = {
+    mode: "advanced",
+    armor: {
+      Head: 1.5,
+      Body: 0,
+      "Left Arm": 0,
+      "Right Arm": 0,
+      "Left Leg": 0,
+      "Right Leg": 0,
+    },
+    toughnessBonus: {
+      Head: 0,
+      Body: 0,
+      "Left Arm": 0,
+      "Right Arm": 0,
+      "Left Leg": 0,
+      "Right Leg": 0,
+    },
+  };
+
+  expect(() => getWarhammerDefenderDamageRequestMsg(result, "Alex")).toThrow(
+    /safe whole-number/
+  );
 });
 
 test("shows zero received damage without wrapping the equation or a minimum notice", () => {

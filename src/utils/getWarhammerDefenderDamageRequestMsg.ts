@@ -1,8 +1,10 @@
 import {
+  DAMAGE_LOCATIONS,
   DamageLocation,
   WarhammerDefenderDamageEntry,
   WarhammerDefenderDamageRequest,
   WarhammerDefenderDamageResult,
+  WarhammerDefenderDefenses,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import {
   EMBED_DESCRIPTION_MAX,
@@ -55,6 +57,24 @@ function locationLabel(location: DamageLocation): string {
   }
 }
 
+/** Every armor and Toughness number the embed can quote must be a whole number. */
+function assertDefenses(defenses: WarhammerDefenderDefenses): void {
+  if (defenses.mode === "advanced") {
+    DAMAGE_LOCATIONS.forEach((location) => {
+      assertSafeInteger(defenses.armor[location]);
+      assertSafeInteger(defenses.toughnessBonus[location]);
+    });
+    return;
+  }
+
+  [
+    defenses.armor.headAP,
+    defenses.armor.bodyAP,
+    defenses.armor.armsAP,
+    defenses.armor.legsAP,
+  ].forEach(assertSafeInteger);
+}
+
 interface FormattedEntry {
   essential: string;
   detail?: string[];
@@ -98,10 +118,27 @@ function formatHit(
     ? ` − Armor (${formatReduction(entry.armorBeforePenetration, request.summary.penetration, entry.effectiveArmor)})`
     : "";
   const toughnessTerm = getWarhammerToughnessTerm(entry, request);
+  // A per-location add-on joins the Toughness Bonus inside the operand, so the
+  // simple-mode text stays byte-identical.
+  const toughnessBase =
+    toughnessTerm.advanced > 0
+      ? `\`${request.toughnessBonus}\` + \`${toughnessTerm.advanced}\``
+      : null;
+  const toughnessReduction = `\`${toughnessTerm.felling}\`${
+    toughnessTerm.overridden ? " → " : " = "
+  }\`${toughnessTerm.effective}\``;
   const toughness = toughnessTerm.fortitudeApplied
-    ? `\`${request.toughnessBonus}\` × \`2\`${toughnessTerm.reduced
-      ? ` − \`${toughnessTerm.felling}\`${toughnessTerm.overridden ? " → " : " = "}\`${toughnessTerm.effective}\``
-      : ` = \`${toughnessTerm.effective}\``}`
+    ? `${
+        toughnessBase ? `(${toughnessBase})` : `\`${request.toughnessBonus}\``
+      } × \`2\`${
+        toughnessTerm.reduced
+          ? ` − ${toughnessReduction}`
+          : ` = \`${toughnessTerm.effective}\``
+      }`
+    : toughnessBase
+    ? toughnessTerm.reduced
+      ? `${toughnessBase} − ${toughnessReduction}`
+      : `${toughnessBase} = \`${toughnessTerm.effective}\``
     : formatReduction(
         toughnessTerm.beforeFelling,
         toughnessTerm.felling,
@@ -213,12 +250,7 @@ function checkPayload(
 
 function getContext(result: WarhammerDefenderDamageResult): string {
   const request = result.request;
-  [
-    request.armor.headAP,
-    request.armor.bodyAP,
-    request.armor.armsAP,
-    request.armor.legsAP,
-  ].forEach(assertSafeInteger);
+  assertDefenses(request.defenses);
   // Derive the summary from the validated request so the embed always matches
   // the numbers that are shown, independent of the raw draft text.
   const summary = formatWarhammerAttackerDamageSummary(request.summary);
@@ -273,6 +305,7 @@ function assertValidWarhammerDefenderDamageResult(
   assertSafeInteger(result.request.summary.devastating);
   assertSafeInteger(result.request.toughnessBonus);
   assertSafeInteger(result.request.fortitude);
+  assertDefenses(result.request.defenses);
   if (!Array.isArray(result.request.summary.damages)) {
     throw new Error("Invalid Warhammer damage result");
   }

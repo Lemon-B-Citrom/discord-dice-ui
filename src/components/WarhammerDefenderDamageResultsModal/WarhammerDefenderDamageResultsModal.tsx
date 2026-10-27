@@ -31,7 +31,6 @@ function WarhammerDefenderDamageResultsModal() {
       show={isOpen}
       onHide={back}
       keyboard
-      backdrop="static"
       aria-labelledby="warhammer-damage-results-title"
     >
       <Modal.Header>

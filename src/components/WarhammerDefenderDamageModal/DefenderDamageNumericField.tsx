@@ -8,6 +8,14 @@ export interface DefenderDamageNumericFieldProps {
   value: string;
   onChange: (value: string) => void;
   error?: string;
+  /** Grays the field and stops edits while another source supplies the value. */
+  disabled?: boolean;
+  /** "row" keeps the label beside the input; "stacked" puts it above. */
+  layout?: "row" | "stacked";
+  /** Distinguishes the accessible name between the Armor and +Toughness panels. */
+  ariaLabel?: string;
+  /** Extra class for the wrapping group, used to dim a whole row. */
+  className?: string;
 }
 
 function DefenderDamageNumericField({
@@ -16,23 +24,36 @@ function DefenderDamageNumericField({
   value,
   onChange,
   error,
+  disabled = false,
+  layout = "row",
+  ariaLabel,
+  className,
 }: DefenderDamageNumericFieldProps) {
   const errorId = `${id}-error`;
+  const stacked = layout === "stacked";
+  const groupClassName = [
+    stacked ? styles.stackedField : styles.numericField,
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
   return (
-    <Form.Group className={styles.numericField}>
+    <Form.Group className={groupClassName}>
       <Form.Label htmlFor={id} className={error ? "text-danger" : undefined}>
         {label}
       </Form.Label>
       <Form.Control
         id={id}
-        className={styles.numericInput}
+        className={stacked ? styles.stackedInput : styles.numericInput}
         type="number"
         min={0}
         step={1}
         placeholder="0"
         value={value}
+        disabled={disabled}
         isInvalid={Boolean(error)}
         aria-invalid={Boolean(error)}
+        aria-label={ariaLabel}
         aria-describedby={error ? errorId : undefined}
         onChange={(event) => {
           const nextValue = event.target.value;

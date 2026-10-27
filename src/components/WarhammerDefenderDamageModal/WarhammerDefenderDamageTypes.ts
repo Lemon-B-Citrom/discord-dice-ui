@@ -11,6 +11,24 @@ export type DamageLocation = typeof DAMAGE_LOCATIONS[number];
 
 export type ArmorSlot = "headAP" | "bodyAP" | "armsAP" | "legsAP";
 
+export type AdvancedArmorField =
+  | "advancedArmorHead"
+  | "advancedArmorBody"
+  | "advancedArmorLeftArm"
+  | "advancedArmorRightArm"
+  | "advancedArmorLeftLeg"
+  | "advancedArmorRightLeg";
+
+export type AdvancedToughnessField =
+  | "advancedToughnessHead"
+  | "advancedToughnessBody"
+  | "advancedToughnessLeftArm"
+  | "advancedToughnessRightArm"
+  | "advancedToughnessLeftLeg"
+  | "advancedToughnessRightLeg";
+
+export type AdvancedDefenseField = AdvancedArmorField | AdvancedToughnessField;
+
 export interface WarhammerDefenderDamageDraft {
   attackSummaryString: string;
   toughnessBonus: string;
@@ -23,6 +41,20 @@ export interface WarhammerDefenderDamageDraft {
   trueHits: string;
   magPer: string;
   woundsPer: string;
+  hordeEnabled: boolean;
+  advancedEnabled: boolean;
+  advancedArmorHead: string;
+  advancedArmorBody: string;
+  advancedArmorLeftArm: string;
+  advancedArmorRightArm: string;
+  advancedArmorLeftLeg: string;
+  advancedArmorRightLeg: string;
+  advancedToughnessHead: string;
+  advancedToughnessBody: string;
+  advancedToughnessLeftArm: string;
+  advancedToughnessRightArm: string;
+  advancedToughnessLeftLeg: string;
+  advancedToughnessRightLeg: string;
 }
 
 export const EMPTY_DEFENDER_DAMAGE_DRAFT: WarhammerDefenderDamageDraft = {
@@ -37,6 +69,20 @@ export const EMPTY_DEFENDER_DAMAGE_DRAFT: WarhammerDefenderDamageDraft = {
   trueHits: "",
   magPer: "",
   woundsPer: "",
+  hordeEnabled: false,
+  advancedEnabled: false,
+  advancedArmorHead: "",
+  advancedArmorBody: "",
+  advancedArmorLeftArm: "",
+  advancedArmorRightArm: "",
+  advancedArmorLeftLeg: "",
+  advancedArmorRightLeg: "",
+  advancedToughnessHead: "",
+  advancedToughnessBody: "",
+  advancedToughnessLeftArm: "",
+  advancedToughnessRightArm: "",
+  advancedToughnessLeftLeg: "",
+  advancedToughnessRightLeg: "",
 };
 
 export interface WarhammerAttackerDamageSummary {
@@ -65,6 +111,20 @@ export interface WarhammerArmorLayout {
   };
 }
 
+/** Per-body-part armor and Toughness add-ons used by advanced defenses. */
+export interface WarhammerAdvancedDefenses {
+  armor: Record<DamageLocation, number>;
+  toughnessBonus: Record<DamageLocation, number>;
+}
+
+/**
+ * Exactly one source of armor and Toughness per request: the four inherited
+ * slots, or the six per-location overrides.
+ */
+export type WarhammerDefenderDefenses =
+  | { mode: "simple"; armor: WarhammerArmorLayout }
+  | ({ mode: "advanced" } & WarhammerAdvancedDefenses);
+
 export interface DefenderDamageValidationIssue {
   field: keyof WarhammerDefenderDamageDraft | "form";
   message: string;
@@ -79,7 +139,7 @@ export interface WarhammerDefenderDamageCommonRequest {
   summary: WarhammerAttackerDamageSummary;
   toughnessBonus: number;
   fortitude: number;
-  armor: WarhammerArmorLayout;
+  defenses: WarhammerDefenderDefenses;
   firstHitLocation: DamageLocation;
 }
 

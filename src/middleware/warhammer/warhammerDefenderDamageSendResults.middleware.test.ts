@@ -8,6 +8,7 @@ import {
   saveWarhammerDefenderDamageResults,
 } from "../../actions/warhammerDefenderDamage.actions";
 import {
+  EMPTY_DEFENDER_DAMAGE_DRAFT,
   WarhammerDefenderDamageDraft,
   WarhammerDefenderDamageResult,
 } from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
@@ -28,17 +29,10 @@ const reducer = combineReducers({
 });
 
 const draft: WarhammerDefenderDamageDraft = {
+  ...EMPTY_DEFENDER_DAMAGE_DRAFT,
   attackSummaryString: "Pen 0, Fel 0: 12, 8",
   toughnessBonus: "2",
-  fortitude: "",
-  armorHead: "",
-  armorBody: "",
-  armorArms: "",
-  armorLegs: "",
   firstHitLocation: "Head",
-  trueHits: "",
-  magPer: "",
-  woundsPer: "",
 };
 
 const originalFetch = (global as typeof global & { fetch?: jest.Mock }).fetch;

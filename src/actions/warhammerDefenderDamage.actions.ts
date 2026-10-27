@@ -13,9 +13,12 @@ export const WARHAMMER_DEFENDER_DAMAGE_BACK_TO_FORM = "WARHAMMER_DEFENDER_DAMAGE
 
 export type DefenderDamageDraftField = keyof WarhammerDefenderDamageDraft;
 
+/** Every field is a raw string except the Advanced checkbox. */
+export type DefenderDamageDraftValue = string | boolean;
+
 export function changeWarhammerDefenderDamageDraft(
   field: DefenderDamageDraftField,
-  value: string
+  value: DefenderDamageDraftValue
 ) {
   return { type: WARHAMMER_DEFENDER_DAMAGE_DRAFT_CHANGED, payload: { field, value } };
 }

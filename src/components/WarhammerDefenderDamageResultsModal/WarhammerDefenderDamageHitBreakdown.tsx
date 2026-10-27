@@ -87,12 +87,55 @@ function WarhammerDefenderDamageHitBreakdown({
         </>
       )}
       {" − Toughness ("}
-      {toughnessTerm.fortitudeApplied && (
-        <><CodeSpan>{request.toughnessBonus}</CodeSpan>{" × "}<CodeSpan>{2}</CodeSpan>{toughnessTerm.reduced ? " − " : " = "}</>
-      )}
-      {toughnessTerm.reduced ? (
+      {toughnessTerm.fortitudeApplied ? (
         <>
-          {!toughnessTerm.fortitudeApplied && <><CodeSpan>{toughnessTerm.beforeFelling}</CodeSpan>{" − "}</>}
+          {toughnessTerm.advanced > 0 ? (
+            <>
+              {"("}
+              <CodeSpan>{request.toughnessBonus}</CodeSpan>
+              {" + "}
+              <CodeSpan>{toughnessTerm.advanced}</CodeSpan>
+              {")"}
+            </>
+          ) : (
+            <CodeSpan>{request.toughnessBonus}</CodeSpan>
+          )}
+          {" × "}
+          <CodeSpan>{2}</CodeSpan>
+          {toughnessTerm.reduced ? (
+            <>
+              {" − "}
+              <CodeSpan>{toughnessTerm.felling}</CodeSpan>
+              {toughnessTerm.overridden ? " → " : " = "}
+            </>
+          ) : (
+            " = "
+          )}
+          <CodeSpan>{toughnessTerm.effective}</CodeSpan>
+        </>
+      ) : toughnessTerm.advanced > 0 ? (
+        <>
+          <CodeSpan>{request.toughnessBonus}</CodeSpan>
+          {" + "}
+          <CodeSpan>{toughnessTerm.advanced}</CodeSpan>
+          {toughnessTerm.reduced ? (
+            <>
+              {" − "}
+              <CodeSpan>{toughnessTerm.felling}</CodeSpan>
+              {toughnessTerm.overridden ? " → " : " = "}
+              <CodeSpan>{toughnessTerm.effective}</CodeSpan>
+            </>
+          ) : (
+            <>
+              {" = "}
+              <CodeSpan>{toughnessTerm.effective}</CodeSpan>
+            </>
+          )}
+        </>
+      ) : toughnessTerm.reduced ? (
+        <>
+          <CodeSpan>{toughnessTerm.beforeFelling}</CodeSpan>
+          {" − "}
           <CodeSpan>{toughnessTerm.felling}</CodeSpan>
           {toughnessTerm.overridden ? " → " : " = "}
           <CodeSpan>{toughnessTerm.effective}</CodeSpan>
@@ -100,8 +143,7 @@ function WarhammerDefenderDamageHitBreakdown({
       ) : (
         <CodeSpan>{toughnessTerm.effective}</CodeSpan>
       )}
-      {")"
-      }
+      {")"}
     </div>
   );
 

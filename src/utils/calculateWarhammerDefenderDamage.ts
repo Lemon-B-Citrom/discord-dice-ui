@@ -9,6 +9,9 @@ import {
   WarhammerDefenderDamageDraft,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import getWarhammerDefenderDamageHitLocation from "./getWarhammerDefenderDamageHitLocation";
+import getWarhammerDefenseForLocation, {
+  LocationDefense,
+} from "./getWarhammerDefenseForLocation";
 import { requireSafeInteger } from "./safeInteger";
 
 const getArmorSlot = (location: DamageLocation): ArmorSlot => {
@@ -32,11 +35,12 @@ const checkedAdd = (left: number, right: number, description: string): number =>
 const baseHit = (
   request: WarhammerDefenderDamageRequest,
   index: number,
+  location: DamageLocation,
+  defense: LocationDefense,
   effectiveToughnessBonus: number
 ) => {
-  const location = getWarhammerDefenderDamageHitLocation(request.firstHitLocation, index);
   const armorSlot = getArmorSlot(location);
-  const armorBeforePenetration = request.armor[armorSlot];
+  const armorBeforePenetration = defense.armorBeforePenetration;
   const effectiveArmor = Math.max(
     0,
     requireSafeInteger(
@@ -62,7 +66,7 @@ const baseHit = (
     originalDamage: request.summary.damages[index],
     armorBeforePenetration,
     effectiveArmor,
-    showArmorTerm: request.armor.sources[armorSlot] !== "omitted",
+    showArmorTerm: defense.showArmorTerm,
     effectiveToughnessBonus,
     finalDamage,
   };
@@ -76,14 +80,26 @@ function calculateWarhammerDefenderDamage(
   let totalMagnitude = 0;
   const entries: WarhammerDefenderDamageEntry[] = request.summary.damages.map(
     (_damage, index) => {
+      const location = getWarhammerDefenderDamageHitLocation(
+        request.firstHitLocation,
+        index
+      );
+      const defense = getWarhammerDefenseForLocation(
+        request,
+        location,
+        getArmorSlot(location)
+      );
       const bonusIndex = request.mode === "horde" ? index - request.trueHits : -1;
       // Bonus hits have an independent 2N quota; division avoids overflowing 2N.
       const fortitudeApplied =
         request.mode === "single" || bonusIndex < 0
           ? index < request.fortitude
           : Math.floor(bonusIndex / 2) < request.fortitude;
+      // A per-location Toughness add-on joins the Toughness Bonus before
+      // Fortitude doubles it, so Felling erodes it and Fortitude doubles it.
       const toughnessBeforeFelling = requireSafeInteger(
-        request.toughnessBonus * (fortitudeApplied ? 2 : 1),
+        (request.toughnessBonus + defense.toughnessBonusAdd) *
+          (fortitudeApplied ? 2 : 1),
         "Toughness before Felling"
       );
       const effectiveToughnessBonus = Math.max(0, requireSafeInteger(
@@ -91,7 +107,7 @@ function calculateWarhammerDefenderDamage(
         "Effective Toughness Bonus"
       ));
       const hit = {
-        ...baseHit(request, index, effectiveToughnessBonus),
+        ...baseHit(request, index, location, defense, effectiveToughnessBonus),
         fortitudeApplied,
         toughnessBeforeFelling,
       };

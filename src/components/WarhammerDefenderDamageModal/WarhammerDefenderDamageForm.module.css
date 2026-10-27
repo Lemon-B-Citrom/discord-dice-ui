@@ -34,6 +34,24 @@
   flex: 0 0 5rem;
 }
 
+.stackedField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0;
+}
+
+.stackedField label {
+  font-size: 0.8125rem;
+  margin: 0;
+  text-align: center;
+}
+
+.stackedInput {
+  text-align: center;
+  width: 100%;
+}
+
 .locationField {
   margin-bottom: 0.65rem;
 }
@@ -60,6 +78,66 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: 1rem;
+}
+
+.armorFieldsDisabled {
+  opacity: 0.55;
+}
+
+.advancedRow {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+
+.advancedCheck {
+  margin: 0;
+  padding-left: 0;
+  white-space: nowrap;
+}
+
+/* Easier to hit than the 1rem default. */
+.advancedCheck input {
+  height: 1.5rem;
+  margin-left: 0;
+  margin-top: 0;
+  width: 1.5rem;
+}
+
+.hordeEnable {
+  align-items: center;
+  display: flex;
+  margin-bottom: 0.65rem;
+}
+
+/* Matches the Advanced box: a 1.5rem target with a wider label gutter. */
+.hordeCheck {
+  padding-left: 1.75rem;
+}
+
+.hordeCheck input {
+  height: 1.5rem;
+  margin-left: -1.75rem;
+  margin-top: 0;
+  width: 1.5rem;
+}
+
+.hordeCheck label {
+  font-size: 1.0625rem;
+  margin: 0;
+}
+
+.hordeFieldDisabled {
+  opacity: 0.55;
+}
+
+.advancedButton {
+  flex: 1 1 auto;
+}
+
+.advancedError {
+  margin-top: 0.25rem;
 }
 
 @media (max-width: 767.98px) {

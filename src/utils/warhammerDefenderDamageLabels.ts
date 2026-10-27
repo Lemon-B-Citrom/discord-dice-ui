@@ -3,6 +3,7 @@ import {
   WarhammerDefenderDamageRequest,
   WarhammerDefenderHordeDamageHit,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import getWarhammerDefenseForLocation from "./getWarhammerDefenseForLocation";
 
 export interface WarhammerMagnitudeBasis {
   label: string;
@@ -11,6 +12,8 @@ export interface WarhammerMagnitudeBasis {
 
 export interface WarhammerToughnessTerm {
   fortitudeApplied: boolean;
+  /** Per-location Toughness added to the Toughness Bonus, 0 in simple mode. */
+  advanced: number;
   beforeFelling: number;
   felling: number;
   effective: number;
@@ -49,8 +52,14 @@ export function getWarhammerToughnessTerm(
   entry: DefenderDamageEntryBase,
   request: WarhammerDefenderDamageRequest
 ): WarhammerToughnessTerm {
+  const defense = getWarhammerDefenseForLocation(
+    request,
+    entry.location,
+    entry.armorSlot
+  );
   return {
     fortitudeApplied: entry.fortitudeApplied,
+    advanced: defense.toughnessBonusAdd,
     beforeFelling: entry.toughnessBeforeFelling,
     felling: request.summary.felling,
     effective: entry.effectiveToughnessBonus,

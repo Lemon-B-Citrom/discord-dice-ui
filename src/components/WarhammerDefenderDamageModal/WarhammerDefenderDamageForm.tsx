@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
 import Form from "react-bootstrap/Form";
+import AdvancedDefenseControl, {
+  ADVANCED_DEFENSE_BUTTON_ID,
+  ADVANCED_DEFENSE_TOGGLE_ID,
+} from "./AdvancedDefenseControl";
 import FirstHitLocationSelect from "./FirstHitLocationSelect";
 import DefenderDamageNumericField from "./DefenderDamageNumericField";
 import styles from "./WarhammerDefenderDamageForm.module.css";
@@ -14,11 +18,17 @@ export const DEFENDER_DAMAGE_FORM_ID = "warhammer-defender-damage-form";
 interface WarhammerDefenderDamageFormProps {
   draft: WarhammerDefenderDamageDraft;
   errors: DefenderDamageValidationErrors;
-  onChange: (field: keyof WarhammerDefenderDamageDraft, value: string) => void;
+  onChange: (
+    field: keyof WarhammerDefenderDamageDraft,
+    value: string | boolean
+  ) => void;
   onCalculate: (draft: WarhammerDefenderDamageDraft) => void;
+  onOpenAdvanced?: () => void;
   clearCounter?: number;
 }
 
+// Advanced fields live in the editor, so an error there focuses the button that
+// opens it rather than an input that is not on screen.
 const fieldControlIds: Record<keyof WarhammerDefenderDamageDraft, string> = {
   attackSummaryString: "defender-damage-attack-summary",
   toughnessBonus: "defender-damage-toughness-bonus",
@@ -31,6 +41,20 @@ const fieldControlIds: Record<keyof WarhammerDefenderDamageDraft, string> = {
   trueHits: "defender-damage-true-hits",
   magPer: "defender-damage-mag-per",
   woundsPer: "defender-damage-wounds-per",
+  hordeEnabled: "defender-damage-horde-enabled",
+  advancedEnabled: ADVANCED_DEFENSE_TOGGLE_ID,
+  advancedArmorHead: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedArmorBody: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedArmorLeftArm: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedArmorRightArm: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedArmorLeftLeg: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedArmorRightLeg: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedToughnessHead: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedToughnessBody: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedToughnessLeftArm: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedToughnessRightArm: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedToughnessLeftLeg: ADVANCED_DEFENSE_BUTTON_ID,
+  advancedToughnessRightLeg: ADVANCED_DEFENSE_BUTTON_ID,
 };
 
 function WarhammerDefenderDamageForm({
@@ -38,6 +62,7 @@ function WarhammerDefenderDamageForm({
   errors,
   onChange,
   onCalculate,
+  onOpenAdvanced = () => undefined,
   clearCounter = 0,
 }: WarhammerDefenderDamageFormProps) {
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -149,33 +174,49 @@ function WarhammerDefenderDamageForm({
           </Form.Group>
         </div>
         <div className={styles.armorFields}>
-          <DefenderDamageNumericField
-            id="defender-damage-armor-head"
-            label="AP Head"
-            value={draft.armorHead}
-            error={visibleErrors.armorHead}
-            onChange={(value) => onChange("armorHead", value)}
-          />
-          <DefenderDamageNumericField
-            id="defender-damage-armor-body"
-            label="AP Body"
-            value={draft.armorBody}
-            error={visibleErrors.armorBody}
-            onChange={(value) => onChange("armorBody", value)}
-          />
-          <DefenderDamageNumericField
-            id="defender-damage-armor-arms"
-            label="AP Arms"
-            value={draft.armorArms}
-            error={visibleErrors.armorArms}
-            onChange={(value) => onChange("armorArms", value)}
-          />
-          <DefenderDamageNumericField
-            id="defender-damage-armor-legs"
-            label="AP Legs"
-            value={draft.armorLegs}
-            error={visibleErrors.armorLegs}
-            onChange={(value) => onChange("armorLegs", value)}
+          <div
+            className={
+              draft.advancedEnabled ? styles.armorFieldsDisabled : undefined
+            }
+          >
+            <DefenderDamageNumericField
+              id="defender-damage-armor-head"
+              label="AP Head"
+              value={draft.armorHead}
+              error={visibleErrors.armorHead}
+              disabled={draft.advancedEnabled}
+              onChange={(value) => onChange("armorHead", value)}
+            />
+            <DefenderDamageNumericField
+              id="defender-damage-armor-body"
+              label="AP Body"
+              value={draft.armorBody}
+              error={visibleErrors.armorBody}
+              disabled={draft.advancedEnabled}
+              onChange={(value) => onChange("armorBody", value)}
+            />
+            <DefenderDamageNumericField
+              id="defender-damage-armor-arms"
+              label="AP Arms"
+              value={draft.armorArms}
+              error={visibleErrors.armorArms}
+              disabled={draft.advancedEnabled}
+              onChange={(value) => onChange("armorArms", value)}
+            />
+            <DefenderDamageNumericField
+              id="defender-damage-armor-legs"
+              label="AP Legs"
+              value={draft.armorLegs}
+              error={visibleErrors.armorLegs}
+              disabled={draft.advancedEnabled}
+              onChange={(value) => onChange("armorLegs", value)}
+            />
+          </div>
+          <AdvancedDefenseControl
+            draft={draft}
+            errors={visibleErrors}
+            onChange={onChange}
+            onOpen={onOpenAdvanced}
           />
         </div>
       </div>
@@ -185,11 +226,34 @@ function WarhammerDefenderDamageForm({
       <fieldset className={styles.hordeOptions}>
         <legend>Horde Options</legend>
         <div className={styles.hordeGrid}>
+          <Form.Group className={styles.hordeEnable}>
+            <Form.Check
+              id={fieldControlIds.hordeEnabled}
+              type="checkbox"
+              className={styles.hordeCheck}
+              label="Enable"
+              checked={draft.hordeEnabled}
+              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                onChange("hordeEnabled", event.target.checked)
+              }
+            />
+          </Form.Group>
+          <DefenderDamageNumericField
+            id="defender-damage-wounds-per"
+            label="Wounds per"
+            value={draft.woundsPer}
+            error={visibleErrors.woundsPer}
+            disabled={!draft.hordeEnabled}
+            className={draft.hordeEnabled ? undefined : styles.hordeFieldDisabled}
+            onChange={(value) => onChange("woundsPer", value)}
+          />
           <DefenderDamageNumericField
             id="defender-damage-true-hits"
             label="True Hits"
             value={draft.trueHits}
             error={visibleErrors.trueHits}
+            disabled={!draft.hordeEnabled}
+            className={draft.hordeEnabled ? undefined : styles.hordeFieldDisabled}
             onChange={(value) => onChange("trueHits", value)}
           />
           <DefenderDamageNumericField
@@ -197,14 +261,9 @@ function WarhammerDefenderDamageForm({
             label="Mag per"
             value={draft.magPer}
             error={visibleErrors.magPer}
+            disabled={!draft.hordeEnabled}
+            className={draft.hordeEnabled ? undefined : styles.hordeFieldDisabled}
             onChange={(value) => onChange("magPer", value)}
-          />
-          <DefenderDamageNumericField
-            id="defender-damage-wounds-per"
-            label="Wounds per"
-            value={draft.woundsPer}
-            error={visibleErrors.woundsPer}
-            onChange={(value) => onChange("woundsPer", value)}
           />
         </div>
       </fieldset>

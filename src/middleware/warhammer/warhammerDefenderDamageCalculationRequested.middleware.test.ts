@@ -2,7 +2,10 @@ import { applyMiddleware, combineReducers, createStore } from "redux";
 import { requestWarhammerDefenderDamage } from "../../actions/warhammerDefenderDamage.actions";
 import modalsState from "../../reducers/modals-reducer";
 import warhammerDefenderDamage from "../../reducers/warhammer-defender-damage-reducer";
-import { WarhammerDefenderDamageDraft } from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import {
+  EMPTY_DEFENDER_DAMAGE_DRAFT,
+  WarhammerDefenderDamageDraft,
+} from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import { createWarhammerDefenderDamageCalculationRequestedMiddleware } from "./warhammerDefenderDamageCalculationRequested.middleware";
 
 const counter = (state = 0, action: any) =>
@@ -15,17 +18,10 @@ const reducer = combineReducers({
 });
 
 const draft: WarhammerDefenderDamageDraft = {
+  ...EMPTY_DEFENDER_DAMAGE_DRAFT,
   attackSummaryString: "Pen 0, Fel 0: 12, 8",
   toughnessBonus: "2",
-  fortitude: "",
-  armorHead: "",
-  armorBody: "",
-  armorArms: "",
-  armorLegs: "",
   firstHitLocation: "Head",
-  trueHits: "",
-  magPer: "",
-  woundsPer: "",
 };
 
 test("converts a calculation throw into a form error and keeps the draft", () => {
