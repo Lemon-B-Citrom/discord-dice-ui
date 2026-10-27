@@ -14,6 +14,7 @@ const attack: WarhammerAttackerDamageInput = {
   proven: 0,
   rfOn: 10,
   rfConfirmsOn: 50,
+  alwaysConfirm: false,
   tearing: "none",
 };
 
@@ -188,6 +189,17 @@ test("uses the selected DoS mode for RF confirmations", () => {
   );
 
   expect(result.damages).toEqual([10]);
+});
+
+test("always confirms Fury without rolling and ignores the threshold", () => {
+  const result = calculateWarhammerAttackerDamage(
+    { ...attack, rfConfirmsOn: 0, alwaysConfirm: true },
+    sl.wfrp4e,
+    diceSource([10, 5], [])
+  );
+
+  expect(result.damages).toEqual([15]);
+  expect(result.hitDetails[0].attempts[0].righteousFuryRolls).toEqual([5]);
 });
 
 test("treats Devastating as a pass-through that does not change rolled damage", () => {

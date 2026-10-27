@@ -23,7 +23,7 @@ const randomDiceSource: WarhammerAttackerDamageDiceSource = {
 
 export class WarhammerAttackerDamageCalculationLimitError extends Error {
   constructor() {
-    super("Righteous Fury exceeded the roll limit. Please check RF On and confirmation target.");
+    super("Righteous Fury exceeded the roll limit. Please check RF On and confirmation settings.");
     this.name = "WarhammerAttackerDamageCalculationLimitError";
   }
 }
@@ -48,6 +48,10 @@ export default function calculateWarhammerAttackerDamage(
   const useFastSL = slType === sl.fast;
 
   const confirmsRighteousFury = () => {
+    // Always Confirm removes the confirmation roll entirely.
+    if (input.alwaysConfirm) {
+      return true;
+    }
     const result = rollWithLimit(diceSource.rollD100);
     return getWarhammerSuccessLevels({
       skillLevel: input.rfConfirmsOn,

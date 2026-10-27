@@ -277,12 +277,21 @@ export default function getWarhammerAttackerDamageRequestMsg(
   }d10\` ${modifier} x \`${input.hits}\``;
   const tearingLabel = getTearingLabel(input.tearing);
   let furySettings = "";
-  if (input.rfConfirmsOn === 0) {
+  if (input.alwaysConfirm) {
+    furySettings =
+      input.rfOn === 10
+        ? "Righteous Fury always confirms"
+        : `Righteous Fury on ${input.rfOn}, always confirms`;
+  } else if (input.rfConfirmsOn === 0) {
     furySettings = "No Righteous Fury";
   } else if (input.rfOn !== 10) {
     furySettings = `Righteous Fury on ${input.rfOn}`;
   }
-  if (input.rfConfirmsOn !== 100 && input.rfConfirmsOn !== 0) {
+  if (
+    !input.alwaysConfirm &&
+    input.rfConfirmsOn !== 100 &&
+    input.rfConfirmsOn !== 0
+  ) {
     furySettings += `${
       input.rfOn === 10 ? "Righteous Fury " : ", "
     }confirms at ${input.rfConfirmsOn}%`;

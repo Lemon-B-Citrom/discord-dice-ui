@@ -23,6 +23,10 @@
   max-width: 7.5rem;
 }
 
+.disabledLabel {
+  opacity: 0.65;
+}
+
 .attackDetails {
   align-items: start;
 }

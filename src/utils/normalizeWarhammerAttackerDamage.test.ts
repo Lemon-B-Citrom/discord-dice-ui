@@ -13,6 +13,7 @@ const emptyValues: AttackerDamageValues = {
   proven: "",
   rfOn: "",
   rfConfirmsOn: "",
+  alwaysConfirm: false,
   tearing: "none",
 };
 
@@ -71,4 +72,14 @@ test("rejects negative non-modifier values and invalid hit counts", () => {
   expect(negative.input).toBeUndefined();
   expect(negative.errors.penetration).toBeDefined();
   expect(invalidHits.errors.hits).toBeDefined();
+});
+
+test("passes Always Confirm through to the normalized input", () => {
+  const result = normalizeWarhammerAttackerDamage({
+    ...emptyValues,
+    alwaysConfirm: true,
+  });
+
+  expect(result.errors).toEqual({});
+  expect(result.input).toMatchObject({ alwaysConfirm: true });
 });

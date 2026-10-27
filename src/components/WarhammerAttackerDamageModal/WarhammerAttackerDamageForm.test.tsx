@@ -90,3 +90,29 @@ test("submits normalized defaults when inputs are left blank", () => {
 
   expect(onRollSpy).toHaveBeenCalledWith(WARHAMMER_ATTACKER_DAMAGE_DEFAULTS);
 });
+
+test("grays out Confirms on while Always Confirm is ticked", () => {
+  const onRollSpy = jest.fn();
+  const { container, getByLabelText } = render(
+    <WarhammerAttackerDamageForm onRoll={onRollSpy} />
+  );
+  const alwaysConfirm = getByLabelText("Always Confirm");
+  const confirmsOn = getByLabelText("Confirms on");
+
+  expect(alwaysConfirm).not.toBeChecked();
+  expect(confirmsOn).not.toBeDisabled();
+
+  fireEvent.click(alwaysConfirm);
+  expect(alwaysConfirm).toBeChecked();
+  expect(confirmsOn).toBeDisabled();
+
+  fireEvent.submit(container.querySelector("form") as HTMLFormElement);
+  expect(onRollSpy).toHaveBeenCalledWith({
+    ...WARHAMMER_ATTACKER_DAMAGE_DEFAULTS,
+    alwaysConfirm: true,
+  });
+
+  fireEvent.click(alwaysConfirm);
+  expect(alwaysConfirm).not.toBeChecked();
+  expect(confirmsOn).not.toBeDisabled();
+});

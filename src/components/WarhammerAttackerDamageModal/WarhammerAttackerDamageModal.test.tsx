@@ -13,6 +13,7 @@ const initialInput: WarhammerAttackerDamageInput = {
   proven: 6,
   rfOn: 9,
   rfConfirmsOn: 55,
+  alwaysConfirm: false,
   tearing: "tripleTearing",
 };
 
@@ -57,5 +58,7 @@ test("Clear resets attack inputs to empty placeholder values and removes validat
   expect(getByLabelText("No Tearing")).toBeChecked();
   expect(getByLabelText("Tearing")).not.toBeChecked();
   expect(getByLabelText("Triple Tearing")).not.toBeChecked();
+  expect(getByLabelText("Always Confirm")).not.toBeChecked();
+  expect(getByLabelText("Confirms on")).not.toBeDisabled();
   expect(queryByRole("alert")).toBeNull();
 });

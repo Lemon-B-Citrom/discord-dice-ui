@@ -17,6 +17,7 @@ const attack = {
   proven: 0,
   rfOn: 10,
   rfConfirmsOn: 0,
+  alwaysConfirm: false,
   tearing: "none" as const,
 };
 

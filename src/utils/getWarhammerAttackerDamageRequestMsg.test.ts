@@ -11,6 +11,7 @@ const input: WarhammerAttackerDamageResult["input"] = {
   proven: 0,
   rfOn: 10,
   rfConfirmsOn: 50,
+  alwaysConfirm: false,
   tearing: "tearing",
 };
 
@@ -239,6 +240,28 @@ test("reports No Righteous Fury when the confirmation threshold is zero", () => 
     ":crossed_swords: Penetration 3 · Felling 2 · Tearing"
   );
   expect(message.description.split("\n")[1]).toBe(":drop_of_blood: No Righteous Fury");
+});
+
+test("reports always-confirming Fury instead of a confirmation threshold", () => {
+  const attack = result();
+  attack.input = {
+    ...input,
+    hits: 1,
+    rfOn: 10,
+    rfConfirmsOn: 0,
+    alwaysConfirm: true,
+  };
+  attack.damages = [2];
+  attack.hitDetails = [result().hitDetails[0]];
+
+  expect(
+    getWarhammerAttackerDamageRequestMsg(attack, "Lemon").description.split("\n")[1]
+  ).toBe(":drop_of_blood: Righteous Fury always confirms");
+
+  attack.input = { ...attack.input, rfOn: 9 };
+  expect(
+    getWarhammerAttackerDamageRequestMsg(attack, "Lemon").description.split("\n")[1]
+  ).toBe(":drop_of_blood: Righteous Fury on 9, always confirms");
 });
 
 test("keeps crossed swords on the profile and blood on the Fury line for Triple Tearing", () => {

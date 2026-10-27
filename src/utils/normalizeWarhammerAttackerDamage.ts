@@ -15,6 +15,7 @@ export const WARHAMMER_ATTACKER_DAMAGE_DEFAULTS: WarhammerAttackerDamageInput = 
   proven: 0,
   rfOn: 10,
   rfConfirmsOn: 0,
+  alwaysConfirm: false,
   tearing: "none",
 };
 
@@ -31,7 +32,9 @@ export default function normalizeWarhammerAttackerDamage(
 ): NormalizeAttackResult {
   const errors: AttackerDamageErrors = {};
   const parsed: Partial<WarhammerAttackerDamageInput> = {};
-  const numericFields: Array<keyof Omit<WarhammerAttackerDamageInput, "tearing">> = [
+  const numericFields: Array<
+    keyof Omit<WarhammerAttackerDamageInput, "tearing" | "alwaysConfirm">
+  > = [
     "hits",
     "damageDice",
     "damageModifier",
@@ -78,7 +81,8 @@ export default function normalizeWarhammerAttackerDamage(
 
   return {
     input: {
-      ...(parsed as Omit<WarhammerAttackerDamageInput, "tearing">),
+      ...(parsed as Omit<WarhammerAttackerDamageInput, "tearing" | "alwaysConfirm">),
+      alwaysConfirm: values.alwaysConfirm,
       tearing: values.tearing,
     },
     errors,

@@ -10,6 +10,7 @@ export interface AttackerDamageValues {
   proven: string;
   rfOn: string;
   rfConfirmsOn: string;
+  alwaysConfirm: boolean;
   tearing: AttackerDamageTearing;
 }
 
@@ -22,7 +23,10 @@ export interface WarhammerAttackerDamageInput {
   devastating: number;
   proven: number;
   rfOn: number;
+  /** The confirmation threshold; ignored while alwaysConfirm is true. */
   rfConfirmsOn: number;
+  /** Confirms every Righteous Fury without a roll, so no threshold applies. */
+  alwaysConfirm: boolean;
   tearing: AttackerDamageTearing;
 }
 

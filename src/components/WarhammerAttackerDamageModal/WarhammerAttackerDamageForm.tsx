@@ -43,6 +43,7 @@ const toFormValues = (
   proven: input ? `${input.proven}` : "",
   rfOn: input ? `${input.rfOn}` : "",
   rfConfirmsOn: input ? `${input.rfConfirmsOn}` : "",
+  alwaysConfirm: input ? input.alwaysConfirm : false,
   tearing: input ? input.tearing : "none",
 });
 
@@ -78,6 +79,10 @@ function WarhammerAttackerDamageForm({
     if (value === "" || Number(value) >= 0) {
       updateValue(field, value);
     }
+  };
+
+  const updateAlwaysConfirm = (alwaysConfirm: boolean) => {
+    setValues((currentValues) => ({ ...currentValues, alwaysConfirm }));
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -303,7 +308,9 @@ function WarhammerAttackerDamageForm({
         <Form.Label
           column
           xs="auto"
-          className={styles.alignedLabelWide}
+          className={`${styles.alignedLabelWide}${
+            values.alwaysConfirm ? ` ${styles.disabledLabel}` : ""
+          }`}
           htmlFor="attacker-damage-rf-confirms-on"
         >
           Confirms on
@@ -315,6 +322,7 @@ function WarhammerAttackerDamageForm({
               className={styles.compactInput}
               type="number"
               min={0}
+              disabled={values.alwaysConfirm}
               placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.rfConfirmsOn}`}
               value={values.rfConfirmsOn}
               onChange={(event) =>
@@ -323,6 +331,17 @@ function WarhammerAttackerDamageForm({
             />
             <span>%</span>
           </div>
+        </Col>
+        <Col xs="auto">
+          <Form.Check
+            id="attacker-damage-always-confirm"
+            type="checkbox"
+            label="Always Confirm"
+            checked={values.alwaysConfirm}
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+              updateAlwaysConfirm(event.target.checked)
+            }
+          />
         </Col>
       </Form.Group>
     </Form>
