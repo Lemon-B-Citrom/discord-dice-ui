@@ -71,7 +71,7 @@ function createSummaryFields(
 ): WarhammerAttackerDamageRequestMsgField[] {
   const header = formatWarhammerAttackerDamageSummaryHeader(summary);
   const parts = [
-    ` ${header} `,
+    `${header} `,
     ...summary.damages.map(
       (damage, index) => `${index > 0 ? ", " : ""}${damage}`
     ),

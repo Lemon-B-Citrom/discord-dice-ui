@@ -86,7 +86,7 @@ test("formats the profile, ordered hit totals, selected attempts, and comparison
   expect(message.fields[0].value).not.toContain("Discarded:");
   expect(message.fields[message.fields.length - 1]).toEqual({
     name: ":boom: Summary",
-    value: "` Pen 3, Fel 2: 16, 11`",
+    value: "`Pen 3, Fel 2: 16, 11`",
   });
 });
 
@@ -102,7 +102,7 @@ test("includes Devastating in the profile and summary only when it is not zero",
   );
   expect(message.fields[message.fields.length - 1]).toEqual({
     name: ":boom: Summary",
-    value: "` Pen 3, Fel 2, Dev 3: 16, 11`",
+    value: "`Pen 3, Fel 2, Dev 3: 16, 11`",
   });
 });
 
@@ -116,7 +116,7 @@ test("omits zero-valued traits from the summary while keeping the header order c
     ":crossed_swords: Penetration 3 · Devastating 4 · Tearing"
   );
   expect(message.fields[message.fields.length - 1].value).toBe(
-    "` Pen 3, Dev 4: 16, 11`"
+    "`Pen 3, Dev 4: 16, 11`"
   );
 });
 
