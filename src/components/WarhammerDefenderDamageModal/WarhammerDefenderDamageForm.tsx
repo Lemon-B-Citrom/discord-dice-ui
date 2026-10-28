@@ -5,7 +5,7 @@ import AdvancedDefenseControl, {
   ADVANCED_DEFENSE_TOGGLE_ID,
 } from "./AdvancedDefenseControl";
 import FirstHitLocationSelect from "./FirstHitLocationSelect";
-import DefenderDamageNumericField from "./DefenderDamageNumericField";
+import DamageNumericField from "../DamageNumericField/DamageNumericField";
 import styles from "./WarhammerDefenderDamageForm.module.css";
 import {
   DefenderDamageValidationErrors,
@@ -57,6 +57,25 @@ const fieldControlIds: Record<keyof WarhammerDefenderDamageDraft, string> = {
   advancedToughnessRightLeg: ADVANCED_DEFENSE_BUTTON_ID,
 };
 
+const ARMOR_FIELDS: ReadonlyArray<{
+  field: "armorHead" | "armorBody" | "armorArms" | "armorLegs";
+  label: string;
+}> = [
+  { field: "armorHead", label: "AP Head" },
+  { field: "armorBody", label: "AP Body" },
+  { field: "armorArms", label: "AP Arms" },
+  { field: "armorLegs", label: "AP Legs" },
+];
+
+const HORDE_FIELDS: ReadonlyArray<{
+  field: "woundsPer" | "bonusHits" | "magPer";
+  label: string;
+}> = [
+  { field: "woundsPer", label: "Wounds per" },
+  { field: "bonusHits", label: "Bonus Hits" },
+  { field: "magPer", label: "Mag per" },
+];
+
 function WarhammerDefenderDamageForm({
   draft,
   errors,
@@ -84,7 +103,10 @@ function WarhammerDefenderDamageForm({
         (field) => field !== "form"
       ) as keyof WarhammerDefenderDamageDraft | undefined;
       if (firstField) {
-        setTimeout(() => document.getElementById(fieldControlIds[firstField])?.focus(), 0);
+        setTimeout(
+          () => document.getElementById(fieldControlIds[firstField])?.focus(),
+          0
+        );
       }
       return;
     }
@@ -132,14 +154,14 @@ function WarhammerDefenderDamageForm({
 
       <div className={styles.defenseGrid}>
         <div className={styles.defensePrimary}>
-          <DefenderDamageNumericField
+          <DamageNumericField
             id="defender-damage-toughness-bonus"
             label="Toughness Bonus"
             value={draft.toughnessBonus}
             error={visibleErrors.toughnessBonus}
             onChange={(value) => onChange("toughnessBonus", value)}
           />
-          <DefenderDamageNumericField
+          <DamageNumericField
             id="defender-damage-fortitude"
             label="Fortitude #"
             value={draft.fortitude}
@@ -179,38 +201,17 @@ function WarhammerDefenderDamageForm({
               draft.advancedEnabled ? styles.armorFieldsDisabled : undefined
             }
           >
-            <DefenderDamageNumericField
-              id="defender-damage-armor-head"
-              label="AP Head"
-              value={draft.armorHead}
-              error={visibleErrors.armorHead}
-              disabled={draft.advancedEnabled}
-              onChange={(value) => onChange("armorHead", value)}
-            />
-            <DefenderDamageNumericField
-              id="defender-damage-armor-body"
-              label="AP Body"
-              value={draft.armorBody}
-              error={visibleErrors.armorBody}
-              disabled={draft.advancedEnabled}
-              onChange={(value) => onChange("armorBody", value)}
-            />
-            <DefenderDamageNumericField
-              id="defender-damage-armor-arms"
-              label="AP Arms"
-              value={draft.armorArms}
-              error={visibleErrors.armorArms}
-              disabled={draft.advancedEnabled}
-              onChange={(value) => onChange("armorArms", value)}
-            />
-            <DefenderDamageNumericField
-              id="defender-damage-armor-legs"
-              label="AP Legs"
-              value={draft.armorLegs}
-              error={visibleErrors.armorLegs}
-              disabled={draft.advancedEnabled}
-              onChange={(value) => onChange("armorLegs", value)}
-            />
+            {ARMOR_FIELDS.map(({ field, label }) => (
+              <DamageNumericField
+                key={field}
+                id={fieldControlIds[field]}
+                label={label}
+                value={draft[field]}
+                error={visibleErrors[field]}
+                disabled={draft.advancedEnabled}
+                onChange={(value) => onChange(field, value)}
+              />
+            ))}
           </div>
           <AdvancedDefenseControl
             draft={draft}
@@ -238,33 +239,18 @@ function WarhammerDefenderDamageForm({
               }
             />
           </Form.Group>
-          <DefenderDamageNumericField
-            id="defender-damage-wounds-per"
-            label="Wounds per"
-            value={draft.woundsPer}
-            error={visibleErrors.woundsPer}
-            disabled={!draft.hordeEnabled}
-            className={draft.hordeEnabled ? undefined : styles.hordeFieldDisabled}
-            onChange={(value) => onChange("woundsPer", value)}
-          />
-          <DefenderDamageNumericField
-            id="defender-damage-bonus-hits"
-            label="Bonus Hits"
-            value={draft.bonusHits}
-            error={visibleErrors.bonusHits}
-            disabled={!draft.hordeEnabled}
-            className={draft.hordeEnabled ? undefined : styles.hordeFieldDisabled}
-            onChange={(value) => onChange("bonusHits", value)}
-          />
-          <DefenderDamageNumericField
-            id="defender-damage-mag-per"
-            label="Mag per"
-            value={draft.magPer}
-            error={visibleErrors.magPer}
-            disabled={!draft.hordeEnabled}
-            className={draft.hordeEnabled ? undefined : styles.hordeFieldDisabled}
-            onChange={(value) => onChange("magPer", value)}
-          />
+          {HORDE_FIELDS.map(({ field, label }) => (
+            <DamageNumericField
+              key={field}
+              id={fieldControlIds[field]}
+              label={label}
+              value={draft[field]}
+              error={visibleErrors[field]}
+              disabled={!draft.hordeEnabled}
+              className={draft.hordeEnabled ? undefined : styles.hordeFieldDisabled}
+              onChange={(value) => onChange(field, value)}
+            />
+          ))}
         </div>
       </fieldset>
     </Form>

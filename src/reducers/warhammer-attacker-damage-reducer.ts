@@ -4,10 +4,13 @@ import {
   WARHAMMER_ATTACKER_DAMAGE_REQUESTED,
   WARHAMMER_ATTACKER_DAMAGE_RESULTS_SAVED,
 } from "../actions/warhammerAttackerDamage.actions";
-import { WarhammerAttackerDamageResult } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import {
+  WarhammerAttackerDamageInput,
+  WarhammerAttackerDamageResult,
+} from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 
 export interface WarhammerAttackerDamageState {
-  draft: import("../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes").WarhammerAttackerDamageInput | null;
+  draft: WarhammerAttackerDamageInput | null;
   results: WarhammerAttackerDamageResult | null;
   isResultsModalOpen: boolean;
   error: string;

@@ -155,12 +155,39 @@ interface ResultsModalProps {
 - Reroll option
 
 ### WarhammerMoneyModal
-**Location:** `src/components/WarhammerMoneyModal/`  
-**Purpose:** Warhammer currency calculator  
+**Location:** `src/components/WarhammerMoneyModal/`
+**Purpose:** Warhammer currency calculator
 **Features:**
 - Gold Crowns, Silver Shillings, Brass Pennies
 - Add/subtract amounts
 - Automatic conversion
+
+### WarhammerAttackerDamageModal
+**Location:** `src/components/WarhammerAttackerDamageModal/`
+**Purpose:** Roll Warhammer damage dice and keep every Tearing attempt
+**Features:**
+- Hits, damage dice, modifier, Penetration, Felling, Devastating and Proven
+- Tearing / Triple Tearing attempt comparison
+- Righteous Fury threshold and confirmation, including Always Confirm
+- Results modal with per-attempt equations, re-roll and clipboard summary
+
+### WarhammerDefenderDamageModal
+**Location:** `src/components/WarhammerDefenderDamageModal/`
+**Purpose:** Apply Warhammer defenses to an attack summary
+**Features:**
+- Parses the `Pen X, Fel Y, Dev Z: damage, ...` attack summary
+- Body-diagram First Hit Location selector and hit sequencing
+- Simple armor slots or per-location Advanced armor and Toughness overrides
+- Optional Horde mode with Magnitude, bonus hits and kill count
+- Results modal showing the damage and Magnitude equations
+
+### DamageNumericField
+**Location:** `src/components/DamageNumericField/`
+**Purpose:** One whole-number form field with its own error message
+**Features:**
+- Rejects negative keystrokes and reports invalid values inline
+- Row and stacked layouts
+- `aria-invalid` / `aria-describedby` wiring
 
 ### InfinityModal
 **Location:** `src/components/InfinityModal/`  
@@ -223,14 +250,32 @@ interface ResultsModalProps {
 - Luck spending suggestion
 
 ### WarhammerResultsModal
-**Location:** `src/components/WarhammerResultsModal/`  
-**Purpose:** Warhammer success level results  
+**Location:** `src/components/WarhammerResultsModal/`
+**Purpose:** Warhammer success level results
 **Features:**
 - d100 result
 - Success level calculation
 - Dramatic result indication
 - Hit location (optional)
 - Reroll option
+
+### WarhammerAttackerDamageResultsModal
+**Location:** `src/components/WarhammerAttackerDamageResultsModal/`
+**Purpose:** Per-hit damage results for an attack
+**Features:**
+- Attack profile (dice, modifier, traits)
+- Every Tearing attempt, selected first, with its equation
+- Proven adjustments and Righteous Fury labels
+- Re-roll, Copy summary and Back to the form
+
+### WarhammerDefenderDamageResultsModal
+**Location:** `src/components/WarhammerDefenderDamageResultsModal/`
+**Purpose:** Damage taken per hit after armor and Toughness
+**Features:**
+- Canonical attack summary header
+- Damage and Magnitude equations per hit
+- Overkill classifications and Bonus Devastating entry
+- Damage, Magnitude and kill-count totals
 
 ### NarrativeTokensModal
 **Location:** `src/components/NarrativeTokensModal/`  

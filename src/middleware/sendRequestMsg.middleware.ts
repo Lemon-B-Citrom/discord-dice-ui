@@ -29,6 +29,9 @@ export default (store: any) => (next: any) => (action: any) => {
         body: JSON.stringify(msg),
       };
 
+      // `fetch` can also throw synchronously (an unparsable URL), so the
+      // promise chain alone is not enough to keep a bad webhook out of the
+      // roll pipeline.
       try {
         fetch(hookUrl, data)
           .then((response) => {
@@ -41,7 +44,7 @@ export default (store: any) => (next: any) => (action: any) => {
           .catch(() => {
             console.error("Discord webhook request failed.");
           });
-      } catch (_error) {
+      } catch {
         console.error("Discord webhook request failed.");
       }
     }

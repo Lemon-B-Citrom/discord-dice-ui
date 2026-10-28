@@ -6,6 +6,8 @@ import dieImage from "../../img/d10.png";
 import { backToWarhammerDefenderDamageForm } from "../../actions/warhammerDefenderDamage.actions";
 import { WarhammerDefenderDamageState } from "../../reducers/warhammer-defender-damage-reducer";
 import { ModalsStateTypes } from "../../reducers/modals-reducer";
+import formatWarhammerAttackerDamageSummary from "../../utils/formatWarhammerAttackerDamageSummary";
+import CodeSpan from "../CodeSpan/CodeSpan";
 import WarhammerDefenderDamageHitBreakdown from "./WarhammerDefenderDamageHitBreakdown";
 import styles from "./WarhammerDefenderDamageResultsModal.module.css";
 
@@ -44,9 +46,9 @@ function WarhammerDefenderDamageResultsModal() {
           <div>
             <strong>Attack Summary</strong>
             <div>
-              Penetration {results.request.summary.penetration} · Fel {results.request.summary.felling}
-              {results.request.summary.devastating !== 0 &&
-                ` · Dev ${results.request.summary.devastating}`}
+              <CodeSpan>
+                {formatWarhammerAttackerDamageSummary(results.request.summary)}
+              </CodeSpan>
             </div>
           </div>
         </div>

@@ -52,7 +52,6 @@ const singleHit: WarhammerDefenderSingleDamageHit = {
 
 function singleResult(): WarhammerDefenderDamageResult {
   return {
-    draft,
     request: {
       mode: "single",
       summary: { penetration: 0, felling: 0, devastating: 0, damages: [10] },
@@ -82,7 +81,6 @@ function hordeResult(): WarhammerDefenderDamageResult {
     magnitude: 1,
   };
   return {
-    draft: { ...draft, attackSummaryString: "Pen 0, Dev 1: 10", bonusHits: "0", magPer: "6", woundsPer: "10" },
     request: {
       mode: "horde",
       summary: { penetration: 0, felling: 0, devastating: 1, damages: [10] },
@@ -154,16 +152,18 @@ test("uses the existing missing-username fallback", () => {
   );
 });
 
-test("derives the summary line from the validated request, not the raw draft", () => {
+test("derives the summary line from the validated request", () => {
   const result = singleResult();
-  result.draft = {
-    ...draft,
-    attackSummaryString: "  `Pen 0 :  10`  ",
+  result.request.summary = {
+    penetration: 7,
+    felling: 0,
+    devastating: 0,
+    damages: [3],
   };
 
   const message = getWarhammerDefenderDamageRequestMsg(result, "Alex");
 
-  expect(message.description).toContain("`Pen 0: 10`");
+  expect(message.description).toContain("`Pen 7: 3`");
   expect(message.description).not.toContain("summary shortened");
 });
 
@@ -171,7 +171,7 @@ test.each(["0", "2", "12", "13"])("formats protected Toughness consistently at F
   const input = { ...draft, attackSummaryString: `Pen 0, Fel ${felling}: 20, 20,`, toughnessBonus: "6", fortitude: "1" };
   const normalized = normalizeWarhammerDefenderDamage(input);
   if (!normalized.request) throw new Error("Expected valid request");
-  const result = calculateWarhammerDefenderDamage(input, normalized.request);
+  const result = calculateWarhammerDefenderDamage(normalized.request);
   const hits = getWarhammerDefenderDamageRequestMsg(result, "Alex").fields[0].value;
   const expected = felling === "0" ? "`6` × `2` = `12`"
     : `\`6\` × \`2\` − \`${felling}\`${felling === "13" ? " → " : " = "}\`${Math.max(0, 12 - Number(felling))}\``;
@@ -188,7 +188,7 @@ test("bounds maximum-size Horde results with Fortitude equations", () => {
   };
   const normalized = normalizeWarhammerDefenderDamage(input);
   if (!normalized.request) throw new Error("Expected valid request");
-  const message = getWarhammerDefenderDamageRequestMsg(calculateWarhammerDefenderDamage(input, normalized.request), "Alex");
+  const message = getWarhammerDefenderDamageRequestMsg(calculateWarhammerDefenderDamage(normalized.request), "Alex");
   expect(message.fields.length).toBeLessThanOrEqual(25);
   message.fields.forEach((field) => expect(field.value.length).toBeLessThanOrEqual(1024));
   expect(message.msgTitle.length + message.description.length + message.fields.reduce((length, field) => length + field.name.length + field.value.length, 0)).toBeLessThanOrEqual(5800);
@@ -203,7 +203,7 @@ test("shows true and bonus counts beside the Horde hit count without a settings 
   };
   const normalized = normalizeWarhammerDefenderDamage(input);
   if (!normalized.request) throw new Error("Expected valid request");
-  const message = getWarhammerDefenderDamageRequestMsg(calculateWarhammerDefenderDamage(input, normalized.request), "Alex");
+  const message = getWarhammerDefenderDamageRequestMsg(calculateWarhammerDefenderDamage(normalized.request), "Alex");
   expect(message.description).toBe(`:dart: Horde x9 (3 True, 6 Bonus): \`${input.attackSummaryString}\`\n:mens: Starting at Body`);
   expect(message.description).not.toContain("Mag per");
 });
@@ -212,10 +212,6 @@ test("keeps totals and complete rows within a bounded embed for 100 large hits",
   const result = singleResult();
   const large = Number.MAX_SAFE_INTEGER;
   result.request.summary.damages = Array(100).fill(-large);
-  result.draft = {
-    ...draft,
-    attackSummaryString: `Pen 0, Fel 0: ${result.request.summary.damages.join(", ")}`,
-  };
   result.entries = Array(100)
     .fill(null)
     .map((_, index) => ({
@@ -254,7 +250,6 @@ test("keeps totals and complete rows within a bounded embed for 100 large hits",
 
 test("matches modal reduction equations and separates hits with a blank line", () => {
   const result = singleResult();
-  result.draft = { ...draft, attackSummaryString: "Pen 3, Fel 5: 10, 10" };
   result.request.summary = { penetration: 3, felling: 5, devastating: 0, damages: [10, 10] };
   result.request.toughnessBonus = 3;
   result.entries = [
@@ -275,7 +270,6 @@ test("matches modal reduction equations and separates hits with a blank line", (
 
 test("shows an exact armor reduction to zero without max notation", () => {
   const result = singleResult();
-  result.draft = { ...draft, attackSummaryString: "Pen 8: 30" };
   result.request.summary = { penetration: 8, felling: 0, devastating: 0, damages: [30] };
   result.request.toughnessBonus = 12;
   result.entries = [{
@@ -381,7 +375,6 @@ test("shows the advanced Toughness sum without Fortitude", () => {
     },
   ];
   result.totals.damage = 7;
-  result.draft = { ...draft };
 
   const message = getWarhammerDefenderDamageRequestMsg(result, "Alex");
   expect(message.fields[0].value).toContain("Toughness (`2` + `1` = `3`)");
@@ -416,7 +409,6 @@ test("rejects an unsafe advanced defense before formatting", () => {
 
 test("shows zero received damage without wrapping the equation or a minimum notice", () => {
   const result = singleResult();
-  result.draft = { ...draft, attackSummaryString: "Pen 3: 17" };
   result.request.summary = { penetration: 3, felling: 0, devastating: 0, damages: [17] };
   result.request.toughnessBonus = 20;
   result.entries = [{

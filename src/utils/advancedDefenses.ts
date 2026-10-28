@@ -5,13 +5,10 @@ import {
   WarhammerAdvancedDefenses,
   WarhammerDefenderDamageDraft,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import {
-  DAMAGE_LOCATION_ROWS,
-  DAMAGE_LOCATION_SHORT_LABELS,
-} from "./damageLocations";
+import { DAMAGE_LOCATION_SHORT_LABELS } from "./damageLocations";
 import {
   NON_NEGATIVE_INTEGER_ERROR,
-  requireNonNegativeInteger,
+  parseOptionalNonNegativeInteger,
 } from "./safeInteger";
 
 export interface AdvancedDefenseFieldMap {
@@ -65,16 +62,6 @@ export const ADVANCED_DEFENSE_FIELDS: ReadonlyArray<AdvancedDefenseFieldMap> = [
   },
 ];
 
-/**
- * The body diagram as rows, each horizontally centred. Every field is the same
- * width, so a row only says which parts share a line: one head, the arm/body/arm
- * line, then the centred pair of legs. Shared with the First Hit Location menu
- * so the two diagrams cannot drift apart.
- */
-export const ADVANCED_DEFENSE_ROWS: ReadonlyArray<
-  ReadonlyArray<DamageLocation>
-> = DAMAGE_LOCATION_ROWS;
-
 export const ADVANCED_DEFENSE_BY_LOCATION: Record<
   DamageLocation,
   AdvancedDefenseFieldMap
@@ -97,13 +84,10 @@ const parseField = (
   field: AdvancedDefenseField,
   errors: DefenderDamageValidationErrors
 ): number | null => {
-  const text = value.trim();
   // The placeholders are 0, so an empty field is an explicit zero override.
-  if (!text) return 0;
-  const parsed = requireNonNegativeInteger(text);
+  const parsed = parseOptionalNonNegativeInteger(value);
   if (parsed === null) {
     errors[field] = NON_NEGATIVE_INTEGER_ERROR;
-    return null;
   }
   return parsed;
 };

@@ -18,7 +18,7 @@ const makeResult = (patch: Partial<WarhammerDefenderDamageDraft>) => {
   };
   const normalized = normalizeWarhammerDefenderDamage(draft);
   if (!normalized.request) throw new Error(JSON.stringify(normalized.errors));
-  return calculateWarhammerDefenderDamage(draft, normalized.request);
+  return calculateWarhammerDefenderDamage(normalized.request);
 };
 
 test("doubles Toughness before Felling for the first N single hits including zero damage", () => {
@@ -174,7 +174,7 @@ test("rejects unsafe accumulated totals rather than returning a rounded result",
   };
   const normalized = normalizeWarhammerDefenderDamage(draft);
   if (!normalized.request) throw new Error("Expected valid request");
-  expect(() => calculateWarhammerDefenderDamage(draft, normalized.request)).toThrow(/safe whole-number/);
+  expect(() => calculateWarhammerDefenderDamage(normalized.request)).toThrow(/safe whole-number/);
 });
 
 test("uses per-location armor so each arm and leg is independent", () => {

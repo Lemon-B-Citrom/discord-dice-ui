@@ -1,33 +1,20 @@
 import {
-  ArmorSlot,
   DamageLocation,
   WarhammerDefenderDamageEntry,
   WarhammerDefenderDamageRequest,
   WarhammerDefenderDamageResult,
   WarhammerDefenderHordeDamageHit,
   WarhammerDefenderSingleDamageHit,
-  WarhammerDefenderDamageDraft,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import { ARMOR_SLOT_BY_LOCATION } from "./damageLocations";
 import getWarhammerDefenderDamageHitLocation from "./getWarhammerDefenderDamageHitLocation";
 import getWarhammerDefenseForLocation, {
   LocationDefense,
 } from "./getWarhammerDefenseForLocation";
 import { requireSafeInteger } from "./safeInteger";
 
-const getArmorSlot = (location: DamageLocation): ArmorSlot => {
-  switch (location) {
-    case "Head":
-      return "headAP";
-    case "Body":
-      return "bodyAP";
-    case "Left Arm":
-    case "Right Arm":
-      return "armsAP";
-    case "Left Leg":
-    case "Right Leg":
-      return "legsAP";
-  }
-};
+/** Bonus hits get their own Fortitude quota, covering two hits each. */
+const BONUS_HITS_PER_FORTITUDE = 2;
 
 const checkedAdd = (left: number, right: number, description: string): number =>
   requireSafeInteger(left + right, description);
@@ -39,7 +26,6 @@ const baseHit = (
   defense: LocationDefense,
   effectiveToughnessBonus: number
 ) => {
-  const armorSlot = getArmorSlot(location);
   const armorBeforePenetration = defense.armorBeforePenetration;
   const effectiveArmor = Math.max(
     0,
@@ -62,7 +48,7 @@ const baseHit = (
     index,
     number: index + 1,
     location,
-    armorSlot,
+    armorSlot: ARMOR_SLOT_BY_LOCATION[location],
     originalDamage: request.summary.damages[index],
     armorBeforePenetration,
     effectiveArmor,
@@ -73,106 +59,106 @@ const baseHit = (
 };
 
 function calculateWarhammerDefenderDamage(
-  draft: WarhammerDefenderDamageDraft,
   request: WarhammerDefenderDamageRequest
 ): WarhammerDefenderDamageResult {
   let totalDamage = 0;
   let totalMagnitude = 0;
-  const entries: WarhammerDefenderDamageEntry[] = request.summary.damages.map(
-    (_damage, index) => {
-      const location = getWarhammerDefenderDamageHitLocation(
-        request.firstHitLocation,
-        index
-      );
-      const defense = getWarhammerDefenseForLocation(
-        request,
-        location,
-        getArmorSlot(location)
-      );
-      const bonusIndex = request.mode === "horde" ? index - request.trueHits : -1;
-      // Bonus hits have an independent 2N quota; division avoids overflowing 2N.
-      const fortitudeApplied =
-        request.mode === "single" || bonusIndex < 0
-          ? index < request.fortitude
-          : Math.floor(bonusIndex / 2) < request.fortitude;
-      // A per-location Toughness add-on joins the Toughness Bonus before
-      // Fortitude doubles it, so Felling erodes it and Fortitude doubles it.
-      const toughnessBeforeFelling = requireSafeInteger(
-        (request.toughnessBonus + defense.toughnessBonusAdd) *
-          (fortitudeApplied ? 2 : 1),
-        "Toughness before Felling"
-      );
-      const effectiveToughnessBonus = Math.max(0, requireSafeInteger(
+  const entries: WarhammerDefenderDamageEntry[] = [];
+
+  request.summary.damages.forEach((_damage, index) => {
+    const location = getWarhammerDefenderDamageHitLocation(
+      request.firstHitLocation,
+      index
+    );
+    const defense = getWarhammerDefenseForLocation(
+      request,
+      location,
+      ARMOR_SLOT_BY_LOCATION[location]
+    );
+    // Single-target hits are all true hits, so a negative index covers both.
+    const bonusIndex = request.mode === "horde" ? index - request.trueHits : -1;
+    // Division keeps the comparison inside the safe integer range.
+    const fortitudeApplied =
+      bonusIndex < 0
+        ? index < request.fortitude
+        : Math.floor(bonusIndex / BONUS_HITS_PER_FORTITUDE) <
+          request.fortitude;
+    // A per-location Toughness add-on joins the Toughness Bonus before
+    // Fortitude doubles it, so Felling erodes it and Fortitude doubles it.
+    const toughnessBeforeFelling = requireSafeInteger(
+      (request.toughnessBonus + defense.toughnessBonusAdd) *
+        (fortitudeApplied ? 2 : 1),
+      "Toughness before Felling"
+    );
+    const effectiveToughnessBonus = Math.max(
+      0,
+      requireSafeInteger(
         toughnessBeforeFelling - request.summary.felling,
         "Effective Toughness Bonus"
-      ));
-      const hit = {
-        ...baseHit(request, index, location, defense, effectiveToughnessBonus),
-        fortitudeApplied,
-        toughnessBeforeFelling,
-      };
-      totalDamage = checkedAdd(totalDamage, hit.finalDamage, "Total damage");
+      )
+    );
+    const hit = {
+      ...baseHit(request, index, location, defense, effectiveToughnessBonus),
+      fortitudeApplied,
+      toughnessBeforeFelling,
+    };
+    totalDamage = checkedAdd(totalDamage, hit.finalDamage, "Total damage");
 
-      if (request.mode === "single") {
-        const singleHit: WarhammerDefenderSingleDamageHit = {
-          ...hit,
-          mode: "single",
-          role: "single",
-        };
-        return singleHit;
-      }
-
-      const role = index < request.trueHits ? "true" : "bonus";
-      let classification: WarhammerDefenderHordeDamageHit["classification"];
-      let baseMagnitude: number;
-      let devastatingAdded = 0;
-      if (role === "bonus") {
-        classification = "bonus";
-        baseMagnitude = hit.finalDamage > 0 ? 1 : 0;
-      } else if (hit.finalDamage <= 0) {
-        classification = "no-damage";
-        baseMagnitude = 0;
-      } else if (hit.finalDamage >= request.woundsPer) {
-        classification = "overkill";
-        baseMagnitude = request.magPer;
-      } else if (hit.finalDamage >= Math.ceil(request.woundsPer / 2)) {
-        classification = "partial-overkill";
-        baseMagnitude = Math.ceil(request.magPer / 2);
-      } else {
-        classification = "ordinary";
-        baseMagnitude = 1;
-      }
-
-      if (role === "true" && baseMagnitude !== 0) {
-        devastatingAdded = request.summary.devastating;
-      }
-      const magnitude = checkedAdd(
-        baseMagnitude,
-        devastatingAdded,
-        "Hit magnitude"
-      );
-      totalMagnitude = checkedAdd(totalMagnitude, magnitude, "Total magnitude");
-
-      const hordeHit: WarhammerDefenderHordeDamageHit = {
+    if (request.mode === "single") {
+      const singleHit: WarhammerDefenderSingleDamageHit = {
         ...hit,
-        mode: "horde",
-        role,
-        classification,
-        baseMagnitude,
-        devastatingAdded,
-        magnitude,
+        mode: "single",
+        role: "single",
       };
-      return hordeHit;
+      entries.push(singleHit);
+      return;
     }
-  );
+
+    const role = index < request.trueHits ? "true" : "bonus";
+    let classification: WarhammerDefenderHordeDamageHit["classification"];
+    let baseMagnitude: number;
+    let devastatingAdded = 0;
+    if (role === "bonus") {
+      classification = "bonus";
+      baseMagnitude = hit.finalDamage > 0 ? 1 : 0;
+    } else if (hit.finalDamage <= 0) {
+      classification = "no-damage";
+      baseMagnitude = 0;
+    } else if (hit.finalDamage >= request.woundsPer) {
+      classification = "overkill";
+      baseMagnitude = request.magPer;
+    } else if (hit.finalDamage >= Math.ceil(request.woundsPer / 2)) {
+      classification = "partial-overkill";
+      baseMagnitude = Math.ceil(request.magPer / 2);
+    } else {
+      classification = "ordinary";
+      baseMagnitude = 1;
+    }
+
+    if (role === "true" && baseMagnitude !== 0) {
+      devastatingAdded = request.summary.devastating;
+    }
+    const magnitude = checkedAdd(
+      baseMagnitude,
+      devastatingAdded,
+      "Hit magnitude"
+    );
+    totalMagnitude = checkedAdd(totalMagnitude, magnitude, "Total magnitude");
+
+    const hordeHit: WarhammerDefenderHordeDamageHit = {
+      ...hit,
+      mode: "horde",
+      role,
+      classification,
+      baseMagnitude,
+      devastatingAdded,
+      magnitude,
+    };
+    entries.push(hordeHit);
+  });
 
   if (request.mode === "single") {
-    return {
-      draft: { ...draft },
-      request,
-      entries,
-      totals: { damage: totalDamage },
-    };
+    return { request, entries, totals: { damage: totalDamage } };
   }
 
   const hasBonusHits = request.trueHits < request.summary.damages.length;
@@ -203,12 +189,7 @@ function calculateWarhammerDefenderDamage(
           killCount: Math.floor(totalMagnitude / request.magPer),
         };
 
-  return {
-    draft: { ...draft },
-    request,
-    entries,
-    totals,
-  };
+  return { request, entries, totals };
 }
 
 export default calculateWarhammerDefenderDamage;

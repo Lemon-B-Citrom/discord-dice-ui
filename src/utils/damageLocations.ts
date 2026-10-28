@@ -1,5 +1,5 @@
 import {
-  DAMAGE_LOCATIONS,
+  ArmorSlot,
   DamageLocation,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
@@ -14,8 +14,7 @@ export const DAMAGE_LOCATION_ROWS: ReadonlyArray<
 
 /**
  * The same locations flattened: the order the rows are read in. The canonical
- * `DAMAGE_LOCATIONS` order is left alone because validation and hit sequencing
- * depend on it.
+ * `DAMAGE_LOCATIONS` order is left alone because validation depends on it.
  */
 export const DAMAGE_LOCATION_READING_ORDER: ReadonlyArray<DamageLocation> = DAMAGE_LOCATION_ROWS.reduce<
   DamageLocation[]
@@ -32,6 +31,33 @@ export const DAMAGE_LOCATION_SHORT_LABELS: Record<DamageLocation, string> = {
   "Right Arm": "R. Arm",
   "Left Leg": "L. Leg",
   "Right Leg": "R. Leg",
+};
+
+/** The armor slot that covers each body part in simple defense mode. */
+export const ARMOR_SLOT_BY_LOCATION: Record<DamageLocation, ArmorSlot> = {
+  Head: "headAP",
+  Body: "bodyAP",
+  "Left Arm": "armsAP",
+  "Right Arm": "armsAP",
+  "Left Leg": "legsAP",
+  "Right Leg": "legsAP",
+};
+
+/**
+ * Hit locations in the order successive hits move through them, per starting
+ * location. Every cycle is the same length, so the hit index alone decides the
+ * location.
+ */
+export const HIT_LOCATION_CYCLES: Record<
+  DamageLocation,
+  ReadonlyArray<DamageLocation>
+> = {
+  Head: ["Head", "Right Arm", "Body", "Left Arm", "Body", "Head"],
+  "Right Arm": ["Right Arm", "Body", "Head", "Left Arm", "Body", "Head"],
+  "Left Arm": ["Left Arm", "Body", "Head", "Right Arm", "Body", "Head"],
+  Body: ["Body", "Left Leg", "Right Arm", "Body", "Right Leg", "Left Arm"],
+  "Right Leg": ["Right Leg", "Body", "Left Leg", "Body", "Right Leg", "Body"],
+  "Left Leg": ["Left Leg", "Body", "Right Leg", "Body", "Left Leg", "Body"],
 };
 
 export type MenuMoveKey =
@@ -75,14 +101,4 @@ export function getAdjacentLocation(
   const nextRow = DAMAGE_LOCATION_ROWS[nextRowIndex];
   if (!nextRow) return null;
   return nextRow[Math.min(position, nextRow.length - 1)];
-}
-
-/** Every location appears in the diagram exactly once. */
-export function isCompleteLocationDiagram(): boolean {
-  if (DAMAGE_LOCATION_READING_ORDER.length !== DAMAGE_LOCATIONS.length) {
-    return false;
-  }
-  return DAMAGE_LOCATIONS.every(
-    (location) => DAMAGE_LOCATION_READING_ORDER.indexOf(location) !== -1
-  );
 }

@@ -1,8 +1,8 @@
 import React from "react";
 import Form from "react-bootstrap/Form";
-import styles from "./WarhammerDefenderDamageForm.module.css";
+import styles from "./DamageNumericField.module.css";
 
-export interface DefenderDamageNumericFieldProps {
+export interface DamageNumericFieldProps {
   id: string;
   label: string;
   value: string;
@@ -18,7 +18,8 @@ export interface DefenderDamageNumericFieldProps {
   className?: string;
 }
 
-function DefenderDamageNumericField({
+/** One whole-number field of a damage form, with its own error message. */
+function DamageNumericField({
   id,
   label,
   value,
@@ -28,11 +29,11 @@ function DefenderDamageNumericField({
   layout = "row",
   ariaLabel,
   className,
-}: DefenderDamageNumericFieldProps) {
+}: DamageNumericFieldProps) {
   const errorId = `${id}-error`;
   const stacked = layout === "stacked";
   const groupClassName = [
-    stacked ? styles.stackedField : styles.numericField,
+    stacked ? styles.stacked : styles.row,
     className,
   ]
     .filter(Boolean)
@@ -44,7 +45,7 @@ function DefenderDamageNumericField({
       </Form.Label>
       <Form.Control
         id={id}
-        className={stacked ? styles.stackedInput : styles.numericInput}
+        className={stacked ? styles.stackedInput : styles.rowInput}
         type="number"
         min={0}
         step={1}
@@ -69,4 +70,4 @@ function DefenderDamageNumericField({
   );
 }
 
-export default DefenderDamageNumericField;
+export default DamageNumericField;

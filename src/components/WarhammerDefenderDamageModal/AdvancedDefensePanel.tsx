@@ -1,9 +1,7 @@
 import React from "react";
-import {
-  ADVANCED_DEFENSE_BY_LOCATION,
-  ADVANCED_DEFENSE_ROWS,
-} from "../../utils/advancedDefenses";
-import DefenderDamageNumericField from "./DefenderDamageNumericField";
+import { ADVANCED_DEFENSE_BY_LOCATION } from "../../utils/advancedDefenses";
+import { DAMAGE_LOCATION_ROWS } from "../../utils/damageLocations";
+import DamageNumericField from "../DamageNumericField/DamageNumericField";
 import styles from "./AdvancedDefenseModal.module.css";
 import {
   DefenderDamageValidationErrors,
@@ -39,7 +37,7 @@ function AdvancedDefensePanel({
       <legend className={styles.panelHeading}>{heading}</legend>
       <p className={styles.panelNote}>{description}</p>
       <div className={styles.bodyDiagram}>
-        {ADVANCED_DEFENSE_ROWS.map((row) => (
+        {DAMAGE_LOCATION_ROWS.map((row) => (
           <div className={styles.bodyRow} key={row.join("-")}>
             {row.map((location) => {
               const field = ADVANCED_DEFENSE_BY_LOCATION[location];
@@ -47,7 +45,7 @@ function AdvancedDefensePanel({
                 kind === "armor" ? field.armorField : field.toughnessField;
               return (
                 <div className={styles.cell} key={key}>
-                  <DefenderDamageNumericField
+                  <DamageNumericField
                     id={`defender-advanced-${kind}-${slug(field.location)}`}
                     label={field.label}
                     ariaLabel={`${heading} ${field.label}`}

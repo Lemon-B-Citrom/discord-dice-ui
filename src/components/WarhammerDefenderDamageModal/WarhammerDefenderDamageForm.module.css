@@ -17,41 +17,6 @@
   min-width: 0;
 }
 
-.numericField {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.65rem;
-}
-
-.numericField label {
-  margin: 0;
-}
-
-.numericInput {
-  width: 5rem;
-  flex: 0 0 5rem;
-}
-
-.stackedField {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 0;
-}
-
-.stackedField label {
-  font-size: 0.8125rem;
-  margin: 0;
-  text-align: center;
-}
-
-.stackedInput {
-  text-align: center;
-  width: 100%;
-}
-
 .locationField {
   margin-bottom: 0.65rem;
 }

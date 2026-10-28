@@ -1,8 +1,7 @@
-import {
-  ADVANCED_DEFENSE_FIELD_KEYS,
+import normalizeAdvancedDefenses, {
   ADVANCED_DEFENSE_FIELDS,
+  ADVANCED_DEFENSE_FIELD_KEYS,
 } from "./advancedDefenses";
-import normalizeAdvancedDefenses from "./advancedDefenses";
 import {
   AdvancedDefenseField,
   EMPTY_DEFENDER_DAMAGE_DRAFT,

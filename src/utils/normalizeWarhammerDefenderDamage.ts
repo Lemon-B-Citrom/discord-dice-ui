@@ -7,12 +7,16 @@ import {
   WarhammerDefenderDamageRequest,
   WarhammerDefenderDefenses,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import normalizeAdvancedDefenses from "./advancedDefenses";
+import normalizeAdvancedDefenses, {
+  NormalizeAdvancedDefensesResult,
+} from "./advancedDefenses";
 import parseWarhammerAttackerDamageSummary from "./parseWarhammerAttackerDamageSummary";
-import resolveWarhammerArmorLayout from "./resolveWarhammerArmorLayout";
+import resolveWarhammerArmorLayout, {
+  ResolveArmorResult,
+} from "./resolveWarhammerArmorLayout";
 import {
   NON_NEGATIVE_INTEGER_ERROR,
-  requireNonNegativeInteger,
+  parseOptionalNonNegativeInteger,
 } from "./safeInteger";
 
 const parseNonNegative = (
@@ -21,17 +25,25 @@ const parseNonNegative = (
   errors: DefenderDamageValidationErrors,
   required: boolean
 ): number | null => {
-  const text = value.trim();
-  if (!text) {
-    if (required) errors[field] = "This field is required";
-    return required ? null : 0;
-  }
-  const parsed = requireNonNegativeInteger(text);
-  if (parsed === null) {
-    errors[field] = NON_NEGATIVE_INTEGER_ERROR;
+  if (required && !value.trim()) {
+    errors[field] = "This field is required";
     return null;
   }
+  const parsed = parseOptionalNonNegativeInteger(value);
+  if (parsed === null) {
+    errors[field] = NON_NEGATIVE_INTEGER_ERROR;
+  }
   return parsed;
+};
+
+/** Advanced mode replaces the four inherited slots, so only one source is live. */
+const pickDefenses = (
+  advanced: NormalizeAdvancedDefensesResult,
+  armor: ResolveArmorResult | null
+): WarhammerDefenderDefenses | null => {
+  if (advanced.defenses) return { mode: "advanced", ...advanced.defenses };
+  if (armor && armor.armor) return { mode: "simple", armor: armor.armor };
+  return null;
 };
 
 export default function normalizeWarhammerDefenderDamage(
@@ -51,14 +63,10 @@ export default function normalizeWarhammerDefenderDamage(
   // Advanced mode replaces the four inherited slots entirely, so their rules
   // can never block a calculation that does not read them.
   const armor = draft.advancedEnabled ? null : resolveWarhammerArmorLayout(draft);
-  if (armor) Object.assign(errors, armor.errors);
   const advanced = normalizeAdvancedDefenses(draft);
+  if (armor) Object.assign(errors, armor.errors);
   Object.assign(errors, advanced.errors);
-  const defenses: WarhammerDefenderDefenses | null = advanced.defenses
-    ? { mode: "advanced", ...advanced.defenses }
-    : armor && armor.armor
-    ? { mode: "simple", armor: armor.armor }
-    : null;
+  const defenses = pickDefenses(advanced, armor);
 
   let firstHitLocation: DamageLocation | null = null;
   // The draft keeps raw strings, so this is the single documented cast that

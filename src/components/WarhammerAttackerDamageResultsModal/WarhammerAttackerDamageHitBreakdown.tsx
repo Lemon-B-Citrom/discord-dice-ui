@@ -6,17 +6,12 @@ import {
   WarhammerAttackerDamageAttempt,
   WarhammerAttackerDamageHit,
 } from "../WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import orderWarhammerAttackerDamageAttempts from "../../utils/orderWarhammerAttackerDamageAttempts";
 import styles from "./WarhammerAttackerDamageHitBreakdown.module.css";
 
 interface WarhammerAttackerDamageHitBreakdownProps {
   hit: WarhammerAttackerDamageHit;
   hitNumber: number;
-}
-
-interface OrderedAttempt {
-  attempt: WarhammerAttackerDamageAttempt;
-  originalIndex: number;
-  isSelected: boolean;
 }
 
 interface DamageTerm {
@@ -34,21 +29,7 @@ function WarhammerAttackerDamageHitBreakdown({
   hit,
   hitNumber,
 }: WarhammerAttackerDamageHitBreakdownProps) {
-  const orderedAttempts: OrderedAttempt[] = hit.attempts
-    .map((attempt, originalIndex) => ({
-      attempt,
-      originalIndex,
-      isSelected: originalIndex === hit.selectedAttemptIndex,
-    }))
-    .sort((left, right) => {
-      if (left.isSelected !== right.isSelected) {
-        return left.isSelected ? -1 : 1;
-      }
-      if (left.attempt.damage !== right.attempt.damage) {
-        return right.attempt.damage - left.attempt.damage;
-      }
-      return left.originalIndex - right.originalIndex;
-    });
+  const orderedAttempts = orderWarhammerAttackerDamageAttempts(hit);
 
   const selectedDamage = hit.attempts[hit.selectedAttemptIndex].damage;
   const selectedAttempt = hit.attempts[hit.selectedAttemptIndex];
@@ -75,7 +56,7 @@ function WarhammerAttackerDamageHitBreakdown({
           <strong className={styles.selectedDamage}>{selectedDamage}</strong>
         </div>
         <div className={styles.hitMath}>
-          {orderedAttempts.map(({ attempt, originalIndex, isSelected }, index) => {
+          {orderedAttempts.map(({ attempt, index: attemptIndex, isSelected }, index) => {
             const rolledTerms = getDamageTerms(attempt);
             const baseAndFuryDamage = rolledTerms.reduce(
               (sum, term) => sum + term.value,
@@ -94,7 +75,7 @@ function WarhammerAttackerDamageHitBreakdown({
             );
 
             return (
-              <React.Fragment key={originalIndex}>
+              <React.Fragment key={attemptIndex}>
                 {index > 0 && (
                   <span className={styles.attemptSeparator} aria-hidden="true">
                     &gt;

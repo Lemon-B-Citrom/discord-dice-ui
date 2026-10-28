@@ -71,10 +71,6 @@ export default function normalizeWarhammerAttackerDamage(
     parsed[field] = value;
   });
 
-  if (values.tearing !== "none" && values.tearing !== "tearing" && values.tearing !== "tripleTearing") {
-    errors.tearing = "Select a tearing option";
-  }
-
   if (Object.keys(errors).length > 0) {
     return { errors };
   }

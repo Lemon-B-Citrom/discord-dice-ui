@@ -60,6 +60,13 @@ The app can also help with adding and subtracting gold crowns, silver shillings 
 
 [![Warhammer Money Converter](./public/money_converter.png)]()
 
+Damage can be rolled and applied without leaving the app:
+
+- **Attacker Damage** rolls the damage dice with Tearing, Proven and Righteous Fury, and shows every attempt (including the discarded ones)
+- **Defender Damage** applies Armor, Toughness Bonus, Fortitude, Felling and optional per-location overrides, and reports Horde Magnitude and kill counts
+
+[![Warhammer Damage Calculators](./public/app-demo-warhammer.gif)]()
+
 ## Wrath & Glory <a id="wrath-and-glory"></a>
 
 - neat, colorful, and interactive interface

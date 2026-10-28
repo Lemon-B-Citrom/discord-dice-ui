@@ -126,11 +126,6 @@ export type WarhammerDefenderDefenses =
   | { mode: "simple"; armor: WarhammerArmorLayout }
   | ({ mode: "advanced" } & WarhammerAdvancedDefenses);
 
-export interface DefenderDamageValidationIssue {
-  field: keyof WarhammerDefenderDamageDraft | "form";
-  message: string;
-}
-
 export type DefenderDamageValidationErrors = Partial<
   Record<keyof WarhammerDefenderDamageDraft, string>
 > & { form?: string };
@@ -206,9 +201,12 @@ export interface WarhammerBonusDevastatingEntry {
   magnitude: number;
 }
 
-export type WarhammerDefenderDamageEntry =
+export type WarhammerDefenderDamageHit =
   | WarhammerDefenderSingleDamageHit
-  | WarhammerDefenderHordeDamageHit
+  | WarhammerDefenderHordeDamageHit;
+
+export type WarhammerDefenderDamageEntry =
+  | WarhammerDefenderDamageHit
   | WarhammerBonusDevastatingEntry;
 
 export interface WarhammerDefenderDamageTotals {
@@ -219,7 +217,6 @@ export interface WarhammerDefenderDamageTotals {
 }
 
 export interface WarhammerDefenderDamageResult {
-  draft: WarhammerDefenderDamageDraft;
   request: WarhammerDefenderDamageRequest;
   entries: WarhammerDefenderDamageEntry[];
   totals: WarhammerDefenderDamageTotals;

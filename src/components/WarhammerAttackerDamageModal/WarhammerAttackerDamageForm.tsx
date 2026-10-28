@@ -11,16 +11,9 @@ import {
   AttackerDamageValues,
   WarhammerAttackerDamageInput,
 } from "./WarhammerAttackerDamageTypes";
-
-type NonNegativeField =
-  | "hits"
-  | "damageDice"
-  | "penetration"
-  | "felling"
-  | "devastating"
-  | "proven"
-  | "rfOn"
-  | "rfConfirmsOn";
+import WarhammerAttackerDamageProfileFields, {
+  AttackerDamageNumericField,
+} from "./WarhammerAttackerDamageProfileFields";
 
 const FORM_ID = "warhammer-attacker-damage-form";
 
@@ -31,21 +24,38 @@ interface WarhammerAttackerDamageFormProps {
   resetCounter?: number;
 }
 
+const EMPTY_VALUES: AttackerDamageValues = {
+  hits: "",
+  damageDice: "",
+  damageModifier: "",
+  penetration: "",
+  felling: "",
+  devastating: "",
+  proven: "",
+  rfOn: "",
+  rfConfirmsOn: "",
+  alwaysConfirm: false,
+  tearing: "none",
+};
+
 const toFormValues = (
   input?: WarhammerAttackerDamageInput | null
-): AttackerDamageValues => ({
-  hits: input ? `${input.hits}` : "",
-  damageDice: input ? `${input.damageDice}` : "",
-  damageModifier: input ? `${input.damageModifier}` : "",
-  penetration: input ? `${input.penetration}` : "",
-  felling: input ? `${input.felling}` : "",
-  devastating: input ? `${input.devastating}` : "",
-  proven: input ? `${input.proven}` : "",
-  rfOn: input ? `${input.rfOn}` : "",
-  rfConfirmsOn: input ? `${input.rfConfirmsOn}` : "",
-  alwaysConfirm: input ? input.alwaysConfirm : false,
-  tearing: input ? input.tearing : "none",
-});
+): AttackerDamageValues =>
+  input
+    ? {
+        hits: `${input.hits}`,
+        damageDice: `${input.damageDice}`,
+        damageModifier: `${input.damageModifier}`,
+        penetration: `${input.penetration}`,
+        felling: `${input.felling}`,
+        devastating: `${input.devastating}`,
+        proven: `${input.proven}`,
+        rfOn: `${input.rfOn}`,
+        rfConfirmsOn: `${input.rfConfirmsOn}`,
+        alwaysConfirm: input.alwaysConfirm,
+        tearing: input.tearing,
+      }
+    : EMPTY_VALUES;
 
 function WarhammerAttackerDamageForm({
   onRoll,
@@ -71,18 +81,23 @@ function WarhammerAttackerDamageForm({
     }
   }, [resetCounter]);
 
-  const updateValue = (field: keyof AttackerDamageValues, value: string) => {
-    setValues((currentValues) => ({ ...currentValues, [field]: value }));
-  };
+  function updateField<K extends keyof AttackerDamageValues>(
+    field: K,
+    value: AttackerDamageValues[K]
+  ) {
+    setValues((currentValues) => ({
+      ...currentValues,
+      [field]: value,
+    }));
+  }
 
-  const updateNonNegativeValue = (field: NonNegativeField, value: string) => {
+  const updateNonNegativeValue = (
+    field: AttackerDamageNumericField,
+    value: string
+  ) => {
     if (value === "" || Number(value) >= 0) {
-      updateValue(field, value);
+      updateField(field, value);
     }
-  };
-
-  const updateAlwaysConfirm = (alwaysConfirm: boolean) => {
-    setValues((currentValues) => ({ ...currentValues, alwaysConfirm }));
   };
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -94,16 +109,13 @@ function WarhammerAttackerDamageForm({
     }
   };
 
+  const alertMessage = calculationError || Object.values(errors)[0];
+
   return (
     <Form id={FORM_ID} onSubmit={handleSubmit}>
-      {calculationError && (
-        <Form.Text className="text-danger" role="alert">
-          {calculationError}
-        </Form.Text>
-      )}
-      {Object.keys(errors).length > 0 && (
+      {alertMessage && (
         <Form.Text className="text-danger d-block" role="alert">
-          {Object.values(errors).join(". ")}
+          {alertMessage}
         </Form.Text>
       )}
       <Form.Group as={Row} className={styles.hitsRow}>
@@ -118,6 +130,7 @@ function WarhammerAttackerDamageForm({
             min={0}
             placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.hits}`}
             value={values.hits}
+            isInvalid={Boolean(errors.hits)}
             onChange={(event) =>
               updateNonNegativeValue("hits", event.target.value)
             }
@@ -127,223 +140,15 @@ function WarhammerAttackerDamageForm({
 
       <hr />
 
-      <Row className={styles.attackDetails}>
-        <Col xs={12} md={7}>
-          <div className={styles.damageExpression}>
-            <Form.Control
-              aria-label="Damage dice count"
-              className={styles.compactInput}
-              type="number"
-              min={0}
-              placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.damageDice}`}
-              value={values.damageDice}
-              onChange={(event) =>
-                updateNonNegativeValue("damageDice", event.target.value)
-              }
-            />
-            <span>d10 +</span>
-            <Form.Control
-              aria-label="Damage modifier"
-              className={styles.compactInput}
-              type="number"
-              placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.damageModifier}`}
-              value={values.damageModifier}
-              onChange={(event) =>
-                updateValue("damageModifier", event.target.value)
-              }
-            />
-          </div>
-
-          <fieldset className={styles.tearingOptions}>
-            <legend className="sr-only">Tearing</legend>
-            <Form.Check
-              type="radio"
-              label="No Tearing"
-              name="attackerDamageTearing"
-              id="attacker-damage-no-tearing"
-              checked={values.tearing === "none"}
-              onChange={() => updateValue("tearing", "none")}
-            />
-            <Form.Check
-              type="radio"
-              label="Tearing"
-              name="attackerDamageTearing"
-              id="attacker-damage-tearing"
-              checked={values.tearing === "tearing"}
-              onChange={() => updateValue("tearing", "tearing")}
-            />
-            <Form.Check
-              type="radio"
-              label="Triple Tearing"
-              name="attackerDamageTearing"
-              id="attacker-damage-triple-tearing"
-              checked={values.tearing === "tripleTearing"}
-              onChange={() => updateValue("tearing", "tripleTearing")}
-            />
-          </fieldset>
-        </Col>
-
-        <Col xs={12} md={5}>
-          <Form.Group as={Row} className={styles.detailRow}>
-            <Form.Label
-              column
-              xs="auto"
-              className={styles.alignedLabel}
-              htmlFor="attacker-damage-penetration"
-            >
-              Pen
-            </Form.Label>
-            <Col xs="auto">
-              <Form.Control
-                id="attacker-damage-penetration"
-                className={styles.compactInput}
-                type="number"
-                min={0}
-                placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.penetration}`}
-                value={values.penetration}
-                onChange={(event) =>
-                  updateNonNegativeValue("penetration", event.target.value)
-                }
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className={styles.detailRow}>
-            <Form.Label
-              column
-              xs="auto"
-              className={styles.alignedLabel}
-              htmlFor="attacker-damage-felling"
-            >
-              Felling
-            </Form.Label>
-            <Col xs="auto">
-              <Form.Control
-                id="attacker-damage-felling"
-                className={styles.compactInput}
-                type="number"
-                min={0}
-                placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.felling}`}
-                value={values.felling}
-                onChange={(event) =>
-                  updateNonNegativeValue("felling", event.target.value)
-                }
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className={styles.detailRow}>
-            <Form.Label
-              column
-              xs="auto"
-              className={styles.alignedLabel}
-              htmlFor="attacker-damage-devastating"
-            >
-              Devastating
-            </Form.Label>
-            <Col xs="auto">
-              <Form.Control
-                id="attacker-damage-devastating"
-                className={styles.compactInput}
-                type="number"
-                min={0}
-                placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.devastating}`}
-                value={values.devastating}
-                onChange={(event) =>
-                  updateNonNegativeValue("devastating", event.target.value)
-                }
-              />
-            </Col>
-          </Form.Group>
-          <Form.Group as={Row} className={styles.detailRow}>
-            <Form.Label
-              column
-              xs="auto"
-              className={styles.alignedLabel}
-              htmlFor="attacker-damage-proven"
-            >
-              Proven
-            </Form.Label>
-            <Col xs="auto">
-              <Form.Control
-                id="attacker-damage-proven"
-                className={styles.compactInput}
-                type="number"
-                min={0}
-                placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.proven}`}
-                value={values.proven}
-                onChange={(event) =>
-                  updateNonNegativeValue("proven", event.target.value)
-                }
-              />
-            </Col>
-          </Form.Group>
-        </Col>
-      </Row>
-
-      <hr />
-
-      <Form.Group as={Row} className={styles.thresholdRow}>
-        <Form.Label
-          column
-          xs="auto"
-          className={styles.alignedLabelWide}
-          htmlFor="attacker-damage-rf-on"
-        >
-          RF on...
-        </Form.Label>
-        <Col xs="auto">
-          <Form.Control
-            id="attacker-damage-rf-on"
-            className={styles.compactInput}
-            type="number"
-            min={0}
-            placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.rfOn}`}
-            value={values.rfOn}
-            onChange={(event) =>
-              updateNonNegativeValue("rfOn", event.target.value)
-            }
-          />
-        </Col>
-      </Form.Group>
-      <Form.Group as={Row} className={styles.thresholdRow}>
-        <Form.Label
-          column
-          xs="auto"
-          className={`${styles.alignedLabelWide}${
-            values.alwaysConfirm ? ` ${styles.disabledLabel}` : ""
-          }`}
-          htmlFor="attacker-damage-rf-confirms-on"
-        >
-          Confirms on
-        </Form.Label>
-        <Col xs="auto">
-          <div className={styles.inputWithSuffix}>
-            <Form.Control
-              id="attacker-damage-rf-confirms-on"
-              className={styles.compactInput}
-              type="number"
-              min={0}
-              disabled={values.alwaysConfirm}
-              placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.rfConfirmsOn}`}
-              value={values.rfConfirmsOn}
-              onChange={(event) =>
-                updateNonNegativeValue("rfConfirmsOn", event.target.value)
-              }
-            />
-            <span>%</span>
-          </div>
-        </Col>
-        <Col xs="auto">
-          <Form.Check
-            id="attacker-damage-always-confirm"
-            type="checkbox"
-            label="Always Confirm"
-            checked={values.alwaysConfirm}
-            onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-              updateAlwaysConfirm(event.target.checked)
-            }
-          />
-        </Col>
-      </Form.Group>
+      <WarhammerAttackerDamageProfileFields
+        values={values}
+        onNumericChange={updateNonNegativeValue}
+        onModifierChange={(value) => updateField("damageModifier", value)}
+        onTearingChange={(tearing) => updateField("tearing", tearing)}
+        onAlwaysConfirmChange={(alwaysConfirm) =>
+          updateField("alwaysConfirm", alwaysConfirm)
+        }
+      />
     </Form>
   );
 }

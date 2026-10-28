@@ -18,6 +18,19 @@ export function requireNonNegativeInteger(text: string): number | null {
   return Number.isSafeInteger(value) ? value : null;
 }
 
+/**
+ * Parse optional non-negative integer text: a blank field means `fallback`,
+ * which is how an empty input stays valid while its placeholder shows the
+ * default. Returns `null` only when the text is present but invalid.
+ */
+export function parseOptionalNonNegativeInteger(
+  text: string,
+  fallback = 0
+): number | null {
+  const trimmed = text.trim();
+  return trimmed ? requireNonNegativeInteger(trimmed) : fallback;
+}
+
 /** Throw unless the value is a safe whole number, otherwise return it. */
 export function requireSafeInteger(
   value: number,

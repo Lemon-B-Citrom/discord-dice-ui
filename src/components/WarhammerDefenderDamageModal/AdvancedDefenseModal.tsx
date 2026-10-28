@@ -1,10 +1,9 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import {
+import normalizeAdvancedDefenses, {
   ADVANCED_DEFENSE_FIELD_KEYS,
 } from "../../utils/advancedDefenses";
-import normalizeAdvancedDefenses from "../../utils/advancedDefenses";
 import AdvancedDefensePanel from "./AdvancedDefensePanel";
 import styles from "./AdvancedDefenseModal.module.css";
 import { WarhammerDefenderDamageDraft } from "./WarhammerDefenderDamageTypes";
@@ -38,8 +37,9 @@ function AdvancedDefenseModal({
   const hasErrors = ADVANCED_DEFENSE_FIELD_KEYS.some((field) =>
     Boolean(errors[field])
   );
-  const clearAll = () =>
+  const clearAll = () => {
     ADVANCED_DEFENSE_FIELD_KEYS.forEach((field) => onChange(field, ""));
+  };
 
   return (
     <Modal

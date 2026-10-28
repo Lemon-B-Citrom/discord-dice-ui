@@ -3,11 +3,11 @@ import {
   DamageLocation,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import {
+  ARMOR_SLOT_BY_LOCATION,
   DAMAGE_LOCATION_READING_ORDER,
   DAMAGE_LOCATION_ROWS,
   DAMAGE_LOCATION_SHORT_LABELS,
   getAdjacentLocation,
-  isCompleteLocationDiagram,
   MenuMoveKey,
 } from "./damageLocations";
 
@@ -19,7 +19,11 @@ test("lays the body out as one head, one arm/body/arm line and a leg pair", () =
 });
 
 test("reading order holds every canonical location exactly once", () => {
-  expect(isCompleteLocationDiagram()).toBe(true);
+  const canonical = new Set(DAMAGE_LOCATION_READING_ORDER);
+  expect(canonical.size).toBe(DAMAGE_LOCATION_READING_ORDER.length);
+  DAMAGE_LOCATIONS.forEach((location) => {
+    expect(canonical.has(location)).toBe(true);
+  });
   expect(DAMAGE_LOCATION_READING_ORDER).toEqual([
     "Head",
     "Left Arm",
@@ -31,6 +35,12 @@ test("reading order holds every canonical location exactly once", () => {
   expect(new Set(DAMAGE_LOCATION_READING_ORDER).size).toBe(
     DAMAGE_LOCATIONS.length
   );
+});
+
+test("maps every location onto a simple armor slot", () => {
+  expect(ARMOR_SLOT_BY_LOCATION["Head"]).toBe("headAP");
+  expect(ARMOR_SLOT_BY_LOCATION["Right Arm"]).toBe("armsAP");
+  expect(ARMOR_SLOT_BY_LOCATION["Left Leg"]).toBe("legsAP");
 });
 
 test("gives every location a short caption", () => {

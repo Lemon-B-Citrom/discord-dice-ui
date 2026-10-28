@@ -1,0 +1,34 @@
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+}
+
+.row label {
+  margin: 0;
+}
+
+.rowInput {
+  width: 5rem;
+  flex: 0 0 5rem;
+}
+
+.stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 0;
+}
+
+.stacked label {
+  font-size: 0.8125rem;
+  margin: 0;
+  text-align: center;
+}
+
+.stackedInput {
+  text-align: center;
+  width: 100%;
+}

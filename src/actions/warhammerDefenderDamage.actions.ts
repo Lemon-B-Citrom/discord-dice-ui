@@ -28,7 +28,7 @@ export function clearWarhammerDefenderDamageDraft() {
 }
 
 export function requestWarhammerDefenderDamage(payload: WarhammerDefenderDamageDraft) {
-  return { type: WARHAMMER_DEFENDER_DAMAGE_REQUESTED, payload: { ...payload } };
+  return { type: WARHAMMER_DEFENDER_DAMAGE_REQUESTED, payload };
 }
 
 export function saveWarhammerDefenderDamageResults(payload: WarhammerDefenderDamageResult) {

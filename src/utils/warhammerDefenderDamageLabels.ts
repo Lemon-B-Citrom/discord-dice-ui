@@ -1,5 +1,6 @@
 import {
   DefenderDamageEntryBase,
+  HordeDamageClassification,
   WarhammerDefenderDamageRequest,
   WarhammerDefenderHordeDamageHit,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
@@ -18,7 +19,20 @@ export interface WarhammerToughnessTerm {
   felling: number;
   effective: number;
   reduced: boolean;
-  overridden: boolean;
+  /** Felling exceeded the whole pool, so the result is floored at zero. */
+  fellingExceedsBase: boolean;
+}
+
+/**
+ * Single owner of the Horde classification wording, shared by the results modal
+ * and the Discord formatter. Each renderer adds its own emphasis.
+ */
+export function getHordeClassificationLabel(
+  classification: HordeDamageClassification
+): string {
+  if (classification === "overkill") return "Overkill!";
+  if (classification === "partial-overkill") return "Partial Overkill!";
+  return "";
 }
 
 /**
@@ -35,8 +49,6 @@ export function getWarhammerMagnitudeBasis(
       return { label: "Halved Per-unit Magnitude", operand: hit.baseMagnitude };
     case "no-damage":
       return { label: "Nonpositive Damage (0)", operand: 0 };
-    case "ordinary":
-    case "bonus":
     default:
       return hit.finalDamage > 0
         ? { label: "Nonzero Damage (1)", operand: 1 }
@@ -64,6 +76,7 @@ export function getWarhammerToughnessTerm(
     felling: request.summary.felling,
     effective: entry.effectiveToughnessBonus,
     reduced: entry.effectiveToughnessBonus < entry.toughnessBeforeFelling,
-    overridden: request.summary.felling > entry.toughnessBeforeFelling,
+    fellingExceedsBase:
+      request.summary.felling > entry.toughnessBeforeFelling,
   };
 }
