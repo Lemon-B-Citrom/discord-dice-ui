@@ -6,6 +6,7 @@ import {
 import getWarhammerSuccessLevels from "../../utils/getWarhammerSuccessLevels";
 import getReversedResult from "../../utils/getReversedResult";
 import getDarkHeresyIIHitLocation from "../../utils/getDarkHeresyIIHitLocation";
+import LiberImperiumVehicleHitLocation from "../../utils/LiberImperiumVehicleHitLocation";
 import getWarhammer2eHitLocation from "../../utils/getWarhammer2eHitLocation";
 import getWarhammer4eHitLocation from "../../utils/getWarhammer4eHitLocation";
 import sl from "../../components/WarhammerModal/sl";
@@ -34,7 +35,9 @@ export default (store: any) => (next: any) => (action: any) => {
     const resultReversed = getReversedResult(result);
 
     if (useDarkHeresySL || useOnlyWarSL) {
-      hitLocation = getDarkHeresyIIHitLocation(resultReversed);
+      const humanHitLocation = getDarkHeresyIIHitLocation(resultReversed);
+      const vehicleHitLocation = LiberImperiumVehicleHitLocation(resultReversed);
+      hitLocation = `${humanHitLocation} / ${vehicleHitLocation}`;
     } else if (useWarhammer2eSL) {
       hitLocation = getWarhammer2eHitLocation(resultReversed);
     } else {

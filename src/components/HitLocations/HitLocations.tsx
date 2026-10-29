@@ -88,6 +88,22 @@ function HitLocationTooltip({
         <div>
           <strong>{leftLeg}</strong> - <span>Left Leg</span>
         </div>
+        {isDarkHeresy && (
+          <>
+            <div>
+              <strong>01-20</strong> - <span>Motive Systems</span>
+            </div>
+            <div>
+              <strong>21-60</strong> - <span>Hull</span>
+            </div>
+            <div>
+              <strong>61-80</strong> - <span>Weapons</span>
+            </div>
+            <div>
+              <strong>81-00</strong> - <span>Turret</span>
+            </div>
+          </>
+        )}
       </>
     );
   } else if (isConan) {
