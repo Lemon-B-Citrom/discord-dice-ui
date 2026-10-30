@@ -21,14 +21,12 @@ function L5rResultsModal({
   requestL5rReroll,
   l5rClearData,
   l5rSendState,
-
   showModal,
   results,
   resultsKept,
   resultsKeptIndexesAltered,
   resultsKeptIndexesExploded,
   resultsDerived,
-
   additionalDiceRolled,
   additionalDiceIndexesKept,
   additionalDiceIndexesDropped,
@@ -51,18 +49,15 @@ function L5rResultsModal({
   const handleReroll = () => {
     requestL5rReroll(selectedDiceState);
     setSelectedDiceState([]);
-    l5rSendState();
   };
 
   const handleKeepDice = () => {
     l5rKeepDice(selectedDiceState);
     setSelectedDiceState([]);
-    l5rSendState();
   };
 
   const handleDoneModifyKeptDice = () => {
     setIsModifyingAllowed(false);
-    l5rSendState();
   };
 
   useEffect(() => {
@@ -275,7 +270,7 @@ function L5rResultsModal({
         })}
       >
         <section
-          data-step-results
+          data-step="results"
           className={classNames({
             [l5rStyles.hasResultsKept]: resultsKept.length > 0,
           })}
@@ -313,7 +308,7 @@ function L5rResultsModal({
         </section>
 
         <section
-          data-phase-kept-results
+          data-step="kept-results"
           className={classNames({
             [l5rStyles.keptDiceContainer]: true,
             hidden: resultsKeptElements.length === 1,
@@ -338,7 +333,7 @@ function L5rResultsModal({
         </section>
 
         <section
-          data-step-additional-dice-rolled
+          data-step="additional-dice-rolled"
           className={classNames({
             [l5rStyles.keptDiceContainer]: true,
             hidden: additionalDiceRolled.length === 0,
@@ -351,7 +346,7 @@ function L5rResultsModal({
         </section>
 
         <section
-          data-step-results-derived
+          data-step="results-derived"
           className={classNames({
             [l5rStyles.resultsDerivedContainer]: true,
             hidden: isModifyingAllowed || resultsKeptElements.length === 1,
@@ -385,6 +380,18 @@ function L5rResultsModal({
       <Modal.Footer>
         <Button variant="outline-secondary" onClick={hideMsg}>
           Close
+        </Button>
+        <Button variant="outline-primary" onClick={l5rSendState}>
+          Send Results
+        </Button>
+        <Button
+          variant="outline-success"
+          onClick={() => {
+            l5rSendState();
+            hideMsg();
+          }}
+        >
+          Send Results and Close
         </Button>
       </Modal.Footer>
     </Modal>
