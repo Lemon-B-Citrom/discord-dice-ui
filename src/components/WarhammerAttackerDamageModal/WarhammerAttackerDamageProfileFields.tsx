@@ -9,7 +9,13 @@ import {
 import { WARHAMMER_ATTACKER_DAMAGE_DEFAULTS } from "../../utils/normalizeWarhammerAttackerDamage";
 import styles from "./WarhammerAttackerDamageForm.module.css";
 import FirstHitLocationSelect from "./FirstHitLocationSelect";
-import { DamageLocation } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import {
+  AnyDamageLocation,
+  DamageLocation,
+  DAMAGE_LOCATIONS,
+  VehicleDamageLocation,
+} from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import { VEHICLE_DAMAGE_LOCATIONS } from "../../utils/damageLocations";
 
 export type AttackerDamageNumericField =
   | "hits"
@@ -46,7 +52,7 @@ interface WarhammerAttackerDamageProfileFieldsProps {
   onModifierChange: (value: string) => void;
   onTearingChange: (tearing: AttackerDamageTearing) => void;
   onAlwaysConfirmChange: (alwaysConfirm: boolean) => void;
-  onLocationChange: (location: DamageLocation) => void;
+  onLocationChange: (location: AnyDamageLocation) => void;
   locationError?: string;
 }
 
@@ -100,29 +106,45 @@ function WarhammerAttackerDamageProfileFields({
             />
           ))}
         </fieldset>
-        <Form.Group className={styles.locationField}>
-          <Form.Label htmlFor="attacker-damage-first-hit-location">
-            First Hit Location
-          </Form.Label>
-          <FirstHitLocationSelect
-            value={values.firstHitLocation}
-            onChange={onLocationChange}
-            ariaDescribedBy={
-              locationError
-                ? "attacker-damage-first-hit-location-error"
-                : undefined
-            }
-          />
-          {locationError && (
-            <Form.Text
-              id="attacker-damage-first-hit-location-error"
-              className="text-danger"
-              role="alert"
-            >
-              {locationError}
-            </Form.Text>
-          )}
-        </Form.Group>
+        <fieldset className={styles.locationField}>
+          <legend className={styles.locationHeading}>First Hit Location</legend>
+          <Row>
+            <Col xs={6} className={styles.humanoidLocationColumn}>
+              <FirstHitLocationSelect
+                value={DAMAGE_LOCATIONS.indexOf(values.firstHitLocation as DamageLocation) >= 0 ? values.firstHitLocation : ""}
+                onChange={(location) => onLocationChange(location)}
+                emptyCaption="Humanoid"
+                ariaDescribedBy={locationError ? "attacker-damage-first-hit-location-error" : undefined}
+              />
+            </Col>
+            <Col xs={6} className={styles.vehicleLocationColumn}>
+              <Form.Control
+                as="select"
+                id="attacker-damage-vehicle-hit-location"
+                aria-label="Vehicle"
+                className={`${styles.locationControl} ${VEHICLE_DAMAGE_LOCATIONS.indexOf(values.firstHitLocation as VehicleDamageLocation) >= 0 ? styles.locationControlActive : ""}`}
+                value={VEHICLE_DAMAGE_LOCATIONS.indexOf(values.firstHitLocation as VehicleDamageLocation) >= 0 ? values.firstHitLocation : ""}
+                isInvalid={Boolean(locationError)}
+                aria-describedby={locationError ? "attacker-damage-first-hit-location-error" : undefined}
+                onChange={(event) => onLocationChange(event.target.value as VehicleDamageLocation)}
+              >
+                <option value="" disabled>Vehicle</option>
+                {VEHICLE_DAMAGE_LOCATIONS.map((location) => <option key={location} value={location}>{location}</option>)}
+              </Form.Control>
+            </Col>
+            {locationError && (
+              <Col xs={12}>
+                <Form.Text
+                  id="attacker-damage-first-hit-location-error"
+                  className="text-danger"
+                  role="alert"
+                >
+                  {locationError}
+                </Form.Text>
+              </Col>
+            )}
+          </Row>
+        </fieldset>
       </Col>
 
       <Col xs={12} md={5}>

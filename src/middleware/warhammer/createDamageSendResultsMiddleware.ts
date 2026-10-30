@@ -18,7 +18,8 @@ interface DamageRequestMsg {
  */
 export function createDamageSendResultsMiddleware<Result>(
   actionType: string,
-  buildMessage: (result: Result, username: string) => DamageRequestMsg
+  buildMessage: (result: Result, username: string) => DamageRequestMsg,
+  onBuildError?: (store: Parameters<Middleware<{}, RootState>>[0]) => void
 ): Middleware<{}, RootState> {
   return (store) => (next) => (action: any) => {
     if (action.type !== actionType) return next(action);
@@ -31,6 +32,7 @@ export function createDamageSendResultsMiddleware<Result>(
       store.dispatch(requestMsgReady(buildMessage(result, username)));
     } catch (_error) {
       console.error("Unable to prepare a Warhammer damage webhook message.");
+      onBuildError && onBuildError(store);
     }
 
     return nextResult;

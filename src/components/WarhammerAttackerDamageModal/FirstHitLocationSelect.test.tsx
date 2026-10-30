@@ -5,7 +5,7 @@ import FirstHitLocationSelect from "./FirstHitLocationSelect";
 const openMenu = (
   getByRole: (role: string, options?: object) => HTMLElement
 ) => {
-  fireEvent.click(getByRole("button", { name: "First Hit Location" }));
+  fireEvent.click(getByRole("button", { name: "Humanoid" }));
   return getByRole("menu");
 };
 
@@ -15,7 +15,7 @@ test("renders the body diagram as 1, 3 and 2 button rows", () => {
   );
 
   const menu = openMenu(getByRole);
-  expect(getByRole("button", { name: "First Hit Location" })).toHaveAttribute(
+  expect(getByRole("button", { name: "Humanoid" })).toHaveAttribute(
     "aria-controls",
     "attacker-damage-first-hit-location-menu"
   );
@@ -124,9 +124,9 @@ test("Escape closes the menu without invoking modal dismissal", () => {
     key: "Escape",
     keyCode: 27,
   });
-  expect(getByRole("button", { name: "First Hit Location" })).toHaveAttribute(
+  expect(getByRole("button", { name: "Humanoid" })).toHaveAttribute(
     "aria-expanded",
     "false"
   );
-  expect(getByRole("button", { name: "First Hit Location" })).toHaveFocus();
+  expect(getByRole("button", { name: "Humanoid" })).toHaveFocus();
 });

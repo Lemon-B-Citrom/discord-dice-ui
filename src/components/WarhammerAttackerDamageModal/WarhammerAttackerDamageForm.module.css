@@ -65,10 +65,56 @@
 }
 
 .locationField {
+  min-width: 0;
   margin-top: 0.75rem;
   margin-bottom: 0;
+  padding: 0;
+  border: 0;
 }
 
-.locationField > label {
-  display: block;
+.locationHeading {
+  float: none;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.locationControl {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 38px;
+  border-radius: 0.25rem;
+}
+
+.locationControl:not(.locationControlActive) {
+  border-color: #6c757d;
+}
+
+.locationControlActive {
+  border-color: #007bff;
+  background-color: #007bff;
+  color: #fff;
+}
+
+.humanoidLocationColumn {
+  flex: 0 0 48%;
+  max-width: 48%;
+}
+
+.vehicleLocationColumn {
+  flex: 0 0 52%;
+  max-width: 52%;
+}
+
+.vehicleLocationColumn select option {
+  background-color: #fff;
+  color: #212529;
+}
+
+.locationControl.locationControlActive:focus {
+  border-color: #007bff;
+  background-color: #007bff;
+  color: #fff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
 }

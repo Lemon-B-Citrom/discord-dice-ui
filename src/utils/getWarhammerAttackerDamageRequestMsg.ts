@@ -12,6 +12,7 @@ import chunkEmbedRows, {
 import { formatWarhammerAttackerDamageSummaryHeader } from "./formatWarhammerAttackerDamageSummary";
 import { getColor } from "./getColor";
 import orderWarhammerAttackerDamageAttempts from "./orderWarhammerAttackerDamageAttempts";
+import projectWarhammerAttackerDamageSummary from "./projectWarhammerAttackerDamageSummary";
 import sanitizeDiscordUsername from "./sanitizeDiscordUsername";
 
 export type WarhammerAttackerDamageRequestMsgField = EmbedField;
@@ -144,9 +145,11 @@ function createSummaryFields(
 ): WarhammerAttackerDamageRequestMsgField[] {
   const fragments = [
     `${formatWarhammerAttackerDamageSummaryHeader(summary)} `,
-    ...summary.damages.map(
-      (damage, index) => `${index > 0 ? " " : ""}${damage}`
-    ),
+    ...summary.damages.map((damage, index) => {
+      const base = summary.baseDamages && summary.baseDamages[index];
+      const token = base !== undefined && base !== damage ? `${damage}(${base})` : `${damage}`;
+      return `${index > 0 ? " " : ""}${token}`;
+    }),
   ];
   return chunkTextForEmbed(fragments, EMBED_FIELD_VALUE_MAX - 2).map(
     (value, index) => ({
@@ -224,13 +227,8 @@ export default function getWarhammerAttackerDamageRequestMsg(
   ]
     .filter(Boolean)
     .join("\n");
-  const summaryFields = createSummaryFields({
-    penetration: input.penetration,
-    felling: input.felling,
-    devastating: input.devastating,
-    firstHitLocation: input.firstHitLocation,
-    damages,
-  });
+  const summary = projectWarhammerAttackerDamageSummary(result);
+  const summaryFields = createSummaryFields(summary);
   const hitRows = damages.map((_, index) => createHitRow(result, index));
 
   const fieldsFor = (
@@ -283,7 +281,8 @@ export default function getWarhammerAttackerDamageRequestMsg(
     msgTitle,
     description,
     color: getColor(),
-    // The notice is the only optional part left when every headline is kept.
-    fields: noticeFits ? fields : fieldsFor(withDetail, false),
+    // Never send a headline-only payload that silently loses the attack summary.
+    // This can only fail for a pathological hit count/annotation size.
+    fields: noticeFits ? fields : (() => { throw new Error("Unable to fit Warhammer attack webhook message"); })(),
   };
 }

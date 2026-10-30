@@ -5,11 +5,13 @@ import {
   WarhammerDefenderDamageDraft,
   WarhammerDefenderDamageRequest,
   WarhammerDefenderDefenses,
+  VehicleFacing,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import normalizeAdvancedDefenses, {
   NormalizeAdvancedDefensesResult,
 } from "./advancedDefenses";
 import parseWarhammerAttackerDamageSummary from "./parseWarhammerAttackerDamageSummary";
+import { isVehicleDamageLocation } from "./damageLocations";
 import resolveWarhammerArmorLayout, {
   ResolveArmorResult,
 } from "./resolveWarhammerArmorLayout";
@@ -50,8 +52,26 @@ export default function normalizeWarhammerDefenderDamage(
 ): NormalizeDefenderDamageResult {
   const errors: DefenderDamageValidationErrors = {};
   const parsed = parseWarhammerAttackerDamageSummary(draft.attackSummaryString);
-  if (!parsed.summary)
+  if (!parsed.summary) {
     errors.attackSummaryString = parsed.error || "Invalid summary";
+    return { request: null, errors };
+  }
+
+  if (isVehicleDamageLocation(parsed.summary.firstHitLocation)) {
+    const facing = draft.facing;
+    if (["Front", "Side", "Rear"].indexOf(facing) < 0) errors.facing = "Choose a facing";
+    const armorFront = parseNonNegative(draft.armorFront, "armorFront", errors, false);
+    const armorSide = parseNonNegative(draft.armorSide, "armorSide", errors, false);
+    const armorRear = parseNonNegative(draft.armorRear, "armorRear", errors, false);
+    if (Object.keys(errors).length || armorFront === null || armorSide === null || armorRear === null) return { request: null, errors };
+    const request: WarhammerDefenderDamageRequest = {
+      mode: "single", targetFamily: "vehicle", summary: parsed.summary,
+      firstHitLocation: parsed.summary.firstHitLocation,
+      vehicleFacing: facing as VehicleFacing,
+      vehicleArmor: { Front: armorFront, Side: armorSide, Rear: armorRear },
+    };
+    return { request, errors };
+  }
 
   const toughnessBonus = parseNonNegative(
     draft.toughnessBonus,
@@ -75,9 +95,7 @@ export default function normalizeWarhammerDefenderDamage(
   Object.assign(errors, advanced.errors);
   const defenses = pickDefenses(advanced, armor);
 
-  const firstHitLocation: DamageLocation | null = parsed.summary
-    ? parsed.summary.firstHitLocation
-    : null;
+  const firstHitLocation: DamageLocation = parsed.summary.firstHitLocation;
 
   // Horde mode is opt-in: blank fields alone no longer select it.
   const isHorde = draft.hordeEnabled;
@@ -114,6 +132,7 @@ export default function normalizeWarhammerDefenderDamage(
   }
 
   const common = {
+    targetFamily: "humanoid" as const,
     summary: parsed.summary,
     toughnessBonus,
     fortitude,

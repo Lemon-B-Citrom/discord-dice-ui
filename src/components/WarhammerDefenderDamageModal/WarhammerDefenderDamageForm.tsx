@@ -11,6 +11,8 @@ import {
   WarhammerDefenderDamageDraft,
 } from "./WarhammerDefenderDamageTypes";
 import normalizeWarhammerDefenderDamage from "../../utils/normalizeWarhammerDefenderDamage";
+import parseWarhammerAttackerDamageSummary from "../../utils/parseWarhammerAttackerDamageSummary";
+import { VEHICLE_DAMAGE_LOCATIONS } from "../../utils/damageLocations";
 
 export const DEFENDER_DAMAGE_FORM_ID = "warhammer-defender-damage-form";
 
@@ -36,6 +38,10 @@ const fieldControlIds: Record<keyof WarhammerDefenderDamageDraft, string> = {
   armorBody: "defender-damage-armor-body",
   armorArms: "defender-damage-armor-arms",
   armorLegs: "defender-damage-armor-legs",
+  armorFront: "defender-damage-armor-front",
+  armorSide: "defender-damage-armor-side",
+  armorRear: "defender-damage-armor-rear",
+  facing: "defender-damage-facing",
   bonusHits: "defender-damage-bonus-hits",
   magPer: "defender-damage-mag-per",
   woundsPer: "defender-damage-wounds-per",
@@ -91,6 +97,9 @@ function WarhammerDefenderDamageForm({
     : {};
   const visibleErrors = { ...liveErrors, ...errors };
   const summaryErrorId = `${fieldControlIds.attackSummaryString}-error`;
+  const parsedSummary = parseWarhammerAttackerDamageSummary(draft.attackSummaryString);
+  const isVehicle = Boolean(parsedSummary.summary && VEHICLE_DAMAGE_LOCATIONS.indexOf(parsedSummary.summary.firstHitLocation as any) >= 0);
+  const showDefenses = Boolean(parsedSummary.summary);
 
   const submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -154,6 +163,29 @@ function WarhammerDefenderDamageForm({
 
       <div className={styles.defenseGrid}>
         <div className={styles.defensePrimary}>
+          {showDefenses && isVehicle && (
+            <Form.Group>
+              <Form.Label htmlFor={fieldControlIds.facing}>Facing</Form.Label>
+              <Form.Control
+                as="select"
+                id={fieldControlIds.facing}
+                value={draft.facing}
+                isInvalid={Boolean(visibleErrors.facing)}
+                onChange={(event) => onChange("facing", event.target.value)}
+              >
+                <option value="">Choose…</option>
+                <option>Front</option>
+                <option>Side</option>
+                <option>Rear</option>
+              </Form.Control>
+              {visibleErrors.facing && (
+                <Form.Control.Feedback type="invalid">
+                  {visibleErrors.facing}
+                </Form.Control.Feedback>
+              )}
+            </Form.Group>
+          )}
+          {!isVehicle && <>
           <DamageNumericField
             id="defender-damage-toughness-bonus"
             label="Toughness Bonus"
@@ -168,8 +200,14 @@ function WarhammerDefenderDamageForm({
             error={visibleErrors.fortitude}
             onChange={(value) => onChange("fortitude", value)}
           />
+          </>}
         </div>
-        <div className={styles.armorFields}>
+        {showDefenses && <div className={styles.armorFields}>
+          {isVehicle ? <>
+            <DamageNumericField id={fieldControlIds.armorFront} label="AP Front" value={draft.armorFront} error={visibleErrors.armorFront} onChange={(value) => onChange("armorFront", value)} />
+            <DamageNumericField id={fieldControlIds.armorSide} label="AP Side" value={draft.armorSide} error={visibleErrors.armorSide} onChange={(value) => onChange("armorSide", value)} />
+            <DamageNumericField id={fieldControlIds.armorRear} label="AP Rear" value={draft.armorRear} error={visibleErrors.armorRear} onChange={(value) => onChange("armorRear", value)} />
+          </> : <>
           <div
             className={
               draft.advancedEnabled ? styles.armorFieldsDisabled : undefined
@@ -193,12 +231,14 @@ function WarhammerDefenderDamageForm({
             onChange={onChange}
             onOpen={onOpenAdvanced}
           />
+          </>}
         </div>
+        }
       </div>
 
       <hr />
 
-      <fieldset className={styles.hordeOptions}>
+      {!isVehicle && <fieldset className={styles.hordeOptions}>
         <legend>Horde Options</legend>
         <div className={styles.hordeGrid}>
           <Form.Group className={styles.hordeEnable}>
@@ -228,7 +268,7 @@ function WarhammerDefenderDamageForm({
             />
           ))}
         </div>
-      </fieldset>
+      </fieldset>}
     </Form>
   );
 }

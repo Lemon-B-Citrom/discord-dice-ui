@@ -8,6 +8,7 @@ import {
   WarhammerAttackerDamageInput,
   WarhammerAttackerDamageResult,
 } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import { requireSafeInteger } from "./safeInteger";
 
 export interface WarhammerAttackerDamageDiceSource {
   rollD10: () => number;
@@ -72,7 +73,7 @@ export default function calculateWarhammerAttackerDamage(
       const rawRoll = rollWithLimit(diceSource.rollD10);
       const effectiveDamage = Math.max(rawRoll, input.proven);
       baseRolls.push({ roll: rawRoll, damage: effectiveDamage });
-      damage += effectiveDamage;
+      damage = requireSafeInteger(damage + effectiveDamage, "Attack damage");
     }
 
     // Proven only changes base damage dice. RF is checked against raw rolls.
@@ -83,7 +84,7 @@ export default function calculateWarhammerAttackerDamage(
     while (shouldContinueRighteousFury && confirmsRighteousFury()) {
       const bonusRoll = rollWithLimit(diceSource.rollD10);
       righteousFuryRolls.push(bonusRoll);
-      damage += bonusRoll;
+      damage = requireSafeInteger(damage + bonusRoll, "Attack damage");
       shouldContinueRighteousFury = bonusRoll >= input.rfOn;
     }
 

@@ -5,6 +5,7 @@ import {
   WarhammerDefenderDamageResult,
   WarhammerDefenderHordeDamageHit,
   WarhammerDefenderSingleDamageHit,
+  WarhammerDefenderVehicleDamageHit,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import { ARMOR_SLOT_BY_LOCATION } from "./damageLocations";
 import getWarhammerDefenderDamageHitLocation from "./getWarhammerDefenderDamageHitLocation";
@@ -12,6 +13,8 @@ import getWarhammerDefenseForLocation, {
   LocationDefense,
 } from "./getWarhammerDefenseForLocation";
 import { requireSafeInteger } from "./safeInteger";
+import getResultsArray from "./getResultsArray";
+import LiberImperiumVehicleHitLocation from "./LiberImperiumVehicleHitLocation";
 
 /** Bonus hits get their own Fortitude quota, covering two hits each. */
 const BONUS_HITS_PER_FORTITUDE = 2;
@@ -45,6 +48,7 @@ const baseHit = (
 
   return {
     kind: "hit" as const,
+    targetFamily: "humanoid" as const,
     index,
     number: index + 1,
     location,
@@ -59,12 +63,44 @@ const baseHit = (
 };
 
 function calculateWarhammerDefenderDamage(
-  request: WarhammerDefenderDamageRequest
+  request: WarhammerDefenderDamageRequest,
+  rollD100: () => number = () => getResultsArray(100)[0]
 ): WarhammerDefenderDamageResult {
   let totalDamage = 0;
   let totalMagnitude = 0;
   const entries: WarhammerDefenderDamageEntry[] = [];
 
+  if (request.targetFamily === "vehicle") {
+    request.summary.damages.forEach((damage, index) => {
+      const roll = index === 0 ? undefined : rollD100();
+      if (index > 0 && (!Number.isInteger(roll) || roll! < 1 || roll! > 100)) throw new Error("Vehicle hit-location roll must be an integer from 1 to 100");
+      const rolledLocation = index === 0 ? request.firstHitLocation : LiberImperiumVehicleHitLocation(roll === 100 ? 0 : roll!);
+      if (!rolledLocation) throw new Error("Vehicle hit-location roll must be an integer from 1 to 100");
+      const location = rolledLocation;
+      const facing = request.vehicleFacing;
+      const armorFacing = location === "Turret" ? "Front" : facing;
+      const armor = requireSafeInteger(request.vehicleArmor[armorFacing], "Vehicle armor");
+      const effectiveArmor = Math.max(0, requireSafeInteger(armor - request.summary.penetration, "Effective armor"));
+      const baseDamage = request.summary.baseDamages ? request.summary.baseDamages[index] : damage;
+      const extra = requireSafeInteger(damage - baseDamage, "Righteous Fury extra");
+      if (extra < 0) throw new Error("Righteous Fury base cannot exceed total damage");
+      const baseApplied = Math.max(0, requireSafeInteger(baseDamage - effectiveArmor, "Vehicle base damage after armor"));
+      const rfApplied = baseApplied >= 1;
+      const finalDamage = requireSafeInteger(
+        baseApplied + (rfApplied ? extra : extra > 0 ? 1 : 0),
+        "Final vehicle damage"
+      );
+      totalDamage = checkedAdd(totalDamage, finalDamage, "Total damage");
+      const hit: WarhammerDefenderVehicleDamageHit = { kind: "hit", targetFamily: "vehicle", mode: "single", role: "single", index, number: index + 1,
+        location, facing, armorFacing, locationRoll: roll, originalDamage: damage,
+        baseDamage, righteousFuryExtra: extra, rfApplied, armorBeforePenetration: armor,
+        effectiveArmor, finalDamage };
+      entries.push(hit);
+    });
+    return { request, entries, totals: { damage: totalDamage } };
+  }
+
+  if (request.targetFamily !== "humanoid") throw new Error("Unsupported damage target");
   request.summary.damages.forEach((_damage, index) => {
     const location = getWarhammerDefenderDamageHitLocation(
       request.firstHitLocation,

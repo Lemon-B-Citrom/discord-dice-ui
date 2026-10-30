@@ -10,6 +10,7 @@ import {
 } from "../../utils/damageLocations";
 import { DamageLocation } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import styles from "./FirstHitLocationSelect.module.css";
+import formStyles from "./WarhammerAttackerDamageForm.module.css";
 
 const MENU_MOVE_KEYS: ReadonlyArray<MenuMoveKey> = [
   "ArrowUp",
@@ -27,12 +28,14 @@ interface FirstHitLocationSelectProps {
   value: string;
   onChange: (value: DamageLocation) => void;
   ariaDescribedBy?: string;
+  emptyCaption?: string;
 }
 
 function FirstHitLocationSelect({
   value,
   onChange,
   ariaDescribedBy,
+  emptyCaption = "Humanoid",
 }: FirstHitLocationSelectProps) {
   const [open, setOpen] = useState(false);
   const [pendingFocus, setPendingFocus] = useState<DamageLocation | null>(null);
@@ -107,9 +110,9 @@ function FirstHitLocationSelect({
       <Dropdown.Toggle
         ref={toggleRef}
         id="attacker-damage-first-hit-location"
-        variant="outline-secondary"
+        variant={value ? "primary" : "outline-secondary"}
         aria-label={
-          value ? `First Hit Location: ${value}` : "First Hit Location"
+          value ? `First Hit Location: ${value}` : emptyCaption
         }
         aria-haspopup="menu"
         aria-controls="attacker-damage-first-hit-location-menu"
@@ -117,9 +120,9 @@ function FirstHitLocationSelect({
         aria-describedby={ariaDescribedBy}
         aria-invalid={Boolean(ariaDescribedBy)}
         onKeyDown={handleToggleKeyDown}
-        className={`${styles.toggle} ${ariaDescribedBy ? "border-danger" : ""}`}
+        className={`${styles.toggle} ${formStyles.locationControl} ${value ? formStyles.locationControlActive : ""} ${ariaDescribedBy ? "border-danger" : ""}`}
       >
-        {value || "First Hit Location"}
+        {value || emptyCaption}
       </Dropdown.Toggle>
       <Dropdown.Menu
         id="attacker-damage-first-hit-location-menu"

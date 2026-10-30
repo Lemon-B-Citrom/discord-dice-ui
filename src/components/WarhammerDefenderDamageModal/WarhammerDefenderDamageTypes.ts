@@ -8,6 +8,10 @@ export const DAMAGE_LOCATIONS = [
 ] as const;
 
 export type DamageLocation = typeof DAMAGE_LOCATIONS[number];
+export const VEHICLE_DAMAGE_LOCATIONS = ["Motive Systems", "Hull", "Weapons", "Turret"] as const;
+export type VehicleDamageLocation = typeof VEHICLE_DAMAGE_LOCATIONS[number];
+export type AnyDamageLocation = DamageLocation | VehicleDamageLocation;
+export type VehicleFacing = "Front" | "Side" | "Rear";
 
 export type ArmorSlot = "headAP" | "bodyAP" | "armsAP" | "legsAP";
 
@@ -43,6 +47,10 @@ export interface WarhammerDefenderDamageDraft {
   woundsPer: string;
   hordeEnabled: boolean;
   advancedEnabled: boolean;
+  armorFront: string;
+  armorSide: string;
+  armorRear: string;
+  facing: string;
   advancedArmorHead: string;
   advancedArmorBody: string;
   advancedArmorLeftArm: string;
@@ -70,6 +78,10 @@ export const EMPTY_DEFENDER_DAMAGE_DRAFT: WarhammerDefenderDamageDraft = {
   woundsPer: "",
   hordeEnabled: false,
   advancedEnabled: false,
+  armorFront: "",
+  armorSide: "",
+  armorRear: "",
+  facing: "",
   advancedArmorHead: "",
   advancedArmorBody: "",
   advancedArmorLeftArm: "",
@@ -88,8 +100,9 @@ export interface WarhammerAttackerDamageSummary {
   penetration: number;
   felling: number;
   devastating: number;
-  firstHitLocation: DamageLocation;
+  firstHitLocation: AnyDamageLocation;
   damages: number[];
+  baseDamages?: number[];
 }
 
 export type ArmorSource = "explicit" | "body" | "other-part" | "omitted";
@@ -126,21 +139,26 @@ export type DefenderDamageValidationErrors = Partial<
 > & { form?: string };
 
 export interface WarhammerDefenderDamageCommonRequest {
-  mode: "single" | "horde";
   summary: WarhammerAttackerDamageSummary;
+  firstHitLocation: AnyDamageLocation;
+}
+
+export interface WarhammerHumanoidDamageRequestBase
+  extends WarhammerDefenderDamageCommonRequest {
+  targetFamily: "humanoid";
+  firstHitLocation: DamageLocation;
   toughnessBonus: number;
   fortitude: number;
   defenses: WarhammerDefenderDefenses;
-  firstHitLocation: DamageLocation;
 }
 
 export interface WarhammerDefenderSingleDamageRequest
-  extends WarhammerDefenderDamageCommonRequest {
+  extends WarhammerHumanoidDamageRequestBase {
   mode: "single";
 }
 
 export interface WarhammerDefenderHordeDamageRequest
-  extends WarhammerDefenderDamageCommonRequest {
+  extends WarhammerHumanoidDamageRequestBase {
   mode: "horde";
   /** Derived from the summary: every hit that is not a bonus hit. */
   trueHits: number;
@@ -149,30 +167,45 @@ export interface WarhammerDefenderHordeDamageRequest
   woundsPer: number;
 }
 
+export interface WarhammerDefenderVehicleDamageRequest
+  extends WarhammerDefenderDamageCommonRequest {
+  targetFamily: "vehicle";
+  mode: "single";
+  firstHitLocation: VehicleDamageLocation;
+  vehicleFacing: VehicleFacing;
+  vehicleArmor: Record<VehicleFacing, number>;
+}
+
 export type WarhammerDefenderDamageRequest =
+  | WarhammerDefenderSingleDamageRequest
+  | WarhammerDefenderHordeDamageRequest
+  | WarhammerDefenderVehicleDamageRequest;
+
+export type WarhammerHumanoidDamageRequest =
   | WarhammerDefenderSingleDamageRequest
   | WarhammerDefenderHordeDamageRequest;
 
-export interface DefenderDamageEntryBase {
+export interface DefenderDamageEntryBase<L extends AnyDamageLocation = AnyDamageLocation> {
   kind: "hit";
   index: number;
   number: number;
-  location: DamageLocation;
-  armorSlot: ArmorSlot;
+  location: L;
   originalDamage: number;
   armorBeforePenetration: number;
   effectiveArmor: number;
-  showArmorTerm: boolean;
-  effectiveToughnessBonus: number;
-  fortitudeApplied: boolean;
-  toughnessBeforeFelling: number;
   finalDamage: number;
 }
 
 export interface WarhammerDefenderSingleDamageHit
-  extends DefenderDamageEntryBase {
+  extends DefenderDamageEntryBase<DamageLocation> {
+  targetFamily: "humanoid";
   mode: "single";
   role: "single";
+  armorSlot: ArmorSlot;
+  showArmorTerm: boolean;
+  effectiveToughnessBonus: number;
+  fortitudeApplied: boolean;
+  toughnessBeforeFelling: number;
 }
 
 export type HordeDamageClassification =
@@ -183,13 +216,32 @@ export type HordeDamageClassification =
   | "bonus";
 
 export interface WarhammerDefenderHordeDamageHit
-  extends DefenderDamageEntryBase {
+  extends DefenderDamageEntryBase<DamageLocation> {
+  targetFamily: "humanoid";
   mode: "horde";
   role: "true" | "bonus";
+  armorSlot: ArmorSlot;
+  showArmorTerm: boolean;
+  effectiveToughnessBonus: number;
+  fortitudeApplied: boolean;
+  toughnessBeforeFelling: number;
   classification: HordeDamageClassification;
   baseMagnitude: number;
   devastatingAdded: number;
   magnitude: number;
+}
+
+export interface WarhammerDefenderVehicleDamageHit
+  extends DefenderDamageEntryBase<VehicleDamageLocation> {
+  targetFamily: "vehicle";
+  mode: "single";
+  role: "single";
+  facing: VehicleFacing;
+  armorFacing: VehicleFacing;
+  locationRoll?: number;
+  baseDamage: number;
+  righteousFuryExtra: number;
+  rfApplied: boolean;
 }
 
 export interface WarhammerBonusDevastatingEntry {
@@ -200,7 +252,8 @@ export interface WarhammerBonusDevastatingEntry {
 
 export type WarhammerDefenderDamageHit =
   | WarhammerDefenderSingleDamageHit
-  | WarhammerDefenderHordeDamageHit;
+  | WarhammerDefenderHordeDamageHit
+  | WarhammerDefenderVehicleDamageHit;
 
 export type WarhammerDefenderDamageEntry =
   | WarhammerDefenderDamageHit

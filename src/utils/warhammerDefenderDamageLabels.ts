@@ -1,8 +1,8 @@
 import {
-  DefenderDamageEntryBase,
   HordeDamageClassification,
-  WarhammerDefenderDamageRequest,
   WarhammerDefenderHordeDamageHit,
+  WarhammerDefenderSingleDamageHit,
+  WarhammerHumanoidDamageRequest,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import getWarhammerDefenseForLocation from "./getWarhammerDefenseForLocation";
 
@@ -61,8 +61,8 @@ export function getWarhammerMagnitudeBasis(
  * and the Discord formatter.
  */
 export function getWarhammerToughnessTerm(
-  entry: DefenderDamageEntryBase,
-  request: WarhammerDefenderDamageRequest
+  entry: WarhammerDefenderSingleDamageHit | WarhammerDefenderHordeDamageHit,
+  request: WarhammerHumanoidDamageRequest
 ): WarhammerToughnessTerm {
   const defense = getWarhammerDefenseForLocation(
     request,

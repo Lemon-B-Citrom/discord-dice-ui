@@ -88,7 +88,7 @@ test("formats the profile, ordered hit totals, selected attempts, and comparison
   expect(message.fields[0].value).not.toContain("Discarded:");
   expect(message.fields[message.fields.length - 1]).toEqual({
     name: ":boom: Summary",
-    value: "`Pen 3, Fel 2, @body: 16 11`",
+    value: "`Pen 3, Fel 2, @body: 16(12) 11`",
   });
 });
 
@@ -103,7 +103,7 @@ test("places the starting hit location after the penetration profile", () => {
   );
   expect(message.fields[message.fields.length - 1]).toEqual({
     name: ":boom: Summary",
-    value: "`Pen 3, Fel 2, @larm: 16 11`",
+    value: "`Pen 3, Fel 2, @larm: 16(12) 11`",
   });
 });
 
@@ -119,7 +119,7 @@ test("includes Devastating in the profile and summary only when it is not zero",
   );
   expect(message.fields[message.fields.length - 1]).toEqual({
     name: ":boom: Summary",
-    value: "`Pen 3, Fel 2, Dev 3, @body: 16 11`",
+    value: "`Pen 3, Fel 2, Dev 3, @body: 16(12) 11`",
   });
 });
 
@@ -133,7 +133,7 @@ test("omits zero-valued traits from the summary while keeping the header order c
     ":crossed_swords: Penetration 3 · Devastating 4 · Tearing · :mens: Starting at Body"
   );
   expect(message.fields[message.fields.length - 1].value).toBe(
-    "`Pen 3, Dev 4, @body: 16 11`"
+    "`Pen 3, Dev 4, @body: 16(12) 11`"
   );
 });
 
@@ -335,7 +335,7 @@ test("escapes and bounds a user name without creating a mention", () => {
   );
 });
 
-test("preserves all hit totals and bounds every Discord embed field for maximum-sized results", () => {
+test("rejects a worst-case RF-annotated summary that cannot fit one embed", () => {
   const attack = result();
   attack.input = {
     ...input,
@@ -345,21 +345,32 @@ test("preserves all hit totals and bounds every Discord embed field for maximum-
   };
   attack.damages = Array.from(
     { length: 100 },
-    (_, index) => 1_000_000_000 + index
+    (_, index) => 1_000_000_000_000_000 + index
   );
   attack.hitDetails = attack.damages.map((damage) => ({
     attempts: [0, 1, 2].map(() => ({
       baseRolls: [],
-      righteousFuryRolls: [],
+      righteousFuryRolls: [1],
       damage,
     })),
     selectedAttemptIndex: 1,
   }));
 
-  const message = getWarhammerAttackerDamageRequestMsg(
+  expect(() => getWarhammerAttackerDamageRequestMsg(
     attack,
     "A very long player name".repeat(20)
-  );
+  )).toThrow("Unable to fit Warhammer attack webhook message");
+});
+
+test("preserves all hit totals and bounds every Discord embed field for maximum-sized results", () => {
+  const attack = result();
+  attack.input = { ...input, hits: 50, damageDice: 100, tearing: "tripleTearing" };
+  attack.damages = Array.from({ length: 50 }, (_, index) => 1_000_000_000 + index);
+  attack.hitDetails = attack.damages.map((damage) => ({
+    attempts: [0, 1, 2].map(() => ({ baseRolls: [], righteousFuryRolls: [1], damage })),
+    selectedAttemptIndex: 1,
+  }));
+  const message = getWarhammerAttackerDamageRequestMsg(attack, "Alex");
   const summaryFragments = message.fields
     .filter(({ name }) => name === ":boom: Summary" || name === "Summary (continued)")
     .map(({ value }) => value.slice(1, -1));
@@ -381,7 +392,7 @@ test("preserves all hit totals and bounds every Discord embed field for maximum-
     );
   expect(allHitValues).toContain("#1: :arrow_right:");
   expect(allHitValues).toContain(
-    `#100: :arrow_right: **${attack.damages[99]}**`
+    `#50: :arrow_right: **Righteous Fury!** **${attack.damages[49]}**`
   );
   expect(
     message.fields.some(({ value }) => value.includes("details shortened"))
@@ -394,6 +405,7 @@ test("preserves all hit totals and bounds every Discord embed field for maximum-
     devastating: 0,
     firstHitLocation: "Body",
     damages: attack.damages,
+    baseDamages: attack.damages.map((damage) => damage - 1),
   });
   expect(
     message.fields.every(

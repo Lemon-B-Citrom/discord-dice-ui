@@ -6,8 +6,8 @@ import {
   WarhammerDefenderDamageResult,
   WarhammerDefenderDefenses,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import chunkEmbedRows, { EmbedField, fitsInOneEmbed } from "./embedFields";
-import formatWarhammerAttackerDamageSummary from "./formatWarhammerAttackerDamageSummary";
+import chunkEmbedRows, { EmbedField, fitsInOneEmbed, chunkTextForEmbed } from "./embedFields";
+import formatWarhammerAttackerDamageSummary, { formatWarhammerAttackerDamageSummaryHeader } from "./formatWarhammerAttackerDamageSummary";
 import { getColor } from "./getColor";
 import { requireSafeInteger } from "./safeInteger";
 import sanitizeDiscordUsername from "./sanitizeDiscordUsername";
@@ -77,7 +77,7 @@ function formatHit(
   const heading = `#${entry.number}${
     entry.mode === "horde" && entry.role === "bonus" ? " (Bonus)" : ""
   }: :arrow_right:`;
-  const location = `-# ${entry.location}`;
+  const location = `-# ${entry.location}${entry.targetFamily === "vehicle" ? ` · Facing ${entry.facing}` : ""}`;
   const damageEquation = formatEquationTokens(
     getDamageEquationTokens(entry, request)
   );
@@ -115,16 +115,19 @@ function assertHitNumbers(entry: WarhammerDefenderDamageHit): void {
     entry.originalDamage,
     entry.armorBeforePenetration,
     entry.effectiveArmor,
-    entry.effectiveToughnessBonus,
-    entry.toughnessBeforeFelling,
     entry.finalDamage,
   ]);
+  if (entry.targetFamily === "humanoid") {
+    assertSafeIntegers([entry.effectiveToughnessBonus, entry.toughnessBeforeFelling]);
+  } else {
+    assertSafeIntegers([entry.baseDamage, entry.righteousFuryExtra]);
+  }
   if (entry.index < 0 || entry.number !== entry.index + 1) {
     throw new Error(INVALID_RESULT);
   }
 }
 
-function getContext(result: WarhammerDefenderDamageResult): string {
+function getContext(result: WarhammerDefenderDamageResult, includeSummary: boolean): string {
   const request = result.request;
   // Derive the summary from the validated request so the embed always matches
   // the numbers that are shown, independent of the raw draft text.
@@ -138,8 +141,10 @@ function getContext(result: WarhammerDefenderDamageResult): string {
     assertSafeIntegers([request.trueHits, request.magPer, request.woundsPer]);
   }
   return [
-    `:dart: ${request.mode === "horde" ? "Horde" : "Single target"} x${hitCount}${hitBreakdown}: \`${summary}\``,
-    `:mens: Starting at ${request.firstHitLocation}`,
+    `:dart: ${request.mode === "horde" ? "Horde" : "Single target"} x${hitCount}${hitBreakdown}${includeSummary ? `: \`${summary}\`` : ""}`,
+    request.targetFamily === "vehicle"
+      ? `:mens: Starting at ${request.firstHitLocation} · Facing ${request.vehicleFacing}`
+      : `:mens: Starting at ${request.firstHitLocation}`,
   ].join("\n");
 }
 
@@ -181,12 +186,26 @@ export default function getWarhammerDefenderDamageRequestMsg(
   username: string
 ): WarhammerDefenderDamageRequestMsg {
   const request = result.request;
-  assertDefenses(request.defenses);
+  if (request.targetFamily === "humanoid") assertDefenses(request.defenses);
 
   const msgTitle = `${sanitizeDiscordUsername(username)} calculated damage. ${
     request.mode === "horde" ? "Horde" : "Single target"
   }`;
-  const context = getContext(result);
+  const fullContext = getContext(result, true);
+  const moveSummaryToFields = fullContext.length > 2000;
+  const context = moveSummaryToFields ? getContext(result, false) : fullContext;
+  const summaryFields = moveSummaryToFields
+    ? chunkTextForEmbed([
+        `${formatWarhammerAttackerDamageSummaryHeader(request.summary)} `,
+        ...request.summary.damages.map((damage, index) => {
+          const base = request.summary.baseDamages && request.summary.baseDamages[index];
+          return `${index ? " " : ""}${base !== undefined && base !== damage ? `${damage}(${base})` : damage}`;
+        }),
+      ], 1022).map((value, index) => ({
+        name: index === 0 ? ":boom: Attack Summary" : "Attack Summary (continued)",
+        value: `\`${value}\``,
+      }))
+    : [];
   const formatted = result.entries.map((entry) => formatHit(entry, request));
   const totalsField = getTotalsField(result);
   const totalRealHits = formatted.filter((entry) => !entry.isSynthetic).length;
@@ -220,6 +239,7 @@ export default function getWarhammerDefenderDamageRequestMsg(
         continuationName: "\u200b",
         joiner: "\n\n",
       }),
+      ...summaryFields,
       totalsField,
     ];
   };

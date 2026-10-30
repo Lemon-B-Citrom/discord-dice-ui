@@ -1,7 +1,7 @@
 import {
   ArmorSlot,
   DamageLocation,
-  WarhammerDefenderDamageRequest,
+  WarhammerHumanoidDamageRequest,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
 export interface LocationDefense {
@@ -19,7 +19,7 @@ export interface LocationDefense {
  * the advanced overrides cannot disagree.
  */
 export default function getWarhammerDefenseForLocation(
-  request: WarhammerDefenderDamageRequest,
+  request: WarhammerHumanoidDamageRequest,
   location: DamageLocation,
   armorSlot: ArmorSlot
 ): LocationDefense {

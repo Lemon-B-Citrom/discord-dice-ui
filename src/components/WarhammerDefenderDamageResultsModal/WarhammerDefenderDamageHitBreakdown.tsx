@@ -88,7 +88,10 @@ function WarhammerDefenderDamageHitBreakdown({
           <strong>{entry.finalDamage}</strong>
         )}
       </div>
-      <div className={styles.location}>{entry.location}</div>
+      <div className={styles.location}>
+        {entry.location}
+        {entry.targetFamily === "vehicle" && ` · Facing ${entry.facing}`}
+      </div>
       <div className={styles.equation}>
         {renderEquation(getDamageEquationTokens(entry, request))}
       </div>

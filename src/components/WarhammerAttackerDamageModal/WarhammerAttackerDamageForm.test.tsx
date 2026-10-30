@@ -31,14 +31,20 @@ test("renders editable attack fields and defaults to no tearing", () => {
   expect(getByLabelText("No Tearing")).toBeChecked();
   expect(getByLabelText("Tearing")).not.toBeChecked();
   expect(getByLabelText("Triple Tearing")).not.toBeChecked();
-  expect(getByLabelText("First Hit Location")).toBeInTheDocument();
+  expect(getByLabelText("Humanoid")).toBeInTheDocument();
+  expect(getByLabelText("Vehicle")).toBeInTheDocument();
+  expect(
+    getByLabelText("Vehicle").querySelector('option[value=""]')
+  ).toBeDisabled();
+  expect(getByText("First Hit Location")).toBeInTheDocument();
   const tearingFieldset = container.querySelector("fieldset");
-  const locationLabel = container.querySelector(
-    'label[for="attacker-damage-first-hit-location"]'
-  );
   const locationGroup = tearingFieldset?.nextElementSibling;
-  expect(locationGroup?.contains(locationLabel)).toBe(true);
+  expect(locationGroup?.querySelector("legend")).toHaveTextContent(
+    "First Hit Location"
+  );
   expect(tearingFieldset?.parentElement).toBe(locationGroup?.parentElement);
+  expect(getByLabelText("Humanoid")).not.toHaveClass("locationControlActive");
+  expect(getByLabelText("Vehicle")).not.toHaveClass("locationControlActive");
 });
 
 test.each(["Head", "Body", "Left Arm", "Right Arm", "Left Leg", "Right Leg"])(
@@ -48,14 +54,47 @@ test.each(["Head", "Body", "Left Arm", "Right Arm", "Left Leg", "Right Leg"])(
     const { container, getByRole } = render(
       <WarhammerAttackerDamageForm onRoll={onRollSpy} />
     );
-    fireEvent.click(getByRole("button", { name: "First Hit Location" }));
+    fireEvent.click(getByRole("button", { name: "Humanoid" }));
     fireEvent.click(getByRole("menuitemradio", { name: location }));
+    expect(getByRole("button", { name: `First Hit Location: ${location}` })).toHaveClass("locationControlActive");
+    expect(container.querySelector("#attacker-damage-vehicle-hit-location")).not.toHaveClass("locationControlActive");
     fireEvent.submit(container.querySelector("form") as HTMLFormElement);
     expect(onRollSpy).toHaveBeenCalledWith(
       expect.objectContaining({ firstHitLocation: location })
     );
   }
 );
+
+test.each(["Motive Systems", "Hull", "Weapons", "Turret"])(
+  "submits vehicle location %s and replaces the Humanoid selection",
+  (location) => {
+    const onRollSpy = jest.fn();
+    const { container } = render(<WarhammerAttackerDamageForm onRoll={onRollSpy} />);
+    fireEvent.change(container.querySelector("#attacker-damage-vehicle-hit-location") as HTMLSelectElement, { target: { value: location } });
+    expect(container.querySelector("#attacker-damage-vehicle-hit-location")).toHaveClass("locationControlActive");
+    expect(container.querySelector("#attacker-damage-first-hit-location")).not.toHaveClass("locationControlActive");
+    fireEvent.submit(container.querySelector("form") as HTMLFormElement);
+    expect(onRollSpy).toHaveBeenCalledWith(expect.objectContaining({ firstHitLocation: location }));
+    expect(container.querySelector("#attacker-damage-first-hit-location")).not.toHaveTextContent(location);
+  }
+);
+
+test("switches the selected location from vehicle to humanoid and back", () => {
+  const onRollSpy = jest.fn();
+  const { container, getByRole } = render(
+    <WarhammerAttackerDamageForm onRoll={onRollSpy} />
+  );
+  const vehicle = container.querySelector(
+    "#attacker-damage-vehicle-hit-location"
+  ) as HTMLSelectElement;
+  fireEvent.change(vehicle, { target: { value: "Hull" } });
+  fireEvent.click(getByRole("button", { name: "Humanoid" }));
+  fireEvent.click(getByRole("menuitemradio", { name: "Left Leg" }));
+  expect(vehicle.value).toBe("");
+  fireEvent.change(vehicle, { target: { value: "Turret" } });
+  expect(getByRole("button", { name: "Humanoid" })).toBeInTheDocument();
+  expect(vehicle.value).toBe("Turret");
+});
 
 test("requires a location and reports its validation error", () => {
   const onRollSpy = jest.fn();
@@ -94,7 +133,7 @@ test("allows a valid submission after selecting a location to fix validation", (
   fireEvent.submit(form);
   expect(onRollSpy).not.toHaveBeenCalled();
 
-  fireEvent.click(getByRole("button", { name: "First Hit Location" }));
+  fireEvent.click(getByRole("button", { name: "Humanoid" }));
   fireEvent.click(getByRole("menuitemradio", { name: "Head" }));
   fireEvent.submit(form);
 
@@ -155,7 +194,7 @@ test("submits normalized defaults when inputs are left blank", () => {
   const form = container.querySelector("form");
 
   expect(form).not.toBeNull();
-  fireEvent.click(getByRole("button", { name: "First Hit Location" }));
+  fireEvent.click(getByRole("button", { name: "Humanoid" }));
   fireEvent.click(getByRole("menuitemradio", { name: "Body" }));
   fireEvent.submit(form as HTMLFormElement);
 
@@ -179,7 +218,7 @@ test("grays out Confirms on while Always Confirm is ticked", () => {
   fireEvent.click(alwaysConfirm);
   expect(alwaysConfirm).toBeChecked();
   expect(confirmsOn).toBeDisabled();
-  fireEvent.click(getByRole("button", { name: "First Hit Location" }));
+  fireEvent.click(getByRole("button", { name: "Humanoid" }));
   fireEvent.click(getByRole("menuitemradio", { name: "Body" }));
 
   fireEvent.submit(container.querySelector("form") as HTMLFormElement);

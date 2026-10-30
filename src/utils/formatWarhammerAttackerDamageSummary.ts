@@ -1,5 +1,6 @@
 import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { DAMAGE_LOCATION_WIRE_TOKENS } from "./damageLocations";
+import { DAMAGE_LOCATION_WIRE_TOKENS, VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS } from "./damageLocations";
+import { requireSafeInteger } from "./safeInteger";
 
 /**
  * Build the canonical header for an attack summary. Zero-valued optional traits
@@ -16,7 +17,9 @@ export function formatWarhammerAttackerDamageSummaryHeader(
   if (summary.devastating !== 0) {
     parts.push(`Dev ${summary.devastating}`);
   }
-  parts.push(DAMAGE_LOCATION_WIRE_TOKENS[summary.firstHitLocation]);
+  const locationToken = (DAMAGE_LOCATION_WIRE_TOKENS as any)[summary.firstHitLocation] || (VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS as any)[summary.firstHitLocation];
+  if (!locationToken) throw new Error("Invalid first hit location");
+  parts.push(locationToken);
   return `${parts.join(", ")}:`;
 }
 
@@ -27,7 +30,16 @@ export function formatWarhammerAttackerDamageSummaryHeader(
 export default function formatWarhammerAttackerDamageSummary(
   summary: WarhammerAttackerDamageSummary
 ): string {
-  return `${formatWarhammerAttackerDamageSummaryHeader(
-    summary
-  )} ${summary.damages.join(" ")}`;
+  if (summary.baseDamages && summary.baseDamages.length !== summary.damages.length) {
+    throw new Error("Invalid Righteous Fury base damage metadata");
+  }
+  const damages = summary.damages.map((damage, index) => {
+    requireSafeInteger(damage, "Damage value");
+    if (!summary.baseDamages) return `${damage}`;
+    const base = requireSafeInteger(summary.baseDamages[index], "Base damage");
+    const extra = requireSafeInteger(damage - base, "Righteous Fury extra");
+    if (extra < 0) throw new Error("Righteous Fury base cannot exceed total damage");
+    return extra === 0 ? `${damage}` : `${damage}(${base})`;
+  });
+  return `${formatWarhammerAttackerDamageSummaryHeader(summary)} ${damages.join(" ")}`;
 }

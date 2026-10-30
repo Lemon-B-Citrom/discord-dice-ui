@@ -7,7 +7,7 @@ import {
 } from "./WarhammerDefenderDamageTypes";
 
 const renderForm = (
-  draft: WarhammerDefenderDamageDraft = { ...EMPTY_DEFENDER_DAMAGE_DRAFT },
+  draft: WarhammerDefenderDamageDraft = { ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" },
   onCalculate = jest.fn()
 ) =>
   render(
@@ -43,6 +43,28 @@ test("keeps the existing field controls and zero minimums", () => {
     expect(input).toHaveAttribute("placeholder", "0");
     expect(input.value).toBe("");
   });
+});
+
+test("keeps the defense panel empty until a valid summary is entered", () => {
+  const empty = renderForm({ ...EMPTY_DEFENDER_DAMAGE_DRAFT });
+  expect(() => empty.getByLabelText("AP Body")).toThrow();
+  empty.unmount();
+  const humanoid = renderForm({ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" });
+  expect(humanoid.getByLabelText("AP Body")).toBeInTheDocument();
+});
+
+test("places vehicle Facing in the left column and armor AP fields in the right", () => {
+  const { container, getByLabelText } = renderForm({
+    ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+    attackSummaryString: "Pen 0, @hull: 1",
+  });
+  const facing = getByLabelText("Facing");
+  const leftColumn = container.querySelector(".defensePrimary");
+  const rightColumn = container.querySelector(".armorFields");
+
+  expect(leftColumn?.contains(facing)).toBe(true);
+  expect(rightColumn?.contains(facing)).toBe(false);
+  expect(rightColumn).toHaveTextContent("AP Front");
 });
 
 test("blocks invalid submission and associates the summary error with its input", () => {
@@ -86,7 +108,7 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
   const onChange = jest.fn();
   const off = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }}
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
       errors={{}}
       onChange={onChange}
       onCalculate={jest.fn()}
@@ -120,7 +142,7 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
 
   const on = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, hordeEnabled: true }}
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1", hordeEnabled: true }}
       errors={{}}
       onChange={jest.fn()}
       onCalculate={jest.fn()}
@@ -136,7 +158,7 @@ test("places Fortitude after Toughness and has no first-location selector", () =
   const onChange = jest.fn();
   const { getByLabelText } = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }}
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
       errors={{}}
       onChange={onChange}
       onCalculate={jest.fn()}
@@ -201,6 +223,7 @@ const ARMOR_LABELS = ["AP Head", "AP Body", "AP Arms", "AP Legs"];
 test("disables the simple armor fields only while advanced mode is on", () => {
   const enabled = renderForm({
     ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+    attackSummaryString: "Pen 0, @body: 1",
     advancedEnabled: true,
   });
   ARMOR_LABELS.forEach((label) => {
@@ -218,7 +241,7 @@ test("toggles advanced mode as a boolean draft field", () => {
   const onChange = jest.fn();
   const { getByRole } = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }}
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
       errors={{}}
       onChange={onChange}
       onCalculate={jest.fn()}
@@ -233,7 +256,7 @@ test("opens the advanced editor from its button only once advanced is on", () =>
   const onOpenAdvanced = jest.fn();
   const off = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }}
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
       errors={{}}
       onChange={jest.fn()}
       onCalculate={jest.fn()}
@@ -248,7 +271,7 @@ test("opens the advanced editor from its button only once advanced is on", () =>
 
   const on = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, advancedEnabled: true }}
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1", advancedEnabled: true }}
       errors={{}}
       onChange={jest.fn()}
       onCalculate={jest.fn()}

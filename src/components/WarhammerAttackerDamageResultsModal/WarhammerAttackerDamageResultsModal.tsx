@@ -10,6 +10,7 @@ import {
 } from "../../actions/warhammerAttackerDamage.actions";
 import { WarhammerAttackerDamageState } from "../../reducers/warhammer-attacker-damage-reducer";
 import formatWarhammerAttackerDamageSummary from "../../utils/formatWarhammerAttackerDamageSummary";
+import projectWarhammerAttackerDamageSummary from "../../utils/projectWarhammerAttackerDamageSummary";
 import CodeSpan from "../CodeSpan/CodeSpan";
 import WarhammerAttackerDamageHitBreakdown from "./WarhammerAttackerDamageHitBreakdown";
 import styles from "./WarhammerAttackerDamageResultsModal.module.css";
@@ -36,13 +37,9 @@ function WarhammerAttackerDamageResultsModal() {
   };
   const rerollAttack = () =>
     dispatch(requestWarhammerAttackerDamage(results.input));
-  const summary = formatWarhammerAttackerDamageSummary({
-    penetration: results.input.penetration,
-    felling: results.input.felling,
-    devastating: results.input.devastating,
-    firstHitLocation: results.input.firstHitLocation,
-    damages: results.damages,
-  });
+  const summary = formatWarhammerAttackerDamageSummary(
+    projectWarhammerAttackerDamageSummary(results)
+  );
   const copySummary = () => {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(summary).catch(() => {});

@@ -1,11 +1,11 @@
 import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import { parseSafeInteger, requireNonNegativeInteger } from "./safeInteger";
-import { DAMAGE_LOCATION_BY_WIRE_TOKEN } from "./damageLocations";
+import { DAMAGE_LOCATION_BY_WIRE_TOKEN, VEHICLE_DAMAGE_LOCATION_BY_WIRE_TOKEN } from "./damageLocations";
 
 export const MAX_DAMAGE_HITS = 100;
 export const MAX_DAMAGE_SUMMARY_LENGTH = 4096;
 export const SUMMARY_FORMAT_ERROR =
-  "Summary needs a first hit location; add @head, @body, @larm, @rarm, @lleg, or @rleg before the colon. Use Pen X [, Fel Y] [, Dev Z]: damage damage ...";
+  "Summary needs a first hit location; add one humanoid token (@head, @body, @larm, @rarm, @lleg, @rleg) or vehicle token (@motv, @hull, @wpns, @turr) before the colon. Use Pen X [, Fel Y] [, Dev Z]: damage damage ...";
 
 export type ParseDamageSummaryResult =
   | { summary: WarhammerAttackerDamageSummary; error: null }
@@ -71,12 +71,7 @@ export default function parseWarhammerAttackerDamageSummary(
   for (const token of headerTokens) {
     if (token.charAt(0) === "@") {
       const normalizedToken = token.toLowerCase();
-      const location = Object.prototype.hasOwnProperty.call(
-        DAMAGE_LOCATION_BY_WIRE_TOKEN,
-        normalizedToken
-      )
-        ? DAMAGE_LOCATION_BY_WIRE_TOKEN[normalizedToken]
-        : null;
+      const location = DAMAGE_LOCATION_BY_WIRE_TOKEN[normalizedToken] || VEHICLE_DAMAGE_LOCATION_BY_WIRE_TOKEN[normalizedToken] || null;
       if (!location || firstHitLocation) {
         return {
           summary: null,
@@ -136,8 +131,21 @@ export default function parseWarhammerAttackerDamageSummary(
       error: `Summary cannot contain more than ${MAX_DAMAGE_HITS} hits`,
     };
   }
-  const damages = tokens.map(parseSafeInteger);
-  if (damages.some((damage) => damage === null)) {
+  const damages: number[] = [];
+  const baseDamages: number[] = [];
+  let hasBaseAnnotations = false;
+  tokens.forEach((token) => {
+    const match = /^([+-]?\d+)(?:\(([+-]?\d+)\))?$/.exec(token);
+    if (!match) return;
+    const total = parseSafeInteger(match[1]);
+    const base = match[2] === undefined ? total : parseSafeInteger(match[2]);
+    if (total === null || base === null || total - base > Number.MAX_SAFE_INTEGER || total - base < 0 || !Number.isSafeInteger(total - base)) return;
+    if (match[2] !== undefined && base > total) return;
+    hasBaseAnnotations = hasBaseAnnotations || match[2] !== undefined;
+    damages.push(total);
+    baseDamages.push(base as number);
+  });
+  if (damages.length !== tokens.length) {
     return { summary: null, error: "Damage values must be safe whole numbers" };
   }
 
@@ -147,7 +155,8 @@ export default function parseWarhammerAttackerDamageSummary(
       felling: headerValues.felling ?? 0,
       devastating: headerValues.devastating ?? 0,
       firstHitLocation,
-      damages: damages as number[],
+      damages,
+      ...(hasBaseAnnotations ? { baseDamages } : {}),
     },
     error: null,
   };

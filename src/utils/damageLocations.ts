@@ -1,6 +1,7 @@
 import {
   ArmorSlot,
   DamageLocation,
+  VehicleDamageLocation,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
 /**
@@ -52,6 +53,32 @@ export const DAMAGE_LOCATION_BY_WIRE_TOKEN: Record<string, DamageLocation> =
     tokens[DAMAGE_LOCATION_WIRE_TOKENS[typedLocation]] = typedLocation;
     return tokens;
   }, {});
+
+export const VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS: Record<VehicleDamageLocation, string> = {
+  "Motive Systems": "@motv",
+  Hull: "@hull",
+  Weapons: "@wpns",
+  Turret: "@turr",
+};
+
+export const VEHICLE_DAMAGE_LOCATION_BY_WIRE_TOKEN: Record<string, VehicleDamageLocation> =
+  Object.keys(VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS).reduce<Record<string, VehicleDamageLocation>>(
+    (tokens, location) => {
+      const typedLocation = location as VehicleDamageLocation;
+      tokens[VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS[typedLocation]] = typedLocation;
+      return tokens;
+    },
+    {}
+  );
+
+export const VEHICLE_DAMAGE_LOCATIONS: ReadonlyArray<VehicleDamageLocation> = [
+  "Motive Systems", "Hull", "Weapons", "Turret",
+];
+
+export const isVehicleDamageLocation = (
+  location: DamageLocation | VehicleDamageLocation
+): location is VehicleDamageLocation =>
+  VEHICLE_DAMAGE_LOCATIONS.indexOf(location as VehicleDamageLocation) >= 0;
 
 /** The armor slot that covers each body part in simple defense mode. */
 export const ARMOR_SLOT_BY_LOCATION: Record<DamageLocation, ArmorSlot> = {

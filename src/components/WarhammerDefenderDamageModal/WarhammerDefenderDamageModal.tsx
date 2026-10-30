@@ -9,6 +9,8 @@ import {
   WarhammerDefenderDamageDraft,
 } from "./WarhammerDefenderDamageTypes";
 import { DEFENDER_DAMAGE_FORM_ID } from "./WarhammerDefenderDamageForm";
+import parseWarhammerAttackerDamageSummary from "../../utils/parseWarhammerAttackerDamageSummary";
+import { VEHICLE_DAMAGE_LOCATIONS } from "../../utils/damageLocations";
 
 interface WarhammerDefenderDamageModalProps {
   showModal: boolean;
@@ -37,6 +39,13 @@ function WarhammerDefenderDamageModal({
   // The editor is a sibling of this modal, never a child of its <form>, so its
   // buttons and Enter key cannot submit the calculation.
   const [isAdvancedOpen, setAdvancedOpen] = useState(false);
+  const updateDraft = (field: keyof WarhammerDefenderDamageDraft, value: string | boolean) => {
+    onChange(field, value);
+    if (field === "attackSummaryString") {
+      const parsed = parseWarhammerAttackerDamageSummary(String(value));
+      if (!parsed.summary || VEHICLE_DAMAGE_LOCATIONS.indexOf(parsed.summary.firstHitLocation as any) >= 0) setAdvancedOpen(false);
+    }
+  };
 
   return (
     <>
@@ -52,7 +61,7 @@ function WarhammerDefenderDamageModal({
           <WarhammerDefenderDamageForm
             draft={draft}
             errors={errors}
-            onChange={onChange}
+            onChange={updateDraft}
             onCalculate={onCalculate}
             onOpenAdvanced={() => setAdvancedOpen(true)}
             clearCounter={clearCounter}
@@ -74,7 +83,7 @@ function WarhammerDefenderDamageModal({
       <AdvancedDefenseModal
         show={isAdvancedOpen}
         draft={draft}
-        onChange={onChange}
+        onChange={updateDraft}
         onClose={() => setAdvancedOpen(false)}
       />
     </>

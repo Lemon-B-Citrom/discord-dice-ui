@@ -8,10 +8,13 @@ import {
   requestWarhammerDefenderDamage,
 } from "../../actions/warhammerDefenderDamage.actions";
 import { openWarhammerDefenderDamageModal } from "../../actions/modals";
+import { saveWarhammerAttackerDamageResults } from "../../actions/warhammerAttackerDamage.actions";
 import { createWarhammerDefenderDamageCalculationRequestedMiddleware } from "../../middleware/warhammer/warhammerDefenderDamageCalculationRequested.middleware";
 import WarhammerDefenderDamageResultsModal from "../WarhammerDefenderDamageResultsModal/WarhammerDefenderDamageResultsModal";
+import WarhammerAttackerDamageResultsModal from "../WarhammerAttackerDamageResultsModal/WarhammerAttackerDamageResultsModal";
 import formatWarhammerAttackerDamageSummary from "../../utils/formatWarhammerAttackerDamageSummary";
 import calculateWarhammerAttackerDamage from "../../utils/calculateWarhammerAttackerDamage";
+import calculateWarhammerDefenderDamage from "../../utils/calculateWarhammerDefenderDamage";
 import { HIT_LOCATION_CYCLES } from "../../utils/damageLocations";
 import { WarhammerAttackerDamageInput } from "../WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import {
@@ -91,6 +94,54 @@ test("Back returns to the exact raw draft without recalculating", () => {
   ).toBe(false);
   expect(store.getState().warhammerDefenderDamage.draft).toEqual(savedDraft);
   expect(store.getState().warhammerDefenderDamage.results).toBe(savedSnapshot);
+});
+
+test("rendering and Back do not consume vehicle locations; a new calculation does", () => {
+  let draws = 0;
+  const vehicleDraft = {
+    ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+    attackSummaryString: "Pen 0, @hull: 10 10 10",
+    facing: "Front",
+  };
+  const store = createStore(
+    reducers,
+    applyMiddleware(createWarhammerDefenderDamageCalculationRequestedMiddleware(
+      (request) => calculateWarhammerDefenderDamage(request, () => { draws += 1; return 50; })
+    ))
+  );
+  store.dispatch(requestWarhammerDefenderDamage(vehicleDraft));
+  expect(draws).toBe(2);
+  store.dispatch(saveWarhammerAttackerDamageResults({
+    input: {
+      hits: 1, damageDice: 1, damageModifier: 0, penetration: 0,
+      felling: 0, devastating: 0, proven: 0, rfOn: 10, rfConfirmsOn: 0,
+      alwaysConfirm: false, tearing: "none", firstHitLocation: "Hull",
+    },
+    damages: [10],
+    hitDetails: [{ attempts: [{ baseRolls: [{ roll: 10, damage: 10 }], righteousFuryRolls: [], damage: 10 }], selectedAttemptIndex: 0 }],
+  }));
+  const originalClipboard = navigator.clipboard;
+  Object.defineProperty(navigator, "clipboard", {
+    configurable: true,
+    value: { writeText: jest.fn().mockResolvedValue(undefined) },
+  });
+  const attackerResults = render(
+    <Provider store={store}><WarhammerAttackerDamageResultsModal /></Provider>
+  );
+  fireEvent.click(attackerResults.getByRole("button", { name: "Copy" }));
+  expect(draws).toBe(2);
+  attackerResults.unmount();
+  Object.defineProperty(navigator, "clipboard", {
+    configurable: true,
+    value: originalClipboard,
+  });
+  const { getByRole } = render(
+    <Provider store={store}><WarhammerDefenderDamageResultsModal /></Provider>
+  );
+  fireEvent.click(getByRole("button", { name: "Back" }));
+  expect(draws).toBe(2);
+  store.dispatch(requestWarhammerDefenderDamage(vehicleDraft));
+  expect(draws).toBe(4);
 });
 
 test("renders doubled Toughness before Felling only on protected hits", () => {
@@ -237,6 +288,31 @@ test("renders fully mitigated damage as zero instead of subtracting it from the 
   expect(store.getState().warhammerDefenderDamage.results?.totals.damage).toBe(
     13
   );
+});
+
+test("renders vehicle location and facing on one line without duplicate armor facing", () => {
+  const store = createDamageStore();
+  store.dispatch(
+    requestWarhammerDefenderDamage({
+      ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+      attackSummaryString: "Pen 0, @hull: 25(10)",
+      facing: "Front",
+      armorFront: "20",
+    })
+  );
+  const { getByRole } = render(
+    <Provider store={store}>
+      <WarhammerDefenderDamageResultsModal />
+    </Provider>
+  );
+
+  const hit = getByRole("group", { name: "Hit 1" });
+  const locations = hit.querySelectorAll(".location");
+  expect(locations).toHaveLength(1);
+  expect(locations[0]).toHaveTextContent("Hull · Facing Front");
+  expect(hit).toHaveTextContent("(RF suppressed)");
+  expect(hit).not.toHaveTextContent("· Front armor");
+  expect(hit).not.toHaveTextContent("Armor facing");
 });
 
 test("calculates per-location advanced defenses through the production store", () => {

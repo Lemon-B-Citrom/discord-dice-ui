@@ -1,8 +1,9 @@
 import {
-  DefenderDamageEntryBase,
   WarhammerDefenderDamageHit,
   WarhammerDefenderDamageRequest,
   WarhammerDefenderHordeDamageHit,
+  WarhammerDefenderSingleDamageHit,
+  WarhammerHumanoidDamageRequest,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import {
   getWarhammerMagnitudeBasis,
@@ -38,8 +39,8 @@ const subtraction = (
 ];
 
 const armorTokens = (
-  entry: DefenderDamageEntryBase,
-  request: WarhammerDefenderDamageRequest
+  entry: WarhammerDefenderSingleDamageHit | WarhammerDefenderHordeDamageHit,
+  request: WarhammerHumanoidDamageRequest
 ): EquationToken[] => {
   if (!entry.showArmorTerm) return [];
   const { armorBeforePenetration, effectiveArmor } = entry;
@@ -54,8 +55,8 @@ const armorTokens = (
 };
 
 const toughnessTokens = (
-  entry: DefenderDamageEntryBase,
-  request: WarhammerDefenderDamageRequest
+  entry: WarhammerDefenderSingleDamageHit | WarhammerDefenderHordeDamageHit,
+  request: WarhammerHumanoidDamageRequest
 ): EquationToken[] => {
   const term = getWarhammerToughnessTerm(entry, request);
   const { fortitudeApplied, advanced, beforeFelling, felling, effective } = term;
@@ -97,6 +98,15 @@ export function getDamageEquationTokens(
   entry: WarhammerDefenderDamageHit,
   request: WarhammerDefenderDamageRequest
 ): EquationToken[] {
+  if (entry.targetFamily === "vehicle") {
+    if (request.targetFamily !== "vehicle") throw new Error("Damage entry and request targets do not match");
+    return [
+      strongCode(entry.finalDamage), text(" = Base "), code(entry.baseDamage),
+      text(" − AP ("), code(entry.effectiveArmor), text(")"),
+      ...(entry.righteousFuryExtra ? [text(entry.rfApplied ? " + RF " : " (RF suppressed)"), ...(entry.rfApplied ? [code(entry.righteousFuryExtra)] : [])] : []),
+    ];
+  }
+  if (request.targetFamily !== "humanoid") throw new Error("Damage entry and request targets do not match");
   const armor = armorTokens(entry, request);
   return [
     ...(entry.mode === "horde" ? [text("Damage: ")] : []),

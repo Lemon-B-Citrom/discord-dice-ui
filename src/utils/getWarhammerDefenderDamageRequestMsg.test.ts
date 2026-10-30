@@ -33,6 +33,7 @@ const draft = {
 
 const singleHit: WarhammerDefenderSingleDamageHit = {
   kind: "hit",
+  targetFamily: "humanoid",
   index: 0,
   number: 1,
   mode: "single",
@@ -52,6 +53,7 @@ const singleHit: WarhammerDefenderSingleDamageHit = {
 function singleResult(): WarhammerDefenderDamageResult {
   return {
     request: {
+      targetFamily: "humanoid",
       mode: "single",
       summary: {
         penetration: 0,
@@ -87,6 +89,7 @@ function hordeResult(): WarhammerDefenderDamageResult {
   };
   return {
     request: {
+      targetFamily: "humanoid",
       mode: "horde",
       summary: {
         penetration: 0,
@@ -182,6 +185,7 @@ test("derives the summary line from the validated request", () => {
     penetration: 7,
     felling: 0,
     devastating: 0,
+    firstHitLocation: "Body",
     firstHitLocation: "Body",
     damages: [3],
   };
@@ -523,6 +527,7 @@ test("shows zero received damage without wrapping the equation or a minimum noti
     penetration: 3,
     felling: 0,
     devastating: 0,
+    firstHitLocation: "Body",
     damages: [17],
   };
   result.request.toughnessBonus = 20;

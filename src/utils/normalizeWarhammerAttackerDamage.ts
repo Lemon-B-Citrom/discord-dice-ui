@@ -5,9 +5,10 @@ import {
 } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import { parseSafeInteger } from "./safeInteger";
 import {
+  AnyDamageLocation,
   DAMAGE_LOCATIONS,
-  DamageLocation,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import { VEHICLE_DAMAGE_LOCATIONS } from "./damageLocations";
 
 export const WARHAMMER_ATTACKER_DAMAGE_DEFAULTS: Omit<
   WarhammerAttackerDamageInput,
@@ -81,8 +82,8 @@ export default function normalizeWarhammerAttackerDamage(
     parsed[field] = value;
   });
 
-  const location = values.firstHitLocation as DamageLocation;
-  if (DAMAGE_LOCATIONS.indexOf(location) === -1) {
+  const location = values.firstHitLocation;
+  if (DAMAGE_LOCATIONS.indexOf(location as any) === -1 && VEHICLE_DAMAGE_LOCATIONS.indexOf(location as any) === -1) {
     errors.firstHitLocation = "Choose a first hit location";
   }
 
@@ -98,7 +99,7 @@ export default function normalizeWarhammerAttackerDamage(
       >),
       alwaysConfirm: values.alwaysConfirm,
       tearing: values.tearing,
-      firstHitLocation: location,
+      firstHitLocation: location as AnyDamageLocation,
     },
     errors,
   };
