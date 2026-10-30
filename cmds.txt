@@ -1,4 +1,0 @@
-npm run build
-npm run start (serve -s build command is required by Heroku).
-
-npm run dev

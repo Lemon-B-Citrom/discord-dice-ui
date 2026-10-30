@@ -13,6 +13,7 @@
 
 # misc
 /plans
+/local
 .idea
 .DS_Store
 .env.local
