@@ -36,6 +36,7 @@ const EMPTY_VALUES: AttackerDamageValues = {
   rfConfirmsOn: "",
   alwaysConfirm: false,
   tearing: "none",
+  firstHitLocation: "",
 };
 
 const toFormValues = (
@@ -54,6 +55,7 @@ const toFormValues = (
         rfConfirmsOn: `${input.rfConfirmsOn}`,
         alwaysConfirm: input.alwaysConfirm,
         tearing: input.tearing,
+        firstHitLocation: input.firstHitLocation || "",
       }
     : EMPTY_VALUES;
 
@@ -145,6 +147,10 @@ function WarhammerAttackerDamageForm({
         onNumericChange={updateNonNegativeValue}
         onModifierChange={(value) => updateField("damageModifier", value)}
         onTearingChange={(tearing) => updateField("tearing", tearing)}
+        onLocationChange={(location) =>
+          updateField("firstHitLocation", location)
+        }
+        locationError={errors.firstHitLocation}
         onAlwaysConfirmChange={(alwaysConfirm) =>
           updateField("alwaysConfirm", alwaysConfirm)
         }

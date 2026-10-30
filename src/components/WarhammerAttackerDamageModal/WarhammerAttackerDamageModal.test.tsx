@@ -15,6 +15,7 @@ const initialInput: WarhammerAttackerDamageInput = {
   rfConfirmsOn: 55,
   alwaysConfirm: false,
   tearing: "tripleTearing",
+  firstHitLocation: "Body",
 };
 
 test("Clear resets attack inputs to empty placeholder values and removes validation errors", () => {

@@ -7,6 +7,8 @@ import {
   DAMAGE_LOCATION_READING_ORDER,
   DAMAGE_LOCATION_ROWS,
   DAMAGE_LOCATION_SHORT_LABELS,
+  DAMAGE_LOCATION_WIRE_TOKENS,
+  DAMAGE_LOCATION_BY_WIRE_TOKEN,
   getAdjacentLocation,
   MenuMoveKey,
 } from "./damageLocations";
@@ -41,6 +43,18 @@ test("maps every location onto a simple armor slot", () => {
   expect(ARMOR_SLOT_BY_LOCATION["Head"]).toBe("headAP");
   expect(ARMOR_SLOT_BY_LOCATION["Right Arm"]).toBe("armsAP");
   expect(ARMOR_SLOT_BY_LOCATION["Left Leg"]).toBe("legsAP");
+});
+
+test("maps each stored location to one unique canonical wire token", () => {
+  const tokens = DAMAGE_LOCATIONS.map(
+    (location) => DAMAGE_LOCATION_WIRE_TOKENS[location]
+  );
+  expect(new Set(tokens).size).toBe(DAMAGE_LOCATIONS.length);
+  DAMAGE_LOCATIONS.forEach((location) => {
+    expect(
+      DAMAGE_LOCATION_BY_WIRE_TOKEN[DAMAGE_LOCATION_WIRE_TOKENS[location]]
+    ).toBe(location);
+  });
 });
 
 test("gives every location a short caption", () => {

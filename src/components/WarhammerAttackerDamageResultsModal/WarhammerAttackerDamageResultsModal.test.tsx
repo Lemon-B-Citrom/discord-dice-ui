@@ -19,6 +19,7 @@ const attack = {
   rfConfirmsOn: 0,
   alwaysConfirm: false,
   tearing: "none" as const,
+  firstHitLocation: "Body" as const,
 };
 
 const resultWithDamages = (damages: number[]) => ({
@@ -38,7 +39,9 @@ const resultWithDamages = (damages: number[]) => ({
 
 test("shows formatted per-hit totals and Back reopens the form without rerolling", () => {
   const store = createStore(reducers);
-  store.dispatch(saveWarhammerAttackerDamageResults(resultWithDamages([17, 24])));
+  store.dispatch(
+    saveWarhammerAttackerDamageResults(resultWithDamages([17, 24]))
+  );
 
   const { getAllByRole, getByRole, getByText } = render(
     <Provider store={store}>
@@ -46,7 +49,7 @@ test("shows formatted per-hit totals and Back reopens the form without rerolling
     </Provider>
   );
 
-  expect(getByText("Pen 3, Fel 2: 17, 24")).toBeInTheDocument();
+  expect(getByText("Pen 3, Fel 2, @body: 17 24")).toBeInTheDocument();
   fireEvent.click(getByText("Back"));
 
   const state = store.getState();
@@ -57,7 +60,9 @@ test("shows formatted per-hit totals and Back reopens the form without rerolling
 
 test("copies the Attack summary without a trailing newline", () => {
   const store = createStore(reducers);
-  store.dispatch(saveWarhammerAttackerDamageResults(resultWithDamages([17, 24])));
+  store.dispatch(
+    saveWarhammerAttackerDamageResults(resultWithDamages([17, 24]))
+  );
   const originalClipboard = navigator.clipboard;
   const writeText = jest.fn().mockResolvedValue(undefined);
   Object.defineProperty(navigator, "clipboard", {
@@ -73,7 +78,7 @@ test("copies the Attack summary without a trailing newline", () => {
 
   fireEvent.click(getByRole("button", { name: "Copy" }));
 
-  expect(writeText).toHaveBeenCalledWith("Pen 3, Fel 2: 17, 24");
+  expect(writeText).toHaveBeenCalledWith("Pen 3, Fel 2, @body: 17 24");
   expect(writeText.mock.calls[0][0]).not.toMatch(/\n$/);
   Object.defineProperty(navigator, "clipboard", {
     configurable: true,
@@ -94,7 +99,9 @@ test("re-rolls the full attack repeatedly using its original input", () => {
       createWarhammerAttackerDamageRollRequestedMiddleware(calculateAttack)
     )
   );
-  store.dispatch(saveWarhammerAttackerDamageResults(resultWithDamages([17, 24])));
+  store.dispatch(
+    saveWarhammerAttackerDamageResults(resultWithDamages([17, 24]))
+  );
 
   const { getAllByRole, getByRole, getByText } = render(
     <Provider store={store}>
@@ -104,11 +111,11 @@ test("re-rolls the full attack repeatedly using its original input", () => {
 
   fireEvent.click(getByRole("button", { name: "Re-roll Attack" }));
   expect(calculateAttack).toHaveBeenNthCalledWith(1, attack, "warhammer4eSL");
-  expect(getByText("Pen 3, Fel 2: 18, 26")).toBeInTheDocument();
+  expect(getByText("Pen 3, Fel 2, @body: 18 26")).toBeInTheDocument();
 
   fireEvent.click(getByRole("button", { name: "Re-roll Attack" }));
   expect(calculateAttack).toHaveBeenNthCalledWith(2, attack, "warhammer4eSL");
-  expect(getByText("Pen 3, Fel 2: 22, 29")).toBeInTheDocument();
+  expect(getByText("Pen 3, Fel 2, @body: 22 29")).toBeInTheDocument();
 });
 
 test("keeps the last successful results visible when an attack reroll fails", () => {
@@ -120,7 +127,9 @@ test("keeps the last successful results visible when an attack reroll fails", ()
       })
     )
   );
-  store.dispatch(saveWarhammerAttackerDamageResults(resultWithDamages([17, 24])));
+  store.dispatch(
+    saveWarhammerAttackerDamageResults(resultWithDamages([17, 24]))
+  );
 
   const { getByRole, getByText } = render(
     <Provider store={store}>
@@ -130,7 +139,7 @@ test("keeps the last successful results visible when an attack reroll fails", ()
 
   fireEvent.click(getByRole("button", { name: "Re-roll Attack" }));
 
-  expect(getByText("Pen 3, Fel 2: 17, 24")).toBeInTheDocument();
+  expect(getByText("Pen 3, Fel 2, @body: 17 24")).toBeInTheDocument();
   expect(getByRole("alert")).toHaveTextContent("Reroll failed");
   expect(store.getState().warhammerAttackerDamage.isResultsModalOpen).toBe(
     true
@@ -189,7 +198,7 @@ test("shows per-hit equations with selected tearing damage first and a gray comp
   expect(getByRole("group", { name: "Discarded attempt" })).toHaveTextContent(
     "8 + 2 = 10"
   );
-  const summary = getByText("Pen 3, Fel 2: 16");
+  const summary = getByText("Pen 3, Fel 2, @body: 16");
   expect(summary).toHaveClass("codeSpan");
   expect(summary.parentElement).toHaveClass("summary");
   expect(summary.parentElement?.previousElementSibling?.tagName).toBe("HR");

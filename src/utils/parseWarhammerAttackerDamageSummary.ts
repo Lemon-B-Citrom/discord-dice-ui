@@ -1,10 +1,11 @@
 import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import { parseSafeInteger, requireNonNegativeInteger } from "./safeInteger";
+import { DAMAGE_LOCATION_BY_WIRE_TOKEN } from "./damageLocations";
 
 export const MAX_DAMAGE_HITS = 100;
 export const MAX_DAMAGE_SUMMARY_LENGTH = 4096;
 export const SUMMARY_FORMAT_ERROR =
-  "Use the format: Pen X [, Fel Y] [, Dev Z]: damage, damage, ...";
+  "Summary needs a first hit location; add @head, @body, @larm, @rarm, @lleg, or @rleg before the colon. Use Pen X [, Fel Y] [, Dev Z]: damage damage ...";
 
 export type ParseDamageSummaryResult =
   | { summary: WarhammerAttackerDamageSummary; error: null }
@@ -64,7 +65,27 @@ export default function parseWarhammerAttackerDamageSummary(
   }
 
   const headerValues: Partial<Record<SummaryHeaderKey, number>> = {};
+  let firstHitLocation:
+    | WarhammerAttackerDamageSummary["firstHitLocation"]
+    | null = null;
   for (const token of headerTokens) {
+    if (token.charAt(0) === "@") {
+      const normalizedToken = token.toLowerCase();
+      const location = Object.prototype.hasOwnProperty.call(
+        DAMAGE_LOCATION_BY_WIRE_TOKEN,
+        normalizedToken
+      )
+        ? DAMAGE_LOCATION_BY_WIRE_TOKEN[normalizedToken]
+        : null;
+      if (!location || firstHitLocation) {
+        return {
+          summary: null,
+          error: "Summary needs exactly one valid first hit location",
+        };
+      }
+      firstHitLocation = location;
+      continue;
+    }
     const match = HEADER_TOKEN.exec(token);
     if (!match) {
       return { summary: null, error: SUMMARY_FORMAT_ERROR };
@@ -90,26 +111,30 @@ export default function parseWarhammerAttackerDamageSummary(
   }
 
   const penetration = headerValues.penetration;
-  if (penetration === undefined) {
+  if (penetration === undefined || !firstHitLocation) {
     return { summary: null, error: SUMMARY_FORMAT_ERROR };
   }
 
-  const tokens = text
+  const segments = text
     .slice(colonIndex + 1)
     .split(",")
     .map((token) => token.trim());
-  if (tokens[tokens.length - 1] === "") tokens.pop();
-  if (tokens.length === 0) {
+  if (segments[segments.length - 1] === "") segments.pop();
+  if (segments.length === 0) {
     return { summary: null, error: "Summary needs at least one damage value" };
   }
+  if (segments.some((token) => token.length === 0)) {
+    return { summary: null, error: "Summary contains an empty damage value" };
+  }
+  const tokens = segments.reduce<string[]>(
+    (all, segment) => all.concat(segment.split(/\s+/)),
+    []
+  );
   if (tokens.length > MAX_DAMAGE_HITS) {
     return {
       summary: null,
       error: `Summary cannot contain more than ${MAX_DAMAGE_HITS} hits`,
     };
-  }
-  if (tokens.some((token) => token.length === 0)) {
-    return { summary: null, error: "Summary contains an empty damage value" };
   }
   const damages = tokens.map(parseSafeInteger);
   if (damages.some((damage) => damage === null)) {
@@ -121,6 +146,7 @@ export default function parseWarhammerAttackerDamageSummary(
       penetration,
       felling: headerValues.felling ?? 0,
       devastating: headerValues.devastating ?? 0,
+      firstHitLocation,
       damages: damages as number[],
     },
     error: null,

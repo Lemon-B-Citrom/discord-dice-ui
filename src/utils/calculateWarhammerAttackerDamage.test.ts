@@ -16,9 +16,13 @@ const attack: WarhammerAttackerDamageInput = {
   rfConfirmsOn: 50,
   alwaysConfirm: false,
   tearing: "none",
+  firstHitLocation: "Body",
 };
 
-function diceSource(d10: number[], d100: number[]): WarhammerAttackerDamageDiceSource {
+function diceSource(
+  d10: number[],
+  d100: number[]
+): WarhammerAttackerDamageDiceSource {
   let d10Index = 0;
   let d100Index = 0;
   return {
@@ -137,20 +141,24 @@ test("stops immediately when the initial RF confirmation fails", () => {
 
 test("takes the highest complete tearing attempt and handles hits separately", () => {
   const result = calculateWarhammerAttackerDamage(
-    { ...attack, hits: 2, damageDice: 1, damageModifier: 2, tearing: "tearing" },
+    {
+      ...attack,
+      hits: 2,
+      damageDice: 1,
+      damageModifier: 2,
+      tearing: "tearing",
+    },
     sl.wfrp4e,
     diceSource([2, 9, 4, 6], [])
   );
 
   expect(result.damages).toEqual([11, 8]);
   expect(result.hitDetails.map((hit) => hit.selectedAttemptIndex)).toEqual([
-    1,
-    1,
+    1, 1,
   ]);
-  expect(result.hitDetails[0].attempts.map((attempt) => attempt.damage)).toEqual([
-    4,
-    11,
-  ]);
+  expect(
+    result.hitDetails[0].attempts.map((attempt) => attempt.damage)
+  ).toEqual([4, 11]);
 });
 
 test("keeps the first attempt selected when tearing totals tie", () => {
@@ -172,11 +180,9 @@ test("records and selects the best of all three triple-tearing attempts", () => 
   );
 
   expect(result.damages).toEqual([11]);
-  expect(result.hitDetails[0].attempts.map((attempt) => attempt.damage)).toEqual([
-    4,
-    11,
-    6,
-  ]);
+  expect(
+    result.hitDetails[0].attempts.map((attempt) => attempt.damage)
+  ).toEqual([4, 11, 6]);
   expect(result.hitDetails[0].selectedAttemptIndex).toBe(1);
 });
 

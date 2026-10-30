@@ -4,8 +4,15 @@ import {
   WarhammerAttackerDamageInput,
 } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import { parseSafeInteger } from "./safeInteger";
+import {
+  DAMAGE_LOCATIONS,
+  DamageLocation,
+} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
-export const WARHAMMER_ATTACKER_DAMAGE_DEFAULTS: WarhammerAttackerDamageInput = {
+export const WARHAMMER_ATTACKER_DAMAGE_DEFAULTS: Omit<
+  WarhammerAttackerDamageInput,
+  "firstHitLocation"
+> = {
   hits: 1,
   damageDice: 1,
   damageModifier: 0,
@@ -33,7 +40,10 @@ export default function normalizeWarhammerAttackerDamage(
   const errors: AttackerDamageErrors = {};
   const parsed: Partial<WarhammerAttackerDamageInput> = {};
   const numericFields: Array<
-    keyof Omit<WarhammerAttackerDamageInput, "tearing" | "alwaysConfirm">
+    keyof Omit<
+      WarhammerAttackerDamageInput,
+      "tearing" | "alwaysConfirm" | "firstHitLocation"
+    >
   > = [
     "hits",
     "damageDice",
@@ -71,15 +81,24 @@ export default function normalizeWarhammerAttackerDamage(
     parsed[field] = value;
   });
 
+  const location = values.firstHitLocation as DamageLocation;
+  if (DAMAGE_LOCATIONS.indexOf(location) === -1) {
+    errors.firstHitLocation = "Choose a first hit location";
+  }
+
   if (Object.keys(errors).length > 0) {
     return { errors };
   }
 
   return {
     input: {
-      ...(parsed as Omit<WarhammerAttackerDamageInput, "tearing" | "alwaysConfirm">),
+      ...(parsed as Omit<
+        WarhammerAttackerDamageInput,
+        "tearing" | "alwaysConfirm" | "firstHitLocation"
+      >),
       alwaysConfirm: values.alwaysConfirm,
       tearing: values.tearing,
+      firstHitLocation: location,
     },
     errors,
   };

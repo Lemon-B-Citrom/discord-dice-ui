@@ -1,5 +1,6 @@
 import getWarhammerAttackerDamageRequestMsg from "./getWarhammerAttackerDamageRequestMsg";
 import { WarhammerAttackerDamageResult } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import parseWarhammerAttackerDamageSummary from "./parseWarhammerAttackerDamageSummary";
 
 const input: WarhammerAttackerDamageResult["input"] = {
   hits: 2,
@@ -13,6 +14,7 @@ const input: WarhammerAttackerDamageResult["input"] = {
   rfConfirmsOn: 50,
   alwaysConfirm: false,
   tearing: "tearing",
+  firstHitLocation: "Body",
 };
 
 function result(): WarhammerAttackerDamageResult {
@@ -62,7 +64,7 @@ test("formats the profile, ordered hit totals, selected attempts, and comparison
   expect(message.description).toContain("Felling 2");
   expect(message.description).not.toContain("Proven");
   expect(message.description.split("\n")[0]).toBe(
-    ":crossed_swords: Penetration 3 · Felling 2 · Tearing"
+    ":crossed_swords: Penetration 3 · Felling 2 · Tearing · :mens: Starting at Body"
   );
   expect(message.description.split("\n")[1]).toBe(
     ":drop_of_blood: Righteous Fury confirms at 50%"
@@ -86,7 +88,22 @@ test("formats the profile, ordered hit totals, selected attempts, and comparison
   expect(message.fields[0].value).not.toContain("Discarded:");
   expect(message.fields[message.fields.length - 1]).toEqual({
     name: ":boom: Summary",
-    value: "`Pen 3, Fel 2: 16, 11`",
+    value: "`Pen 3, Fel 2, @body: 16 11`",
+  });
+});
+
+test("places the starting hit location after the penetration profile", () => {
+  const attack = result();
+  attack.input = { ...input, firstHitLocation: "Left Arm" };
+
+  const message = getWarhammerAttackerDamageRequestMsg(attack, "Alex");
+
+  expect(message.description).toBe(
+    ":crossed_swords: Penetration 3 · Felling 2 · Tearing · :mens: Starting at Left Arm\n:drop_of_blood: Righteous Fury confirms at 50%"
+  );
+  expect(message.fields[message.fields.length - 1]).toEqual({
+    name: ":boom: Summary",
+    value: "`Pen 3, Fel 2, @larm: 16 11`",
   });
 });
 
@@ -98,11 +115,11 @@ test("includes Devastating in the profile and summary only when it is not zero",
 
   expect(message.description).toContain("Devastating 3");
   expect(message.description.split("\n")[0]).toBe(
-    ":crossed_swords: Penetration 3 · Felling 2 · Devastating 3 · Tearing"
+    ":crossed_swords: Penetration 3 · Felling 2 · Devastating 3 · Tearing · :mens: Starting at Body"
   );
   expect(message.fields[message.fields.length - 1]).toEqual({
     name: ":boom: Summary",
-    value: "`Pen 3, Fel 2, Dev 3: 16, 11`",
+    value: "`Pen 3, Fel 2, Dev 3, @body: 16 11`",
   });
 });
 
@@ -113,10 +130,10 @@ test("omits zero-valued traits from the summary while keeping the header order c
   const message = getWarhammerAttackerDamageRequestMsg(attack, "Alex");
 
   expect(message.description.split("\n")[0]).toBe(
-    ":crossed_swords: Penetration 3 · Devastating 4 · Tearing"
+    ":crossed_swords: Penetration 3 · Devastating 4 · Tearing · :mens: Starting at Body"
   );
   expect(message.fields[message.fields.length - 1].value).toBe(
-    "`Pen 3, Dev 4: 16, 11`"
+    "`Pen 3, Dev 4, @body: 16 11`"
   );
 });
 
@@ -214,19 +231,22 @@ test("omits zero Felling and Proven and shows only the configured Fury details",
   expect(message.description).not.toContain("confirms at");
 
   attack.input = { ...attack.input, rfOn: 10, rfConfirmsOn: 100 };
-  const defaultFuryMessage = getWarhammerAttackerDamageRequestMsg(attack, "Alex");
+  const defaultFuryMessage = getWarhammerAttackerDamageRequestMsg(
+    attack,
+    "Alex"
+  );
   expect(defaultFuryMessage.description).not.toContain("Righteous Fury");
   expect(defaultFuryMessage.description).not.toContain(":drop_of_blood:");
 
   attack.input = { ...attack.input, rfOn: 10, rfConfirmsOn: 55 };
-  expect(getWarhammerAttackerDamageRequestMsg(attack, "Alex").description).toContain(
-    ":drop_of_blood: Righteous Fury confirms at 55%"
-  );
+  expect(
+    getWarhammerAttackerDamageRequestMsg(attack, "Alex").description
+  ).toContain(":drop_of_blood: Righteous Fury confirms at 55%");
 
   attack.input = { ...attack.input, rfOn: 9, rfConfirmsOn: 55 };
-  expect(getWarhammerAttackerDamageRequestMsg(attack, "Alex").description).toContain(
-    ":drop_of_blood: Righteous Fury on 9, confirms at 55%"
-  );
+  expect(
+    getWarhammerAttackerDamageRequestMsg(attack, "Alex").description
+  ).toContain(":drop_of_blood: Righteous Fury on 9, confirms at 55%");
 });
 
 test("reports No Righteous Fury when the confirmation threshold is zero", () => {
@@ -237,9 +257,11 @@ test("reports No Righteous Fury when the confirmation threshold is zero", () => 
 
   const message = getWarhammerAttackerDamageRequestMsg(attack, "Lemon");
   expect(message.description.split("\n")[0]).toBe(
-    ":crossed_swords: Penetration 3 · Felling 2 · Tearing"
+    ":crossed_swords: Penetration 3 · Felling 2 · Tearing · :mens: Starting at Body"
   );
-  expect(message.description.split("\n")[1]).toBe(":drop_of_blood: No Righteous Fury");
+  expect(message.description.split("\n")[1]).toBe(
+    ":drop_of_blood: No Righteous Fury"
+  );
 });
 
 test("reports always-confirming Fury instead of a confirmation threshold", () => {
@@ -255,12 +277,16 @@ test("reports always-confirming Fury instead of a confirmation threshold", () =>
   attack.hitDetails = [result().hitDetails[0]];
 
   expect(
-    getWarhammerAttackerDamageRequestMsg(attack, "Lemon").description.split("\n")[1]
+    getWarhammerAttackerDamageRequestMsg(attack, "Lemon").description.split(
+      "\n"
+    )[1]
   ).toBe(":drop_of_blood: Righteous Fury always confirms");
 
   attack.input = { ...attack.input, rfOn: 9 };
   expect(
-    getWarhammerAttackerDamageRequestMsg(attack, "Lemon").description.split("\n")[1]
+    getWarhammerAttackerDamageRequestMsg(attack, "Lemon").description.split(
+      "\n"
+    )[1]
   ).toBe(":drop_of_blood: Righteous Fury on 9, always confirms");
 });
 
@@ -275,8 +301,10 @@ test("keeps crossed swords on the profile and blood on the Fury line for Triple 
     rfConfirmsOn: 95,
   };
 
-  expect(getWarhammerAttackerDamageRequestMsg(attack, "Lemon").description).toBe(
-    ":crossed_swords: Penetration 0 · Triple Tearing\n:drop_of_blood: Righteous Fury on 4, confirms at 95%"
+  expect(
+    getWarhammerAttackerDamageRequestMsg(attack, "Lemon").description
+  ).toBe(
+    ":crossed_swords: Penetration 0 · Triple Tearing · :mens: Starting at Body\n:drop_of_blood: Righteous Fury on 4, confirms at 95%"
   );
 });
 
@@ -315,11 +343,14 @@ test("preserves all hit totals and bounds every Discord embed field for maximum-
     damageDice: 100,
     tearing: "tripleTearing",
   };
-  attack.damages = Array.from({ length: 100 }, (_, index) => index + 1);
+  attack.damages = Array.from(
+    { length: 100 },
+    (_, index) => 1_000_000_000 + index
+  );
   attack.hitDetails = attack.damages.map((damage) => ({
     attempts: [0, 1, 2].map(() => ({
-      baseRolls: Array.from({ length: 100 }, () => ({ roll: 10, damage: 10 })),
-      righteousFuryRolls: Array.from({ length: 100 }, () => 10),
+      baseRolls: [],
+      righteousFuryRolls: [],
       damage,
     })),
     selectedAttemptIndex: 1,
@@ -329,6 +360,14 @@ test("preserves all hit totals and bounds every Discord embed field for maximum-
     attack,
     "A very long player name".repeat(20)
   );
+  const summaryFragments = message.fields
+    .filter(({ name }) => name === ":boom: Summary" || name === "Summary (continued)")
+    .map(({ value }) => value.slice(1, -1));
+  const reconstructedSummary = summaryFragments.join(" ");
+  expect(summaryFragments.length).toBeGreaterThan(1);
+  expect(summaryFragments.slice(1).length).toBeGreaterThan(0);
+  expect(reconstructedSummary.length).toBeGreaterThan(1022);
+  const parsedSummary = parseWarhammerAttackerDamageSummary(reconstructedSummary);
   const allHitValues = message.fields
     .filter(({ name }) => name.startsWith("Damage"))
     .map(({ value }) => value)
@@ -342,12 +381,20 @@ test("preserves all hit totals and bounds every Discord embed field for maximum-
     );
   expect(allHitValues).toContain("#1: :arrow_right:");
   expect(allHitValues).toContain(
-    "#100: :arrow_right: **Righteous Fury x100!** **100**"
+    `#100: :arrow_right: **${attack.damages[99]}**`
   );
   expect(
     message.fields.some(({ value }) => value.includes("details shortened"))
   ).toBe(true);
   expect(message.fields.length).toBeLessThanOrEqual(25);
+  expect(parsedSummary.error).toBeNull();
+  expect(parsedSummary.summary).toEqual({
+    penetration: 3,
+    felling: 2,
+    devastating: 0,
+    firstHitLocation: "Body",
+    damages: attack.damages,
+  });
   expect(
     message.fields.every(
       ({ name, value }) => name.length <= 256 && value.length <= 1024

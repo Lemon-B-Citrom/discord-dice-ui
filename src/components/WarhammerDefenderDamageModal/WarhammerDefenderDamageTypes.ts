@@ -37,7 +37,6 @@ export interface WarhammerDefenderDamageDraft {
   armorBody: string;
   armorArms: string;
   armorLegs: string;
-  firstHitLocation: string;
   /** Hits beyond the true hits; blank is the default of zero bonus hits. */
   bonusHits: string;
   magPer: string;
@@ -66,7 +65,6 @@ export const EMPTY_DEFENDER_DAMAGE_DRAFT: WarhammerDefenderDamageDraft = {
   armorBody: "",
   armorArms: "",
   armorLegs: "",
-  firstHitLocation: "",
   bonusHits: "",
   magPer: "",
   woundsPer: "",
@@ -90,14 +88,11 @@ export interface WarhammerAttackerDamageSummary {
   penetration: number;
   felling: number;
   devastating: number;
+  firstHitLocation: DamageLocation;
   damages: number[];
 }
 
-export type ArmorSource =
-  | "explicit"
-  | "body"
-  | "other-part"
-  | "omitted";
+export type ArmorSource = "explicit" | "body" | "other-part" | "omitted";
 
 export interface WarhammerArmorLayout {
   headAP: number;
@@ -174,7 +169,8 @@ export interface DefenderDamageEntryBase {
   finalDamage: number;
 }
 
-export interface WarhammerDefenderSingleDamageHit extends DefenderDamageEntryBase {
+export interface WarhammerDefenderSingleDamageHit
+  extends DefenderDamageEntryBase {
   mode: "single";
   role: "single";
 }
@@ -186,7 +182,8 @@ export type HordeDamageClassification =
   | "no-damage"
   | "bonus";
 
-export interface WarhammerDefenderHordeDamageHit extends DefenderDamageEntryBase {
+export interface WarhammerDefenderHordeDamageHit
+  extends DefenderDamageEntryBase {
   mode: "horde";
   role: "true" | "bonus";
   classification: HordeDamageClassification;
@@ -223,5 +220,8 @@ export interface WarhammerDefenderDamageResult {
 }
 
 export type NormalizeDefenderDamageResult =
-  | { request: WarhammerDefenderDamageRequest; errors: DefenderDamageValidationErrors }
+  | {
+      request: WarhammerDefenderDamageRequest;
+      errors: DefenderDamageValidationErrors;
+    }
   | { request: null; errors: DefenderDamageValidationErrors };

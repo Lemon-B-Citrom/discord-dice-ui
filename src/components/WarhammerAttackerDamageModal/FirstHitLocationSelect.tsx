@@ -8,7 +8,7 @@ import {
   getAdjacentLocation,
   MenuMoveKey,
 } from "../../utils/damageLocations";
-import { DamageLocation } from "./WarhammerDefenderDamageTypes";
+import { DamageLocation } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import styles from "./FirstHitLocationSelect.module.css";
 
 const MENU_MOVE_KEYS: ReadonlyArray<MenuMoveKey> = [
@@ -63,7 +63,8 @@ function FirstHitLocationSelect({
   };
 
   const selectedLocation =
-    DAMAGE_LOCATION_READING_ORDER.find((location) => location === value) || null;
+    DAMAGE_LOCATION_READING_ORDER.find((location) => location === value) ||
+    null;
 
   const handleToggleKeyDown = (event: React.KeyboardEvent) => {
     if (event.key !== "ArrowDown" && event.key !== "ArrowUp") return;
@@ -105,11 +106,13 @@ function FirstHitLocationSelect({
     <Dropdown show={open} onToggle={(show) => setOpen(show)}>
       <Dropdown.Toggle
         ref={toggleRef}
-        id="defender-damage-first-hit-location"
+        id="attacker-damage-first-hit-location"
         variant="outline-secondary"
-        aria-label={value ? `First Hit Location: ${value}` : "First Hit Location"}
+        aria-label={
+          value ? `First Hit Location: ${value}` : "First Hit Location"
+        }
         aria-haspopup="menu"
-        aria-controls="defender-damage-first-hit-location-menu"
+        aria-controls="attacker-damage-first-hit-location-menu"
         aria-expanded={open}
         aria-describedby={ariaDescribedBy}
         aria-invalid={Boolean(ariaDescribedBy)}
@@ -119,7 +122,7 @@ function FirstHitLocationSelect({
         {value || "First Hit Location"}
       </Dropdown.Toggle>
       <Dropdown.Menu
-        id="defender-damage-first-hit-location-menu"
+        id="attacker-damage-first-hit-location-menu"
         role="menu"
         aria-label="First Hit Location options"
         className={styles.menu}

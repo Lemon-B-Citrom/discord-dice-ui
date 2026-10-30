@@ -1,5 +1,4 @@
 import {
-  DAMAGE_LOCATIONS,
   DamageLocation,
   DefenderDamageValidationErrors,
   NormalizeDefenderDamageResult,
@@ -51,7 +50,8 @@ export default function normalizeWarhammerDefenderDamage(
 ): NormalizeDefenderDamageResult {
   const errors: DefenderDamageValidationErrors = {};
   const parsed = parseWarhammerAttackerDamageSummary(draft.attackSummaryString);
-  if (!parsed.summary) errors.attackSummaryString = parsed.error || "Invalid summary";
+  if (!parsed.summary)
+    errors.attackSummaryString = parsed.error || "Invalid summary";
 
   const toughnessBonus = parseNonNegative(
     draft.toughnessBonus,
@@ -59,24 +59,25 @@ export default function normalizeWarhammerDefenderDamage(
     errors,
     false
   );
-  const fortitude = parseNonNegative(draft.fortitude, "fortitude", errors, false);
+  const fortitude = parseNonNegative(
+    draft.fortitude,
+    "fortitude",
+    errors,
+    false
+  );
   // Advanced mode replaces the four inherited slots entirely, so their rules
   // can never block a calculation that does not read them.
-  const armor = draft.advancedEnabled ? null : resolveWarhammerArmorLayout(draft);
+  const armor = draft.advancedEnabled
+    ? null
+    : resolveWarhammerArmorLayout(draft);
   const advanced = normalizeAdvancedDefenses(draft);
   if (armor) Object.assign(errors, armor.errors);
   Object.assign(errors, advanced.errors);
   const defenses = pickDefenses(advanced, armor);
 
-  let firstHitLocation: DamageLocation | null = null;
-  // The draft keeps raw strings, so this is the single documented cast that
-  // lets a programmatic request be validated against the shared location list.
-  const selectedLocation = draft.firstHitLocation as DamageLocation;
-  if (DAMAGE_LOCATIONS.indexOf(selectedLocation) === -1) {
-    errors.firstHitLocation = "Choose a first hit location";
-  } else {
-    firstHitLocation = selectedLocation;
-  }
+  const firstHitLocation: DamageLocation | null = parsed.summary
+    ? parsed.summary.firstHitLocation
+    : null;
 
   // Horde mode is opt-in: blank fields alone no longer select it.
   const isHorde = draft.hordeEnabled;
@@ -120,7 +121,10 @@ export default function normalizeWarhammerDefenderDamage(
     firstHitLocation,
   };
   if (!isHorde) {
-    const request: WarhammerDefenderDamageRequest = { ...common, mode: "single" };
+    const request: WarhammerDefenderDamageRequest = {
+      ...common,
+      mode: "single",
+    };
     return { request, errors };
   }
 

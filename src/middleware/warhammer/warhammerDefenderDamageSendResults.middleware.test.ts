@@ -30,9 +30,8 @@ const reducer = combineReducers({
 
 const draft: WarhammerDefenderDamageDraft = {
   ...EMPTY_DEFENDER_DAMAGE_DRAFT,
-  attackSummaryString: "Pen 0, Fel 0: 12, 8",
+  attackSummaryString: "Pen 0, Fel 0, @head: 12 8",
   toughnessBonus: "2",
-  firstHitLocation: "Head",
 };
 
 const originalFetch = (global as typeof global & { fetch?: jest.Mock }).fetch;
@@ -80,10 +79,12 @@ test("sends one aggregate message per successful calculation after saving result
   expect(body.username).toBe("Dice Roller");
   expect(body.embeds).toHaveLength(1);
   expect(body.embeds[0].title).toBe("Alex calculated damage. Single target");
-  expect(body.embeds[0].fields[0].value).toContain("#1: :arrow_right: **10**\n-# Head");
-  expect(body.embeds[0].fields[body.embeds[0].fields.length - 1].value).toContain(
-    "Total Damage:"
+  expect(body.embeds[0].fields[0].value).toContain(
+    "#1: :arrow_right: **10**\n-# Head"
   );
+  expect(
+    body.embeds[0].fields[body.embeds[0].fields.length - 1].value
+  ).toContain("Total Damage:");
   expect(store.getState().warhammerDefenderDamage.errors).toEqual({});
 });
 
@@ -91,7 +92,10 @@ test("does not send for invalid or failed calculations and does not resend retai
   store.dispatch(requestWarhammerDefenderDamage(draft));
   expect(fetchMock).toHaveBeenCalledTimes(1);
   store.dispatch(
-    requestWarhammerDefenderDamage({ ...draft, attackSummaryString: "not a summary" })
+    requestWarhammerDefenderDamage({
+      ...draft,
+      attackSummaryString: "not a summary",
+    })
   );
   expect(fetchMock).toHaveBeenCalledTimes(1);
   expect(store.getState().warhammerDefenderDamage.results).not.toBeNull();
@@ -103,9 +107,9 @@ test("skips delivery without a webhook while preserving a successful local resul
 
   expect(fetchMock).not.toHaveBeenCalled();
   expect(store.getState().warhammerDefenderDamage.results).not.toBeNull();
-  expect(store.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen).toBe(
-    true
-  );
+  expect(
+    store.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen
+  ).toBe(true);
 });
 
 test("draft edits, Clear, and Back do not send or resend saved results", () => {
@@ -122,13 +126,24 @@ test("draft edits, Clear, and Back do not send or resend saved results", () => {
 });
 
 test("sends Fortitude results once and does not send invalid Fortitude", () => {
-  store.dispatch(requestWarhammerDefenderDamage({ ...draft, attackSummaryString: "Pen 0, Fel 2: 20, 20,", toughnessBonus: "6", fortitude: "1" }));
+  store.dispatch(
+    requestWarhammerDefenderDamage({
+      ...draft,
+      attackSummaryString: "Pen 0, Fel 2, @body: 20 20 ",
+      toughnessBonus: "6",
+      fortitude: "1",
+    })
+  );
   expect(fetchMock).toHaveBeenCalledTimes(1);
   const body = JSON.parse(fetchMock.mock.calls[0][1].body);
-  expect(body.embeds[0].fields[0].value).toContain("Toughness (`6` × `2` − `2` = `10`)");
+  expect(body.embeds[0].fields[0].value).toContain(
+    "Toughness (`6` × `2` − `2` = `10`)"
+  );
   store.dispatch(requestWarhammerDefenderDamage({ ...draft, fortitude: "-1" }));
   expect(fetchMock).toHaveBeenCalledTimes(1);
-  expect(store.getState().warhammerDefenderDamage.errors.fortitude).toBeTruthy();
+  expect(
+    store.getState().warhammerDefenderDamage.errors.fortitude
+  ).toBeTruthy();
 });
 
 test("keeps saved local state after asynchronous delivery failure", async () => {
@@ -141,9 +156,9 @@ test("keeps saved local state after asynchronous delivery failure", async () => 
 
   expect(store.getState().warhammerDefenderDamage.results).not.toBeNull();
   expect(store.getState().warhammerDefenderDamage.errors).toEqual({});
-  expect(store.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen).toBe(
-    true
-  );
+  expect(
+    store.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen
+  ).toBe(true);
   expect(logError).toHaveBeenCalledWith("Discord webhook request failed.");
   expect(logError).not.toHaveBeenCalledWith(
     expect.stringContaining("private webhook URL details")
@@ -160,7 +175,9 @@ test("notification preparation failures do not replace the saved result with a c
   } as unknown as WarhammerDefenderDamageResult;
   store.dispatch(saveWarhammerDefenderDamageResults(malformedResult));
 
-  expect(store.getState().warhammerDefenderDamage.results).toBe(malformedResult);
+  expect(store.getState().warhammerDefenderDamage.results).toBe(
+    malformedResult
+  );
   expect(store.getState().warhammerDefenderDamage.errors).toEqual({});
   expect(logError).toHaveBeenCalledWith(
     "Unable to prepare a Warhammer damage webhook message."
@@ -182,7 +199,8 @@ test("the production middleware chain sends the damage result and opens the resu
   fetchMock.mockImplementation(() => {
     resultSavedAtSend =
       productionStore.getState().warhammerDefenderDamage.results !== null &&
-      productionStore.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen;
+      productionStore.getState().modalsState
+        .isWarhammerDefenderDamageResultsModalOpen;
     return Promise.resolve({ ok: true, status: 204 } as Response);
   });
 
@@ -198,11 +216,16 @@ test("the production middleware chain sends the damage result and opens the resu
   expect(body.username).toBe("Dice Roller");
   expect(body.embeds).toHaveLength(1);
   expect(body.embeds[0].title).toBe("Alex calculated damage. Single target");
-  expect(body.embeds[0].fields[0].value).toContain("#1: :arrow_right: **10**\n-# Head");
-  expect(productionStore.getState().warhammerDefenderDamage.results).not.toBeNull();
+  expect(body.embeds[0].fields[0].value).toContain(
+    "#1: :arrow_right: **10**\n-# Head"
+  );
+  expect(
+    productionStore.getState().warhammerDefenderDamage.results
+  ).not.toBeNull();
   expect(productionStore.getState().warhammerDefenderDamage.errors).toEqual({});
   expect(
-    productionStore.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen
+    productionStore.getState().modalsState
+      .isWarhammerDefenderDamageResultsModalOpen
   ).toBe(true);
 });
 

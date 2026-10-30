@@ -41,7 +41,9 @@ function getTearingLabel(
 }
 
 /** The Righteous Fury settings line, or an empty string when Fury is off. */
-function getFurySettings(input: WarhammerAttackerDamageResult["input"]): string {
+function getFurySettings(
+  input: WarhammerAttackerDamageResult["input"]
+): string {
   if (input.alwaysConfirm) {
     return input.rfOn === 10
       ? "Righteous Fury always confirms"
@@ -65,13 +67,17 @@ interface EquationTerm {
  * Join the terms of one attempt, dropping the tail rather than crossing the
  * per-attempt length limit. Returns whether anything was dropped.
  */
-function joinEquationTerms(
-  terms: ReadonlyArray<EquationTerm>
-): { text: string; truncated: boolean } {
+function joinEquationTerms(terms: ReadonlyArray<EquationTerm>): {
+  text: string;
+  truncated: boolean;
+} {
   let text = "";
   for (const term of terms) {
     const separator = text ? (term.negative ? " − " : " + ") : "";
-    if (text.length + separator.length + term.text.length > MAX_ATTEMPT_DETAIL_CHARACTERS) {
+    if (
+      text.length + separator.length + term.text.length >
+      MAX_ATTEMPT_DETAIL_CHARACTERS
+    ) {
       return { text, truncated: true };
     }
     text += `${separator}${term.text}`;
@@ -110,10 +116,14 @@ function formatAttemptLine(
       ? `**Righteous Fury!** ${equationText}`
       : equationText;
 
-  const provenNotes = attempt.baseRolls.filter(({ roll, damage }) => roll !== damage);
+  const provenNotes = attempt.baseRolls.filter(
+    ({ roll, damage }) => roll !== damage
+  );
   let proven = "";
   for (const note of provenNotes) {
-    const addition = `${proven ? ", " : ""}\`${note.roll}\` → \`${note.damage}\``;
+    const addition = `${proven ? ", " : ""}\`${note.roll}\` → \`${
+      note.damage
+    }\``;
     if (
       line.length + " (Proven: ".length + proven.length + addition.length + 1 >
       MAX_ATTEMPT_DETAIL_CHARACTERS
@@ -135,7 +145,7 @@ function createSummaryFields(
   const fragments = [
     `${formatWarhammerAttackerDamageSummaryHeader(summary)} `,
     ...summary.damages.map(
-      (damage, index) => `${index > 0 ? ", " : ""}${damage}`
+      (damage, index) => `${index > 0 ? " " : ""}${damage}`
     ),
   ];
   return chunkTextForEmbed(fragments, EMBED_FIELD_VALUE_MAX - 2).map(
@@ -195,9 +205,11 @@ export default function getWarhammerAttackerDamageRequestMsg(
     input.damageModifier < 0
       ? `− \`${Math.abs(input.damageModifier)}\``
       : `+ \`${input.damageModifier}\``;
-  const msgTitle = `${sanitizeDiscordUsername(username)} performed an attack. \`${
-    input.damageDice
-  }d10\` ${modifier} x \`${input.hits}\``;
+  const msgTitle = `${sanitizeDiscordUsername(
+    username
+  )} performed an attack. \`${input.damageDice}d10\` ${modifier} x \`${
+    input.hits
+  }\``;
   const profile = [
     `Penetration ${input.penetration}`,
     input.felling !== 0 ? `Felling ${input.felling}` : "",
@@ -206,13 +218,17 @@ export default function getWarhammerAttackerDamageRequestMsg(
     getTearingLabel(input.tearing),
   ].filter(Boolean);
   const furySettings = getFurySettings(input);
-  const description = furySettings
-    ? `:crossed_swords: ${profile.join(" · ")}\n:drop_of_blood: ${furySettings}`
-    : `:crossed_swords: ${profile.join(" · ")}`;
+  const description = [
+    `:crossed_swords: ${profile.join(" · ")} · :mens: Starting at ${input.firstHitLocation}`,
+    furySettings ? `:drop_of_blood: ${furySettings}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
   const summaryFields = createSummaryFields({
     penetration: input.penetration,
     felling: input.felling,
     devastating: input.devastating,
+    firstHitLocation: input.firstHitLocation,
     damages,
   });
   const hitRows = damages.map((_, index) => createHitRow(result, index));

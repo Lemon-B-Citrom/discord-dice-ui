@@ -28,16 +28,19 @@ function WarhammerAttackerDamageResultsModal() {
     return null;
   }
 
-  const closeResults = () => dispatch(closeWarhammerAttackerDamageResultsModal());
+  const closeResults = () =>
+    dispatch(closeWarhammerAttackerDamageResultsModal());
   const returnToForm = () => {
     closeResults();
     dispatch(openWarhammerAttackerDamageModal());
   };
-  const rerollAttack = () => dispatch(requestWarhammerAttackerDamage(results.input));
+  const rerollAttack = () =>
+    dispatch(requestWarhammerAttackerDamage(results.input));
   const summary = formatWarhammerAttackerDamageSummary({
     penetration: results.input.penetration,
     felling: results.input.felling,
     devastating: results.input.devastating,
+    firstHitLocation: results.input.firstHitLocation,
     damages: results.damages,
   });
   const copySummary = () => {

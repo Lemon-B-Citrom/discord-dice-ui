@@ -1,4 +1,5 @@
 export type AttackerDamageTearing = "none" | "tearing" | "tripleTearing";
+import { DamageLocation } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
 export interface AttackerDamageValues {
   hits: string;
@@ -12,6 +13,7 @@ export interface AttackerDamageValues {
   rfConfirmsOn: string;
   alwaysConfirm: boolean;
   tearing: AttackerDamageTearing;
+  firstHitLocation: string;
 }
 
 export interface WarhammerAttackerDamageInput {
@@ -28,6 +30,7 @@ export interface WarhammerAttackerDamageInput {
   /** Confirms every Righteous Fury without a roll, so no threshold applies. */
   alwaysConfirm: boolean;
   tearing: AttackerDamageTearing;
+  firstHitLocation: DamageLocation;
 }
 
 export interface WarhammerAttackerDamageDie {

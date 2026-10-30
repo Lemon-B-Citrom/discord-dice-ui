@@ -5,9 +5,7 @@ import modalsState from "../../reducers/modals-reducer";
 import warhammerState from "../../reducers/warhammer-reducer";
 import warhammerAttackerDamage from "../../reducers/warhammer-attacker-damage-reducer";
 import { WarhammerAttackerDamageInput } from "../../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
-import {
-  createWarhammerAttackerDamageRollRequestedMiddleware,
-} from "./warhammerAttackerDamageRollRequested.middleware";
+import { createWarhammerAttackerDamageRollRequestedMiddleware } from "./warhammerAttackerDamageRollRequested.middleware";
 
 const reducer = combineReducers({
   modalsState,
@@ -27,6 +25,7 @@ const attack: WarhammerAttackerDamageInput = {
   rfConfirmsOn: 0,
   alwaysConfirm: false,
   tearing: "none",
+  firstHitLocation: "Body",
 };
 
 test("calculates with the selected DoS system and opens isolated results", () => {
@@ -48,7 +47,9 @@ test("calculates with the selected DoS system and opens isolated results", () =>
   }));
   const store = createStore(
     reducer,
-    applyMiddleware(createWarhammerAttackerDamageRollRequestedMiddleware(calculate))
+    applyMiddleware(
+      createWarhammerAttackerDamageRollRequestedMiddleware(calculate)
+    )
   );
 
   store.dispatch(openWarhammerAttackerDamageModal());
@@ -59,9 +60,9 @@ test("calculates with the selected DoS system and opens isolated results", () =>
   expect(store.getState().modalsState.isWarhammerAttackerDamageModalOpen).toBe(
     false
   );
-  expect(
-    store.getState().warhammerAttackerDamage.isResultsModalOpen
-  ).toBe(true);
+  expect(store.getState().warhammerAttackerDamage.isResultsModalOpen).toBe(
+    true
+  );
   expect(store.getState().warhammerAttackerDamage.results?.damages).toEqual([
     12,
   ]);
@@ -86,7 +87,7 @@ test("keeps the form open and exposes a calculation error", () => {
   expect(store.getState().warhammerAttackerDamage.error).toBe(
     "Test calculation failure"
   );
-  expect(
-    store.getState().warhammerAttackerDamage.isResultsModalOpen
-  ).toBe(false);
+  expect(store.getState().warhammerAttackerDamage.isResultsModalOpen).toBe(
+    false
+  );
 });

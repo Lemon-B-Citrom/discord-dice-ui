@@ -30,6 +30,7 @@ const attack: WarhammerAttackerDamageInput = {
   rfConfirmsOn: 0,
   alwaysConfirm: false,
   tearing: "none",
+  firstHitLocation: "Body",
 };
 
 function attackResult(damage: number): WarhammerAttackerDamageResult {
@@ -63,7 +64,9 @@ beforeEach(() => {
   store = createStore(
     reducer,
     applyMiddleware(
-      createWarhammerAttackerDamageRollRequestedMiddleware(() => attackResult(12)),
+      createWarhammerAttackerDamageRollRequestedMiddleware(() =>
+        attackResult(12)
+      ),
       warhammerAttackerDamageSendResults,
       sendRequestMsg
     )
@@ -226,7 +229,9 @@ test("contains a synchronous transport exception without failing the attack", ()
     throw new Error("network details");
   });
 
-  expect(() => store.dispatch(requestWarhammerAttackerDamage(attack))).not.toThrow();
+  expect(() =>
+    store.dispatch(requestWarhammerAttackerDamage(attack))
+  ).not.toThrow();
   expect(store.getState().warhammerAttackerDamage.results?.damages).toEqual([
     12,
   ]);

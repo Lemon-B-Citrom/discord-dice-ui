@@ -27,6 +27,7 @@ const attack: WarhammerAttackerDamageInput = {
   rfConfirmsOn: 0,
   alwaysConfirm: false,
   tearing: "none",
+  firstHitLocation: "Body",
 };
 
 test("stores attack results separately from ordinary Warhammer roll state", () => {

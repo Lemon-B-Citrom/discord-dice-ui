@@ -1,4 +1,5 @@
 import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import { DAMAGE_LOCATION_WIRE_TOKENS } from "./damageLocations";
 
 /**
  * Build the canonical header for an attack summary. Zero-valued optional traits
@@ -15,6 +16,7 @@ export function formatWarhammerAttackerDamageSummaryHeader(
   if (summary.devastating !== 0) {
     parts.push(`Dev ${summary.devastating}`);
   }
+  parts.push(DAMAGE_LOCATION_WIRE_TOKENS[summary.firstHitLocation]);
   return `${parts.join(", ")}:`;
 }
 
@@ -25,7 +27,7 @@ export function formatWarhammerAttackerDamageSummaryHeader(
 export default function formatWarhammerAttackerDamageSummary(
   summary: WarhammerAttackerDamageSummary
 ): string {
-  return `${formatWarhammerAttackerDamageSummaryHeader(summary)} ${summary.damages.join(
-    ", "
-  )}`;
+  return `${formatWarhammerAttackerDamageSummaryHeader(
+    summary
+  )} ${summary.damages.join(" ")}`;
 }

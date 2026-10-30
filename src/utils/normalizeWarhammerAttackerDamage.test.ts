@@ -15,13 +15,27 @@ const emptyValues: AttackerDamageValues = {
   rfConfirmsOn: "",
   alwaysConfirm: false,
   tearing: "none",
+  firstHitLocation: "Body",
 };
 
 test("uses the shared defaults for blank fields", () => {
   expect(normalizeWarhammerAttackerDamage(emptyValues)).toEqual({
-    input: WARHAMMER_ATTACKER_DAMAGE_DEFAULTS,
+    input: { ...WARHAMMER_ATTACKER_DAMAGE_DEFAULTS, firstHitLocation: "Body" },
     errors: {},
   });
+});
+
+test("requires an explicitly selected known first location", () => {
+  const missing = normalizeWarhammerAttackerDamage({
+    ...emptyValues,
+    firstHitLocation: "",
+  });
+  const invalid = normalizeWarhammerAttackerDamage({
+    ...emptyValues,
+    firstHitLocation: "Torso",
+  });
+  expect(missing.errors.firstHitLocation).toBeDefined();
+  expect(invalid.errors.firstHitLocation).toBeDefined();
 });
 
 test("preserves explicit zeroes and permits a signed damage modifier", () => {
@@ -67,7 +81,10 @@ test("rejects negative non-modifier values and invalid hit counts", () => {
     damageDice: "1",
     penetration: "-1",
   });
-  const invalidHits = normalizeWarhammerAttackerDamage({ ...emptyValues, hits: "0" });
+  const invalidHits = normalizeWarhammerAttackerDamage({
+    ...emptyValues,
+    hits: "0",
+  });
 
   expect(negative.input).toBeUndefined();
   expect(negative.errors.penetration).toBeDefined();

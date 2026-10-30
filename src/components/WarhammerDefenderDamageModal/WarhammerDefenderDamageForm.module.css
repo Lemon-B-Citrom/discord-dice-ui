@@ -17,14 +17,6 @@
   min-width: 0;
 }
 
-.locationField {
-  margin-bottom: 0.65rem;
-}
-
-.locationField > label {
-  display: block;
-}
-
 .hordeOptions {
   border: 0;
   margin: 0;

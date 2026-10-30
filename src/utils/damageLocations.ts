@@ -16,9 +16,11 @@ export const DAMAGE_LOCATION_ROWS: ReadonlyArray<
  * The same locations flattened: the order the rows are read in. The canonical
  * `DAMAGE_LOCATIONS` order is left alone because validation depends on it.
  */
-export const DAMAGE_LOCATION_READING_ORDER: ReadonlyArray<DamageLocation> = DAMAGE_LOCATION_ROWS.reduce<
-  DamageLocation[]
->((order, row) => order.concat(row), []);
+export const DAMAGE_LOCATION_READING_ORDER: ReadonlyArray<DamageLocation> =
+  DAMAGE_LOCATION_ROWS.reduce<DamageLocation[]>(
+    (order, row) => order.concat(row),
+    []
+  );
 
 /**
  * Captions short enough for one line in a fixed-width diagram cell. The full
@@ -32,6 +34,24 @@ export const DAMAGE_LOCATION_SHORT_LABELS: Record<DamageLocation, string> = {
   "Left Leg": "L. Leg",
   "Right Leg": "R. Leg",
 };
+
+export const DAMAGE_LOCATION_WIRE_TOKENS: Record<DamageLocation, string> = {
+  Head: "@head",
+  Body: "@body",
+  "Left Arm": "@larm",
+  "Right Arm": "@rarm",
+  "Left Leg": "@lleg",
+  "Right Leg": "@rleg",
+};
+
+export const DAMAGE_LOCATION_BY_WIRE_TOKEN: Record<string, DamageLocation> =
+  Object.keys(DAMAGE_LOCATION_WIRE_TOKENS).reduce<
+    Record<string, DamageLocation>
+  >((tokens, location) => {
+    const typedLocation = location as DamageLocation;
+    tokens[DAMAGE_LOCATION_WIRE_TOKENS[typedLocation]] = typedLocation;
+    return tokens;
+  }, {});
 
 /** The armor slot that covers each body part in simple defense mode. */
 export const ARMOR_SLOT_BY_LOCATION: Record<DamageLocation, ArmorSlot> = {
@@ -82,7 +102,9 @@ export function getAdjacentLocation(
 ): DamageLocation | null {
   if (key === "Home") return DAMAGE_LOCATION_READING_ORDER[0];
   if (key === "End") {
-    return DAMAGE_LOCATION_READING_ORDER[DAMAGE_LOCATION_READING_ORDER.length - 1];
+    return DAMAGE_LOCATION_READING_ORDER[
+      DAMAGE_LOCATION_READING_ORDER.length - 1
+    ];
   }
 
   const row = findRow(location);

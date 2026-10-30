@@ -8,6 +8,8 @@ import {
 } from "./WarhammerAttackerDamageTypes";
 import { WARHAMMER_ATTACKER_DAMAGE_DEFAULTS } from "../../utils/normalizeWarhammerAttackerDamage";
 import styles from "./WarhammerAttackerDamageForm.module.css";
+import FirstHitLocationSelect from "./FirstHitLocationSelect";
+import { DamageLocation } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
 export type AttackerDamageNumericField =
   | "hits"
@@ -44,6 +46,8 @@ interface WarhammerAttackerDamageProfileFieldsProps {
   onModifierChange: (value: string) => void;
   onTearingChange: (tearing: AttackerDamageTearing) => void;
   onAlwaysConfirmChange: (alwaysConfirm: boolean) => void;
+  onLocationChange: (location: DamageLocation) => void;
+  locationError?: string;
 }
 
 /** The damage profile: what is rolled, its traits, and the Fury settings. */
@@ -53,6 +57,8 @@ function WarhammerAttackerDamageProfileFields({
   onModifierChange,
   onTearingChange,
   onAlwaysConfirmChange,
+  onLocationChange,
+  locationError,
 }: WarhammerAttackerDamageProfileFieldsProps) {
   return (
     <Row className={styles.attackDetails}>
@@ -94,6 +100,29 @@ function WarhammerAttackerDamageProfileFields({
             />
           ))}
         </fieldset>
+        <Form.Group className={styles.locationField}>
+          <Form.Label htmlFor="attacker-damage-first-hit-location">
+            First Hit Location
+          </Form.Label>
+          <FirstHitLocationSelect
+            value={values.firstHitLocation}
+            onChange={onLocationChange}
+            ariaDescribedBy={
+              locationError
+                ? "attacker-damage-first-hit-location-error"
+                : undefined
+            }
+          />
+          {locationError && (
+            <Form.Text
+              id="attacker-damage-first-hit-location-error"
+              className="text-danger"
+              role="alert"
+            >
+              {locationError}
+            </Form.Text>
+          )}
+        </Form.Group>
       </Col>
 
       <Col xs={12} md={5}>
@@ -115,9 +144,7 @@ function WarhammerAttackerDamageProfileFields({
                 min={0}
                 placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS[field]}`}
                 value={values[field]}
-                onChange={(event) =>
-                  onNumericChange(field, event.target.value)
-                }
+                onChange={(event) => onNumericChange(field, event.target.value)}
               />
             </Col>
           </Form.Group>
@@ -142,9 +169,7 @@ function WarhammerAttackerDamageProfileFields({
               min={0}
               placeholder={`${WARHAMMER_ATTACKER_DAMAGE_DEFAULTS.rfOn}`}
               value={values.rfOn}
-              onChange={(event) =>
-                onNumericChange("rfOn", event.target.value)
-              }
+              onChange={(event) => onNumericChange("rfOn", event.target.value)}
             />
           </Col>
         </Form.Group>

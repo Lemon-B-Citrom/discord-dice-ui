@@ -4,7 +4,6 @@ import AdvancedDefenseControl, {
   ADVANCED_DEFENSE_BUTTON_ID,
   ADVANCED_DEFENSE_TOGGLE_ID,
 } from "./AdvancedDefenseControl";
-import FirstHitLocationSelect from "./FirstHitLocationSelect";
 import DamageNumericField from "../DamageNumericField/DamageNumericField";
 import styles from "./WarhammerDefenderDamageForm.module.css";
 import {
@@ -37,7 +36,6 @@ const fieldControlIds: Record<keyof WarhammerDefenderDamageDraft, string> = {
   armorBody: "defender-damage-armor-body",
   armorArms: "defender-damage-armor-arms",
   armorLegs: "defender-damage-armor-legs",
-  firstHitLocation: "defender-damage-first-hit-location",
   bonusHits: "defender-damage-bonus-hits",
   magPer: "defender-damage-mag-per",
   woundsPer: "defender-damage-wounds-per",
@@ -127,7 +125,9 @@ function WarhammerDefenderDamageForm({
       <Form.Group className={styles.summaryField}>
         <Form.Label
           htmlFor={fieldControlIds.attackSummaryString}
-          className={visibleErrors.attackSummaryString ? "text-danger" : undefined}
+          className={
+            visibleErrors.attackSummaryString ? "text-danger" : undefined
+          }
         >
           Input
         </Form.Label>
@@ -168,32 +168,6 @@ function WarhammerDefenderDamageForm({
             error={visibleErrors.fortitude}
             onChange={(value) => onChange("fortitude", value)}
           />
-          <Form.Group className={styles.locationField}>
-            <Form.Label
-              htmlFor="defender-damage-first-hit-location"
-              className={visibleErrors.firstHitLocation ? "text-danger" : undefined}
-            >
-              First Hit Location
-            </Form.Label>
-            <FirstHitLocationSelect
-              value={draft.firstHitLocation}
-              onChange={(value) => onChange("firstHitLocation", value)}
-              ariaDescribedBy={
-                visibleErrors.firstHitLocation
-                  ? "defender-damage-first-hit-location-error"
-                  : undefined
-              }
-            />
-            {visibleErrors.firstHitLocation && (
-              <Form.Text
-                id="defender-damage-first-hit-location-error"
-                className="text-danger"
-                role="alert"
-              >
-                {visibleErrors.firstHitLocation}
-              </Form.Text>
-            )}
-          </Form.Group>
         </div>
         <div className={styles.armorFields}>
           <div
@@ -247,7 +221,9 @@ function WarhammerDefenderDamageForm({
               value={draft[field]}
               error={visibleErrors[field]}
               disabled={!draft.hordeEnabled}
-              className={draft.hordeEnabled ? undefined : styles.hordeFieldDisabled}
+              className={
+                draft.hordeEnabled ? undefined : styles.hordeFieldDisabled
+              }
               onChange={(value) => onChange(field, value)}
             />
           ))}

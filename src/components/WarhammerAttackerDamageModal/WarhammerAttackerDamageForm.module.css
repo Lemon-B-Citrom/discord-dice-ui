@@ -50,6 +50,10 @@
   margin-bottom: 0.75rem;
 }
 
+.thresholdRow:first-child {
+  margin-top: 0.75rem;
+}
+
 .thresholdRow:last-child {
   margin-bottom: 0;
 }
@@ -58,4 +62,13 @@
   .attackDetails> :last-child {
     margin-top: 1rem;
   }
+}
+
+.locationField {
+  margin-top: 0.75rem;
+  margin-bottom: 0;
+}
+
+.locationField > label {
+  display: block;
 }

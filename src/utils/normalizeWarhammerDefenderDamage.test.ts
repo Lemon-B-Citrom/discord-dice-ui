@@ -27,8 +27,7 @@ const zeroAdvancedDefenses: WarhammerAdvancedDefenses = {
 
 const validDraft = (patch: Partial<WarhammerDefenderDamageDraft> = {}) => ({
   ...EMPTY_DEFENDER_DAMAGE_DRAFT,
-  attackSummaryString: "Pen 0, Fel 0: 5, 6",
-  firstHitLocation: "Body",
+  attackSummaryString: "Pen 0, Fel 0, @body: 5 6",
   ...patch,
   // Horde mode is opt-in, so a patch that supplies Horde fields ticks the box.
   hordeEnabled:
@@ -36,17 +35,28 @@ const validDraft = (patch: Partial<WarhammerDefenderDamageDraft> = {}) => ({
     ("bonusHits" in patch || "magPer" in patch || "woundsPer" in patch),
 });
 
-test.each(["", "0", "2", String(Number.MAX_SAFE_INTEGER)])("accepts Fortitude %p without enabling Horde", (fortitude) => {
-  expect(normalizeWarhammerDefenderDamage(validDraft({ fortitude })).request).toMatchObject({
-    mode: "single", fortitude: Number(fortitude),
-  });
-});
+test.each(["", "0", "2", String(Number.MAX_SAFE_INTEGER)])(
+  "accepts Fortitude %p without enabling Horde",
+  (fortitude) => {
+    expect(
+      normalizeWarhammerDefenderDamage(validDraft({ fortitude })).request
+    ).toMatchObject({
+      mode: "single",
+      fortitude: Number(fortitude),
+    });
+  }
+);
 
-test.each(["-1", "1.5", "abc", "9007199254740992"])("rejects invalid Fortitude %p", (fortitude) => {
-  const normalized = normalizeWarhammerDefenderDamage(validDraft({ fortitude }));
-  expect(normalized.request).toBeNull();
-  expect(normalized.errors.fortitude).toBeTruthy();
-});
+test.each(["-1", "1.5", "abc", "9007199254740992"])(
+  "rejects invalid Fortitude %p",
+  (fortitude) => {
+    const normalized = normalizeWarhammerDefenderDamage(
+      validDraft({ fortitude })
+    );
+    expect(normalized.request).toBeNull();
+    expect(normalized.errors.fortitude).toBeTruthy();
+  }
+);
 
 test("distinguishes all-blank single mode from explicit-zero Horde mode", () => {
   const single = normalizeWarhammerDefenderDamage(validDraft());
@@ -67,8 +77,7 @@ test("distinguishes all-blank single mode from explicit-zero Horde mode", () => 
 test("ignores Horde fields until the Enable box is ticked", () => {
   const normalized = normalizeWarhammerDefenderDamage({
     ...EMPTY_DEFENDER_DAMAGE_DRAFT,
-    attackSummaryString: "Pen 0, Fel 0: 5, 6",
-    firstHitLocation: "Body",
+    attackSummaryString: "Pen 0, Fel 0, @body: 5 6",
     bonusHits: "3",
     magPer: "2",
     woundsPer: "-1",
@@ -85,7 +94,9 @@ test("defaults Bonus Hits to zero and rejects more bonus hits than the parsed co
   expect(blank.errors).toEqual({});
   expect(blank.request).toMatchObject({ mode: "horde", trueHits: 2 });
 
-  const incomplete = normalizeWarhammerDefenderDamage(validDraft({ bonusHits: "0" }));
+  const incomplete = normalizeWarhammerDefenderDamage(
+    validDraft({ bonusHits: "0" })
+  );
   expect(incomplete.request).toBeNull();
   expect(incomplete.errors.magPer).toBeTruthy();
 
@@ -99,7 +110,7 @@ test("defaults Bonus Hits to zero and rejects more bonus hits than the parsed co
 test("reads Devastating from the parsed summary and defaults it to zero when absent", () => {
   const withDevastating = normalizeWarhammerDefenderDamage(
     validDraft({
-      attackSummaryString: "Pen 0, Dev 3: 5, 6",
+      attackSummaryString: "Pen 0, Dev 3, @body: 5 6",
       bonusHits: "1",
       magPer: "2",
       woundsPer: "4",
@@ -107,7 +118,13 @@ test("reads Devastating from the parsed summary and defaults it to zero when abs
   );
   expect(withDevastating.request).toMatchObject({
     mode: "horde",
-    summary: { penetration: 0, felling: 0, devastating: 3, damages: [5, 6] },
+    summary: {
+      penetration: 0,
+      felling: 0,
+      devastating: 3,
+      firstHitLocation: "Body",
+      damages: [5, 6],
+    },
   });
 
   const withoutDevastating = normalizeWarhammerDefenderDamage(
@@ -115,26 +132,35 @@ test("reads Devastating from the parsed summary and defaults it to zero when abs
   );
   expect(withoutDevastating.request).toMatchObject({
     mode: "horde",
-    summary: { penetration: 0, felling: 0, devastating: 0, damages: [5, 6] },
+    summary: {
+      penetration: 0,
+      felling: 0,
+      devastating: 0,
+      firstHitLocation: "Body",
+      damages: [5, 6],
+    },
   });
   expect(withoutDevastating.errors).toEqual({});
 });
 
 test("accepts a summary without Fel or Dev and treats both traits as zero", () => {
   const normalized = normalizeWarhammerDefenderDamage(
-    validDraft({ attackSummaryString: "Pen 4: 5, 6" })
+    validDraft({ attackSummaryString: "Pen 4, @body: 5 6" })
   );
 
   expect(normalized.request?.summary).toEqual({
     penetration: 4,
     felling: 0,
     devastating: 0,
+    firstHitLocation: "Body",
     damages: [5, 6],
   });
 });
 
 test("uses the inherited armor slots while advanced mode is off", () => {
-  const normalized = normalizeWarhammerDefenderDamage(validDraft({ armorBody: "4" }));
+  const normalized = normalizeWarhammerDefenderDamage(
+    validDraft({ armorBody: "4" })
+  );
   expect(normalized.request?.defenses).toEqual({
     mode: "simple",
     armor: {

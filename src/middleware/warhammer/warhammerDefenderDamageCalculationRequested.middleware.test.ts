@@ -19,9 +19,8 @@ const reducer = combineReducers({
 
 const draft: WarhammerDefenderDamageDraft = {
   ...EMPTY_DEFENDER_DAMAGE_DRAFT,
-  attackSummaryString: "Pen 0, Fel 0: 12, 8",
+  attackSummaryString: "Pen 0, Fel 0, @body: 12 8",
   toughnessBonus: "2",
-  firstHitLocation: "Head",
 };
 
 test("converts a calculation throw into a form error and keeps the draft", () => {
@@ -30,7 +29,9 @@ test("converts a calculation throw into a form error and keeps the draft", () =>
   });
   const store = createStore(
     reducer,
-    applyMiddleware(createWarhammerDefenderDamageCalculationRequestedMiddleware(calculate))
+    applyMiddleware(
+      createWarhammerDefenderDamageCalculationRequestedMiddleware(calculate)
+    )
   );
 
   store.dispatch(requestWarhammerDefenderDamage(draft));
@@ -41,20 +42,25 @@ test("converts a calculation throw into a form error and keeps the draft", () =>
     form: "Test calculation failure",
   });
   expect(store.getState().warhammerDefenderDamage.results).toBeNull();
-  expect(store.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen).toBe(
-    false
-  );
+  expect(
+    store.getState().modalsState.isWarhammerDefenderDamageResultsModalOpen
+  ).toBe(false);
 });
 
 test("rejects an invalid direct request before calling the calculation", () => {
   const calculate = jest.fn();
   const store = createStore(
     reducer,
-    applyMiddleware(createWarhammerDefenderDamageCalculationRequestedMiddleware(calculate))
+    applyMiddleware(
+      createWarhammerDefenderDamageCalculationRequestedMiddleware(calculate)
+    )
   );
 
   store.dispatch(
-    requestWarhammerDefenderDamage({ ...draft, attackSummaryString: "not a summary" })
+    requestWarhammerDefenderDamage({
+      ...draft,
+      attackSummaryString: "not a summary",
+    })
   );
 
   expect(calculate).not.toHaveBeenCalled();
@@ -67,7 +73,9 @@ test("rejects an invalid direct request before calling the calculation", () => {
 test("forwards unrelated actions exactly once", () => {
   const store = createStore(
     reducer,
-    applyMiddleware(createWarhammerDefenderDamageCalculationRequestedMiddleware())
+    applyMiddleware(
+      createWarhammerDefenderDamageCalculationRequestedMiddleware()
+    )
   );
 
   store.dispatch({ type: "UNRELATED" });

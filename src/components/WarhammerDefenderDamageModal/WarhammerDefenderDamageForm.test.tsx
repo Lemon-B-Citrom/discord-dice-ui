@@ -51,7 +51,11 @@ test("blocks invalid submission and associates the summary error with its input"
     { ...EMPTY_DEFENDER_DAMAGE_DRAFT },
     onCalculate
   );
-  fireEvent.submit(getByPlaceholderText("Attack summary string").closest("form") as HTMLFormElement);
+  fireEvent.submit(
+    getByPlaceholderText("Attack summary string").closest(
+      "form"
+    ) as HTMLFormElement
+  );
 
   const summary = getByPlaceholderText("Attack summary string");
   expect(onCalculate).not.toHaveBeenCalled();
@@ -60,18 +64,21 @@ test("blocks invalid submission and associates the summary error with its input"
     "aria-describedby",
     "defender-damage-attack-summary-error"
   );
-  expect(getByText(/Use the format: Pen X/)).toBeInTheDocument();
+  expect(getByText(/first hit location/)).toBeInTheDocument();
 });
 
 test("passes a valid raw draft to calculation", () => {
   const onCalculate = jest.fn();
   const draft = {
     ...EMPTY_DEFENDER_DAMAGE_DRAFT,
-    attackSummaryString: "Pen 0, Fel 0: 12",
-    firstHitLocation: "Head",
+    attackSummaryString: "Pen 0, Fel 0, @body: 12",
   };
   const { getByPlaceholderText } = renderForm(draft, onCalculate);
-  fireEvent.submit(getByPlaceholderText("Attack summary string").closest("form") as HTMLFormElement);
+  fireEvent.submit(
+    getByPlaceholderText("Attack summary string").closest(
+      "form"
+    ) as HTMLFormElement
+  );
   expect(onCalculate).toHaveBeenCalledWith(draft);
 });
 
@@ -102,7 +109,8 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
   ];
   order.slice(1).forEach((field, index) => {
     expect(
-      order[index].compareDocumentPosition(field) & Node.DOCUMENT_POSITION_FOLLOWING
+      order[index].compareDocumentPosition(field) &
+        Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
   });
 
@@ -124,25 +132,68 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
   });
 });
 
-test("places Fortitude between Toughness and the location selector and forwards edits", () => {
+test("places Fortitude after Toughness and has no first-location selector", () => {
   const onChange = jest.fn();
-  const { getByLabelText } = render(<WarhammerDefenderDamageForm draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }} errors={{}} onChange={onChange} onCalculate={jest.fn()} />);
+  const { getByLabelText } = render(
+    <WarhammerDefenderDamageForm
+      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT }}
+      errors={{}}
+      onChange={onChange}
+      onCalculate={jest.fn()}
+    />
+  );
   const toughness = getByLabelText("Toughness Bonus");
   const fortitude = getByLabelText("Fortitude #");
-  const location = getByLabelText("First Hit Location");
-  expect(toughness.compareDocumentPosition(fortitude) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  expect(fortitude.compareDocumentPosition(location) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(
+    toughness.compareDocumentPosition(fortitude) &
+      Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy();
+  expect(() => getByLabelText("First Hit Location")).toThrow();
   fireEvent.change(fortitude, { target: { value: "3" } });
   expect(onChange).toHaveBeenCalledWith("fortitude", "3");
 });
 
 test("blocks invalid Fortitude and associates its error with the input", () => {
   const onCalculate = jest.fn();
-  const { getByLabelText, getByPlaceholderText } = renderForm({ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, Fel 0: 12,", firstHitLocation: "Body", fortitude: "1.5" }, onCalculate);
-  fireEvent.submit(getByPlaceholderText("Attack summary string").closest("form") as HTMLFormElement);
+  const { getByLabelText, getByPlaceholderText } = renderForm(
+    {
+      ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+      attackSummaryString: "Pen 0, Fel 0, @body: 12 ",
+      fortitude: "1.5",
+    },
+    onCalculate
+  );
+  fireEvent.submit(
+    getByPlaceholderText("Attack summary string").closest(
+      "form"
+    ) as HTMLFormElement
+  );
   expect(onCalculate).not.toHaveBeenCalled();
   expect(getByLabelText("Fortitude #")).toHaveAttribute("aria-invalid", "true");
-  expect(getByLabelText("Fortitude #")).toHaveAttribute("aria-describedby", "defender-damage-fortitude-error");
+  expect(getByLabelText("Fortitude #")).toHaveAttribute(
+    "aria-describedby",
+    "defender-damage-fortitude-error"
+  );
+});
+
+test("requires the location token in the summary and associates the error with Input", () => {
+  const onCalculate = jest.fn();
+  const { getByLabelText, getByPlaceholderText, getByText } = renderForm(
+    {
+      ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+      attackSummaryString: "Pen 0: 12",
+    },
+    onCalculate
+  );
+  const input = getByPlaceholderText("Attack summary string");
+  fireEvent.submit(input.closest("form") as HTMLFormElement);
+  expect(onCalculate).not.toHaveBeenCalled();
+  expect(getByLabelText("Input")).toHaveAttribute("aria-invalid", "true");
+  expect(input).toHaveAttribute(
+    "aria-describedby",
+    "defender-damage-attack-summary-error"
+  );
+  expect(getByText(/@head, @body, @larm/)).toBeInTheDocument();
 });
 
 const ARMOR_LABELS = ["AP Head", "AP Body", "AP Arms", "AP Legs"];
@@ -215,8 +266,7 @@ test("blocks the calculation and points at the advanced values", () => {
   const { getByText, getByPlaceholderText } = renderForm(
     {
       ...EMPTY_DEFENDER_DAMAGE_DRAFT,
-      attackSummaryString: "Pen 0, Fel 0: 12",
-      firstHitLocation: "Body",
+      attackSummaryString: "Pen 0, Fel 0, @body: 12",
       advancedEnabled: true,
       advancedArmorHead: "1.5",
     },
@@ -224,7 +274,9 @@ test("blocks the calculation and points at the advanced values", () => {
   );
 
   fireEvent.submit(
-    getByPlaceholderText("Attack summary string").closest("form") as HTMLFormElement
+    getByPlaceholderText("Attack summary string").closest(
+      "form"
+    ) as HTMLFormElement
   );
   expect(onCalculate).not.toHaveBeenCalled();
   expect(
