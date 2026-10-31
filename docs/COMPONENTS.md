@@ -58,7 +58,7 @@ Use the state pattern that the feature already uses. Do not introduce a generic 
 
 ## Testing and styling
 
-The project uses React 16 and [`@testing-library/react`](../package.json:17) 9.3.2. That release returns query functions from `render`; it does not provide the newer screen API. The project does not install redux-mock-store. Follow the existing test setup in [`setupTests`](../src/setupTests.ts) and tests. For a simple component test, import React when using JSX and destructure the query from `render`:
+The project uses React 16 and [`@testing-library/react`](../package.json:17) 9.3.2. That release returns query functions from `render`; it does not provide the newer screen API. The project does not install redux-mock-store. Follow the existing test setup in [`setupTests`](../tests/setupTests.ts) and tests under [`tests/components/`](../tests/components). For a simple component test, import React when using JSX and destructure the query from `render`:
 
 ```tsx
 import React from "react";

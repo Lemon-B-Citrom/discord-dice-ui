@@ -42,9 +42,9 @@
   "scripts": {
     "prettier": "prettier --write .",
     "dev": "node scripts/react-scripts-wrapper.js start",
-    "start": "serve -s build",
+    "start": "serve -s build -l 5000",
     "build": "node scripts/react-scripts-wrapper.js build",
-    "test": "react-scripts test --env=jsdom",
+    "test": "react-scripts test --env=jsdom --roots src tests --testMatch \"<rootDir>/tests/**/__tests__/**/*.{js,jsx,ts,tsx}\" \"<rootDir>/tests/**/*.{spec,test}.{js,jsx,ts,tsx}\" --setupFilesAfterEnv \"<rootDir>/tests/setupTests.ts\"",
     "eject": "react-scripts eject",
     "heroku-postbuild": "npm run build"
   },

@@ -61,7 +61,7 @@ Use browser React DevTools to inspect components and their props/state. Redux De
 
 ## Testing
 
-Run the test suite interactively with `npm test`, or once without watch mode with:
+Keep automated tests under [`tests/`](../tests), mirroring their related paths under `src/`. Run the test suite interactively with `npm test`, or once without watch mode with:
 
 ```bash
 npm test -- --watchAll=false
@@ -80,7 +80,7 @@ test("handles a click", () => {
 });
 ```
 
-Use the query and render APIs available in the installed Testing Library version; do not assume `screen` or `redux-mock-store` is available. The scaffold in [`src/App.test.tsx`](../src/App.test.tsx) is stale: it expects the removed Create React App “learn react” content and renders `App` without the Redux Provider required by the application. Treat it as an outdated scaffold, not a working app-level example; this guide does not modify it.
+Use the query and render APIs available in the installed Testing Library version; do not assume `screen` or `redux-mock-store` is available. The app-level example is in [`tests/App.test.tsx`](../tests/App.test.tsx); keep production imports pointed into `src/` when adding tests.
 
 ## Code style and useful commands
 
