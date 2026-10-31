@@ -74,8 +74,9 @@ test.each(Array.from({ length: 16 }, (_, mask) => mask))(
       {}
     );
     const result = resolve(patch);
-    const suppliedCount = fields.filter((_, index) => (mask & (1 << index)) !== 0)
-      .length;
+    const suppliedCount = fields.filter(
+      (_, index) => (mask & (1 << index)) !== 0
+    ).length;
     const bodySupplied = (mask & (1 << 1)) !== 0;
     const valid =
       suppliedCount === 0 ||
@@ -88,7 +89,11 @@ test.each(Array.from({ length: 16 }, (_, mask) => mask))(
 );
 
 test("rejects incomplete layouts after two other parts and malformed supplied values", () => {
-  const incomplete = resolve({ armorBody: "4", armorArms: "2", armorHead: "1" });
+  const incomplete = resolve({
+    armorBody: "4",
+    armorArms: "2",
+    armorHead: "1",
+  });
   expect(incomplete.armor).toBeNull();
   expect(incomplete.errors.armorLegs).toBeTruthy();
 

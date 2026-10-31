@@ -70,13 +70,13 @@ npm test -- --watchAll=false
 The project uses React Testing Library 9 and Jest. JSX examples must import React for the configured classic JSX transform:
 
 ```tsx
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import MyComponent from './MyComponent';
+import React from "react";
+import { render, fireEvent } from "@testing-library/react";
+import MyComponent from "./MyComponent";
 
-test('handles a click', () => {
+test("handles a click", () => {
   const { getByText } = render(<MyComponent />);
-  fireEvent.click(getByText('Click Me'));
+  fireEvent.click(getByText("Click Me"));
 });
 ```
 

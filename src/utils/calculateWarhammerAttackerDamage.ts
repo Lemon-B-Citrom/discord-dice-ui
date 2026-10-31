@@ -24,7 +24,9 @@ const randomDiceSource: WarhammerAttackerDamageDiceSource = {
 
 export class WarhammerAttackerDamageCalculationLimitError extends Error {
   constructor() {
-    super("Righteous Fury exceeded the roll limit. Please check RF On and confirmation settings.");
+    super(
+      "Righteous Fury exceeded the roll limit. Please check RF On and confirmation settings."
+    );
     this.name = "WarhammerAttackerDamageCalculationLimitError";
   }
 }

@@ -3,18 +3,13 @@ import {
   WarhammerAttackerDamageResult,
 } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import {
-  EMBED_FIELD_VALUE_MAX,
-  EMBED_TOTAL_MAX,
-} from "../consts/discordEmbed";
+import { EMBED_FIELD_VALUE_MAX, EMBED_TOTAL_MAX } from "../consts/discordEmbed";
 import chunkEmbedRows, {
   chunkTextForEmbed,
   EmbedField,
   fitsInOneEmbed,
 } from "./embedFields";
-import {
-  getWarhammerAttackerDamageSummaryFragments,
-} from "./formatWarhammerAttackerDamageSummary";
+import { getWarhammerAttackerDamageSummaryFragments } from "./formatWarhammerAttackerDamageSummary";
 import { getColor } from "./getColor";
 import orderWarhammerAttackerDamageAttempts from "./orderWarhammerAttackerDamageAttempts";
 import projectWarhammerAttackerDamageSummary from "./projectWarhammerAttackerDamageSummary";
@@ -209,7 +204,9 @@ export default function getWarhammerAttackerDamageRequestMsg(
   ].filter(Boolean);
   const furySettings = getFurySettings(input);
   const description = [
-    `:crossed_swords: ${profile.join(" · ")} · :mens: Starting at ${input.firstHitLocation}`,
+    `:crossed_swords: ${profile.join(" · ")} · :mens: Starting at ${
+      input.firstHitLocation
+    }`,
     furySettings ? `:drop_of_blood: ${furySettings}` : "",
   ]
     .filter(Boolean)

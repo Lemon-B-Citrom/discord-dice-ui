@@ -121,9 +121,7 @@ function WarhammerAttackerDamageProfileFields({
           ))}
         </fieldset>
         <fieldset className={styles.locationField}>
-          <legend className={styles.locationHeading}>
-            First Hit Location
-          </legend>
+          <legend className={styles.locationHeading}>First Hit Location</legend>
           <Row>
             <Col xs={6} className={styles.humanoidLocationColumn}>
               <FirstHitLocationSelect
@@ -145,9 +143,7 @@ function WarhammerAttackerDamageProfileFields({
                 isInvalid={Boolean(locationError)}
                 aria-describedby={locationErrorId}
                 onChange={(event) =>
-                  onLocationChange(
-                    event.target.value as VehicleDamageLocation
-                  )
+                  onLocationChange(event.target.value as VehicleDamageLocation)
                 }
               >
                 {!vehicleLocation && (

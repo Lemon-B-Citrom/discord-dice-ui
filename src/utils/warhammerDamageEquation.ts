@@ -60,7 +60,8 @@ const toughnessTokens = (
   request: WarhammerHumanoidDamageRequest
 ): EquationToken[] => {
   const term = getWarhammerToughnessTerm(entry, request);
-  const { fortitudeApplied, advanced, beforeFelling, felling, effective } = term;
+  const { fortitudeApplied, advanced, beforeFelling, felling, effective } =
+    term;
   const reduced = term.reduced
     ? subtraction(felling, term.fellingExceedsBase, effective)
     : [text(" = "), code(effective)];
@@ -90,7 +91,10 @@ const toughnessTokens = (
   }
 
   return term.reduced
-    ? [code(beforeFelling), ...subtraction(felling, term.fellingExceedsBase, effective)]
+    ? [
+        code(beforeFelling),
+        ...subtraction(felling, term.fellingExceedsBase, effective),
+      ]
     : [code(effective)];
 };
 
@@ -127,19 +131,19 @@ export function getDamageEquationTokens(
   request: WarhammerDefenderDamageRequest
 ): EquationToken[] {
   if (entry.targetFamily === "vehicle") {
-    if (request.targetFamily !== "vehicle") throw new Error("Damage entry and request targets do not match");
+    if (request.targetFamily !== "vehicle")
+      throw new Error("Damage entry and request targets do not match");
     return vehicleDamageTokens(entry);
   }
-  if (request.targetFamily !== "humanoid") throw new Error("Damage entry and request targets do not match");
+  if (request.targetFamily !== "humanoid")
+    throw new Error("Damage entry and request targets do not match");
   const armor = armorTokens(entry, request);
   return [
     ...(entry.mode === "horde" ? [text("Damage: ")] : []),
     strongCode(entry.finalDamage),
     text(" = "),
     code(entry.originalDamage),
-    ...(armor.length > 0
-      ? [text(" − Armor ("), ...armor, text(")")]
-      : []),
+    ...(armor.length > 0 ? [text(" − Armor ("), ...armor, text(")")] : []),
     text(" − Toughness ("),
     ...toughnessTokens(entry, request),
     text(")"),

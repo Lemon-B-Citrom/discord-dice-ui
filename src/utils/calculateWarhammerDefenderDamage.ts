@@ -30,7 +30,9 @@ const checkedAdd = (left: number, right: number, description: string): number =>
 const rollVehicleHitLocation = (rollD100: () => number): number => {
   const roll = rollD100();
   if (!Number.isInteger(roll) || roll < 1 || roll > 100) {
-    throw new Error("Vehicle hit-location roll must be an integer from 1 to 100");
+    throw new Error(
+      "Vehicle hit-location roll must be an integer from 1 to 100"
+    );
   }
   return roll;
 };
@@ -197,7 +199,8 @@ function calculateWarhammerDefenderDamage(
     return { request, entries, totals: { damage: totalDamage } };
   }
 
-  if (request.targetFamily !== "humanoid") throw new Error("Unsupported damage target");
+  if (request.targetFamily !== "humanoid")
+    throw new Error("Unsupported damage target");
   request.summary.damages.forEach((_damage, index) => {
     const location = getWarhammerDefenderDamageHitLocation(
       request.firstHitLocation,
@@ -214,8 +217,7 @@ function calculateWarhammerDefenderDamage(
     const fortitudeApplied =
       bonusIndex < 0
         ? index < request.fortitude
-        : Math.floor(bonusIndex / BONUS_HITS_PER_FORTITUDE) <
-          request.fortitude;
+        : Math.floor(bonusIndex / BONUS_HITS_PER_FORTITUDE) < request.fortitude;
     // A per-location Toughness add-on joins the Toughness Bonus before
     // Fortitude doubles it, so Felling erodes it and Fortitude doubles it.
     const toughnessBeforeFelling = requireSafeInteger(

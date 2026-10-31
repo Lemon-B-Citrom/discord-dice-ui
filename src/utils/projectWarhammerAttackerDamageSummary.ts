@@ -1,6 +1,4 @@
-import {
-  WarhammerAttackerDamageResult,
-} from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import { WarhammerAttackerDamageResult } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import { requireSafeInteger } from "./safeInteger";
 
@@ -33,7 +31,9 @@ export default function projectWarhammerAttackerDamageSummary(
     felling: input.felling,
     devastating: input.devastating,
     firstHitLocation: input.firstHitLocation,
-    damages: damages.map((damage) => requireSafeInteger(damage, "Damage value")),
+    damages: damages.map((damage) =>
+      requireSafeInteger(damage, "Damage value")
+    ),
     baseDamages,
   };
 }

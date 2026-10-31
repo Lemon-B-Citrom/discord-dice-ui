@@ -11,7 +11,10 @@ import parseWarhammerAttackerDamageSummary from "./parseWarhammerAttackerDamageS
 import normalizeWarhammerDefenderDamage from "./normalizeWarhammerDefenderDamage";
 import calculateWarhammerDefenderDamage from "./calculateWarhammerDefenderDamage";
 import getWarhammerDefenderDamageRequestMsg from "./getWarhammerDefenderDamageRequestMsg";
-import { formatEquationTokens, getDamageEquationTokens } from "./warhammerDamageEquation";
+import {
+  formatEquationTokens,
+  getDamageEquationTokens,
+} from "./warhammerDamageEquation";
 
 /** Normalize one vehicle draft, failing loudly on a validation error. */
 const vehicleRequest = (
@@ -65,7 +68,11 @@ describe("vehicle damage summary and calculation", () => {
     expect(normalizeWarhammerDefenderDamage(draft).errors.facing).toBe(
       "Choose a facing"
     );
-    const request = vehicleRequest({ ...draft, facing: "Side", armorSide: "4" });
+    const request = vehicleRequest({
+      ...draft,
+      facing: "Side",
+      armorSide: "4",
+    });
     expect(request.vehicleArmor).toEqual({ Front: 0, Side: 4, Rear: 0 });
   });
 
@@ -100,7 +107,15 @@ describe("vehicle damage summary and calculation", () => {
     cases.forEach(([location, facing, armorFacing]) => {
       const request = vehicleRequest(
         vehicleDraft({
-          attackSummaryString: `Pen 0, @${location === "Motive Systems" ? "motv" : location === "Hull" ? "hull" : location === "Weapons" ? "wpns" : "turr"}: 20`,
+          attackSummaryString: `Pen 0, @${
+            location === "Motive Systems"
+              ? "motv"
+              : location === "Hull"
+              ? "hull"
+              : location === "Weapons"
+              ? "wpns"
+              : "turr"
+          }: 20`,
           facing,
           armorFront: `${armor.Front}`,
           armorSide: `${armor.Side}`,
@@ -150,7 +165,10 @@ describe("vehicle damage summary and calculation", () => {
 
   it("allows repeated independent vehicle locations and rejects out-of-range injected rolls", () => {
     const request = vehicleRequest(
-      vehicleDraft({ attackSummaryString: "Pen 0, @hull: 1 1 1", facing: "Front" })
+      vehicleDraft({
+        attackSummaryString: "Pen 0, @hull: 1 1 1",
+        facing: "Front",
+      })
     );
     const draws = [50, 50];
     const result = calculateWarhammerDefenderDamage(request, () => {
@@ -161,9 +179,9 @@ describe("vehicle damage summary and calculation", () => {
       "Hull",
       "Hull",
     ]);
-    expect(() =>
-      calculateWarhammerDefenderDamage(request, () => 101)
-    ).toThrow(/integer from 1 to 100/);
+    expect(() => calculateWarhammerDefenderDamage(request, () => 101)).toThrow(
+      /integer from 1 to 100/
+    );
     expect(() =>
       calculateWarhammerDefenderDamage(request, () => undefined as any)
     ).toThrow(/integer from 1 to 100/);
@@ -171,7 +189,10 @@ describe("vehicle damage summary and calculation", () => {
 
   it("uses the full percentile boundary range for subsequent locations", () => {
     const request = vehicleRequest(
-      vehicleDraft({ attackSummaryString: "Pen 0, @hull: 1 1 1", facing: "Rear" })
+      vehicleDraft({
+        attackSummaryString: "Pen 0, @hull: 1 1 1",
+        facing: "Rear",
+      })
     );
     const rolls = [1, 100];
     const hits = vehicleHits(
@@ -310,7 +331,9 @@ describe("vehicle damage summary and calculation", () => {
   });
 
   it("moves long annotated summaries out of Discord's bounded description without splitting hits", () => {
-    const repeated = new Array(100).fill("1234567890123(1234567890122)").join(" ");
+    const repeated = new Array(100)
+      .fill("1234567890123(1234567890122)")
+      .join(" ");
     const summaryText = `Pen 0, @hull: ${repeated}`;
     const request = vehicleRequest(
       vehicleDraft({
@@ -325,9 +348,7 @@ describe("vehicle damage summary and calculation", () => {
     );
     expect(continuation.length).toBeGreaterThan(0);
     expect(
-      continuation
-        .map((field) => field.value.replace(/`/g, ""))
-        .join(" ")
+      continuation.map((field) => field.value.replace(/`/g, "")).join(" ")
     ).toContain("1234567890123(1234567890122)");
     expect(message.description.length).toBeLessThan(4096);
     expect(message.fields.length).toBeLessThanOrEqual(25);

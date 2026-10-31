@@ -22,7 +22,8 @@ function WarhammerDefenderDamageResultsModal() {
     (state: RootState) => state.warhammerDefenderDamage
   );
   const isOpen = useSelector(
-    (state: RootState) => state.modalsState.isWarhammerDefenderDamageResultsModalOpen
+    (state: RootState) =>
+      state.modalsState.isWarhammerDefenderDamageResultsModalOpen
   );
 
   if (!results) return null;

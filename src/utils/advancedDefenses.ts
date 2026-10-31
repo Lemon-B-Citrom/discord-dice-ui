@@ -70,9 +70,11 @@ export const ADVANCED_DEFENSE_BY_LOCATION: Record<
   {} as Record<DamageLocation, AdvancedDefenseFieldMap>
 );
 
-export const ADVANCED_DEFENSE_FIELD_KEYS: ReadonlyArray<AdvancedDefenseField> = ADVANCED_DEFENSE_FIELDS.reduce<
-  AdvancedDefenseField[]
->((keys, field) => keys.concat(field.armorField, field.toughnessField), []);
+export const ADVANCED_DEFENSE_FIELD_KEYS: ReadonlyArray<AdvancedDefenseField> =
+  ADVANCED_DEFENSE_FIELDS.reduce<AdvancedDefenseField[]>(
+    (keys, field) => keys.concat(field.armorField, field.toughnessField),
+    []
+  );
 
 export interface NormalizeAdvancedDefensesResult {
   defenses: WarhammerAdvancedDefenses | null;
@@ -109,16 +111,22 @@ export default function normalizeAdvancedDefenses(
   const toughnessBonus = {} as Record<DamageLocation, number>;
   let hasInvalidValue = false;
 
-  ADVANCED_DEFENSE_FIELDS.forEach(({ location, armorField, toughnessField }) => {
-    const armorValue = parseField(draft[armorField], armorField, errors);
-    const toughnessValue = parseField(draft[toughnessField], toughnessField, errors);
-    if (armorValue === null || toughnessValue === null) {
-      hasInvalidValue = true;
-      return;
+  ADVANCED_DEFENSE_FIELDS.forEach(
+    ({ location, armorField, toughnessField }) => {
+      const armorValue = parseField(draft[armorField], armorField, errors);
+      const toughnessValue = parseField(
+        draft[toughnessField],
+        toughnessField,
+        errors
+      );
+      if (armorValue === null || toughnessValue === null) {
+        hasInvalidValue = true;
+        return;
+      }
+      armor[location] = armorValue;
+      toughnessBonus[location] = toughnessValue;
     }
-    armor[location] = armorValue;
-    toughnessBonus[location] = toughnessValue;
-  });
+  );
 
   if (hasInvalidValue) return { defenses: null, errors };
   return { defenses: { armor, toughnessBonus }, errors };

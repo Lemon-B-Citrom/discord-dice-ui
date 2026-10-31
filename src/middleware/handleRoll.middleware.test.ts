@@ -25,22 +25,19 @@ test("Warhammer options include Defender Damage and launch its modal", () => {
     })
   );
 
-  const store = createStore(
-    testReducer,
-    applyMiddleware(handleRollMiddleware)
-  );
+  const store = createStore(testReducer, applyMiddleware(handleRollMiddleware));
   store.dispatch(
     submitRoll({ diceType: WARHAMMER_DEFENDER_DAMAGE, diceAmount: 1 })
   );
 
-  expect(
-    store.getState().modalsState.isWarhammerDefenderDamageModalOpen
-  ).toBe(true);
+  expect(store.getState().modalsState.isWarhammerDefenderDamageModalOpen).toBe(
+    true
+  );
 
   store.dispatch(closeWarhammerDefenderDamageModal());
-  expect(
-    store.getState().modalsState.isWarhammerDefenderDamageModalOpen
-  ).toBe(false);
+  expect(store.getState().modalsState.isWarhammerDefenderDamageModalOpen).toBe(
+    false
+  );
 });
 
 test("Warhammer options include Attacker Damage and launch its modal", () => {
@@ -52,20 +49,17 @@ test("Warhammer options include Attacker Damage and launch its modal", () => {
     })
   );
 
-  const store = createStore(
-    testReducer,
-    applyMiddleware(handleRollMiddleware)
-  );
+  const store = createStore(testReducer, applyMiddleware(handleRollMiddleware));
   store.dispatch(
     submitRoll({ diceType: WARHAMMER_ATTACKER_DAMAGE, diceAmount: 1 })
   );
 
-  expect(
-    store.getState().modalsState.isWarhammerAttackerDamageModalOpen
-  ).toBe(true);
+  expect(store.getState().modalsState.isWarhammerAttackerDamageModalOpen).toBe(
+    true
+  );
 
   store.dispatch(closeWarhammerAttackerDamageModal());
-  expect(
-    store.getState().modalsState.isWarhammerAttackerDamageModalOpen
-  ).toBe(false);
+  expect(store.getState().modalsState.isWarhammerAttackerDamageModalOpen).toBe(
+    false
+  );
 });

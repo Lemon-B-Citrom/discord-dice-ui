@@ -38,12 +38,7 @@ export default function sanitizeDiscordUsername(
 ): string {
   const tokens = Array.from(username || FALLBACK_USERNAME).map((character) => {
     const code = character.charCodeAt(0);
-    if (
-      code <= 0x1f ||
-      code === 0x7f ||
-      code === 0x2028 ||
-      code === 0x2029
-    ) {
+    if (code <= 0x1f || code === 0x7f || code === 0x2028 || code === 0x2029) {
       return " ";
     }
     if (character === "@") return "@\u200b";

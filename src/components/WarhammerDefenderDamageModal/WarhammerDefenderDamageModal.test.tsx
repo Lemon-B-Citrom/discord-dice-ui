@@ -10,7 +10,10 @@ test("renders the defender damage modal, clears the draft, and closes with the s
     <WarhammerDefenderDamageModal
       showModal
       closeWarhammerDefenderDamageModal={closeModal}
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @body: 1",
+      }}
       errors={{}}
       onChange={jest.fn()}
       onCalculate={jest.fn()}
@@ -41,7 +44,10 @@ test("keeps the advanced editor shut until the box is ticked", () => {
     <WarhammerDefenderDamageModal
       showModal
       closeWarhammerDefenderDamageModal={jest.fn()}
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @body: 1",
+      }}
       errors={{}}
       onChange={jest.fn()}
       onCalculate={jest.fn()}
@@ -90,7 +96,11 @@ test("opens the advanced editor over the modal without closing it", () => {
     <WarhammerDefenderDamageModal
       showModal
       closeWarhammerDefenderDamageModal={closeModal}
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1", advancedEnabled: true }}
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @body: 1",
+        advancedEnabled: true,
+      }}
       errors={{}}
       onChange={jest.fn()}
       onCalculate={jest.fn()}

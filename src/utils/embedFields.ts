@@ -89,7 +89,10 @@ export function fitsInOneEmbed(
   const total =
     title.length +
     description.length +
-    fields.reduce((length, field) => length + field.name.length + field.value.length, 0);
+    fields.reduce(
+      (length, field) => length + field.name.length + field.value.length,
+      0
+    );
   return (
     title.length <= EMBED_TITLE_MAX &&
     description.length <= EMBED_DESCRIPTION_MAX &&

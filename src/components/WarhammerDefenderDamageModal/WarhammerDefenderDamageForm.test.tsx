@@ -7,7 +7,10 @@ import {
 } from "./WarhammerDefenderDamageTypes";
 
 const renderForm = (
-  draft: WarhammerDefenderDamageDraft = { ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" },
+  draft: WarhammerDefenderDamageDraft = {
+    ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+    attackSummaryString: "Pen 0, @body: 1",
+  },
   onCalculate = jest.fn()
 ) =>
   render(
@@ -58,7 +61,10 @@ test("defaults to humanoid defenses without a summary and hides them for invalid
   expect(() => invalid.getByLabelText("AP Body")).toThrow();
   invalid.unmount();
 
-  const humanoid = renderForm({ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" });
+  const humanoid = renderForm({
+    ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+    attackSummaryString: "Pen 0, @body: 1",
+  });
   expect(humanoid.getByLabelText("AP Body")).toBeInTheDocument();
 });
 
@@ -144,7 +150,10 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
   const onChange = jest.fn();
   const off = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @body: 1",
+      }}
       errors={{}}
       onChange={onChange}
       onCalculate={jest.fn()}
@@ -178,7 +187,11 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
 
   const on = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1", hordeEnabled: true }}
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @body: 1",
+        hordeEnabled: true,
+      }}
       errors={{}}
       onChange={jest.fn()}
       onCalculate={jest.fn()}
@@ -194,7 +207,10 @@ test("places Fortitude after Toughness and has no first-location selector", () =
   const onChange = jest.fn();
   const { getByLabelText } = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @body: 1",
+      }}
       errors={{}}
       onChange={onChange}
       onCalculate={jest.fn()}
@@ -277,7 +293,10 @@ test("toggles advanced mode as a boolean draft field", () => {
   const onChange = jest.fn();
   const { getByRole } = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @body: 1",
+      }}
       errors={{}}
       onChange={onChange}
       onCalculate={jest.fn()}
@@ -292,7 +311,10 @@ test("opens the advanced editor from its button only once advanced is on", () =>
   const onOpenAdvanced = jest.fn();
   const off = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" }}
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @body: 1",
+      }}
       errors={{}}
       onChange={jest.fn()}
       onCalculate={jest.fn()}
@@ -307,7 +329,11 @@ test("opens the advanced editor from its button only once advanced is on", () =>
 
   const on = render(
     <WarhammerDefenderDamageForm
-      draft={{ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1", advancedEnabled: true }}
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @body: 1",
+        advancedEnabled: true,
+      }}
       errors={{}}
       onChange={jest.fn()}
       onCalculate={jest.fn()}

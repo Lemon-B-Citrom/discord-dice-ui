@@ -19,7 +19,12 @@ export default (store: any) => (next: any) => (action: any) => {
       const diceTypeNum = getDieNumberVal(diceType);
       const diceAmount: number = pool[diceType];
       const { preserveDiceOrder } = diceModuleOptionsStore.getState();
-      const resultsArray = getResultsArray(diceTypeNum, diceAmount, undefined, !preserveDiceOrder);
+      const resultsArray = getResultsArray(
+        diceTypeNum,
+        diceAmount,
+        undefined,
+        !preserveDiceOrder
+      );
       if (resultsArray.length) {
         const mappedResults = resultsArray.map((value: number) => {
           return mapValueToNarrative(diceType, value);

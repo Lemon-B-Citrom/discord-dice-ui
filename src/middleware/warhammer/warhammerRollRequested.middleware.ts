@@ -36,7 +36,8 @@ export default (store: any) => (next: any) => (action: any) => {
 
     if (useDarkHeresySL || useOnlyWarSL) {
       const humanHitLocation = getDarkHeresyIIHitLocation(resultReversed);
-      const vehicleHitLocation = LiberImperiumVehicleHitLocation(resultReversed);
+      const vehicleHitLocation =
+        LiberImperiumVehicleHitLocation(resultReversed);
       hitLocation = `${humanHitLocation} / ${vehicleHitLocation}`;
     } else if (useWarhammer2eSL) {
       hitLocation = getWarhammer2eHitLocation(resultReversed);

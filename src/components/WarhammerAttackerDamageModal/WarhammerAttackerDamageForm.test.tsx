@@ -56,8 +56,12 @@ test.each(["Head", "Body", "Left Arm", "Right Arm", "Left Leg", "Right Leg"])(
     );
     fireEvent.click(getByRole("button", { name: "Humanoid" }));
     fireEvent.click(getByRole("menuitemradio", { name: location }));
-    expect(getByRole("button", { name: `First Hit Location: ${location}` })).toHaveClass("locationControlActive");
-    expect(container.querySelector("#attacker-damage-vehicle-hit-location")).not.toHaveClass("locationControlActive");
+    expect(
+      getByRole("button", { name: `First Hit Location: ${location}` })
+    ).toHaveClass("locationControlActive");
+    expect(
+      container.querySelector("#attacker-damage-vehicle-hit-location")
+    ).not.toHaveClass("locationControlActive");
     fireEvent.submit(container.querySelector("form") as HTMLFormElement);
     expect(onRollSpy).toHaveBeenCalledWith(
       expect.objectContaining({ firstHitLocation: location })
@@ -69,13 +73,28 @@ test.each(["Motive Systems", "Hull", "Weapons", "Turret"])(
   "submits vehicle location %s and replaces the Humanoid selection",
   (location) => {
     const onRollSpy = jest.fn();
-    const { container } = render(<WarhammerAttackerDamageForm onRoll={onRollSpy} />);
-    fireEvent.change(container.querySelector("#attacker-damage-vehicle-hit-location") as HTMLSelectElement, { target: { value: location } });
-    expect(container.querySelector("#attacker-damage-vehicle-hit-location")).toHaveClass("locationControlActive");
-    expect(container.querySelector("#attacker-damage-first-hit-location")).not.toHaveClass("locationControlActive");
+    const { container } = render(
+      <WarhammerAttackerDamageForm onRoll={onRollSpy} />
+    );
+    fireEvent.change(
+      container.querySelector(
+        "#attacker-damage-vehicle-hit-location"
+      ) as HTMLSelectElement,
+      { target: { value: location } }
+    );
+    expect(
+      container.querySelector("#attacker-damage-vehicle-hit-location")
+    ).toHaveClass("locationControlActive");
+    expect(
+      container.querySelector("#attacker-damage-first-hit-location")
+    ).not.toHaveClass("locationControlActive");
     fireEvent.submit(container.querySelector("form") as HTMLFormElement);
-    expect(onRollSpy).toHaveBeenCalledWith(expect.objectContaining({ firstHitLocation: location }));
-    expect(container.querySelector("#attacker-damage-first-hit-location")).not.toHaveTextContent(location);
+    expect(onRollSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ firstHitLocation: location })
+    );
+    expect(
+      container.querySelector("#attacker-damage-first-hit-location")
+    ).not.toHaveTextContent(location);
   }
 );
 
@@ -91,7 +110,9 @@ test("switches the selected location from vehicle to humanoid and back", () => {
   fireEvent.click(getByRole("button", { name: "Humanoid" }));
   fireEvent.click(getByRole("menuitemradio", { name: "Left Leg" }));
   expect(vehicle.value).toBe("");
-  expect(vehicle.querySelector('option[value=""]')).toHaveTextContent("Vehicle");
+  expect(vehicle.querySelector('option[value=""]')).toHaveTextContent(
+    "Vehicle"
+  );
   fireEvent.change(vehicle, { target: { value: "Turret" } });
   expect(getByRole("button", { name: "Humanoid" })).toBeInTheDocument();
   expect(vehicle.value).toBe("Turret");

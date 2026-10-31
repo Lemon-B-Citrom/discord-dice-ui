@@ -111,16 +111,16 @@ function FirstHitLocationSelect({
         ref={toggleRef}
         id="attacker-damage-first-hit-location"
         variant={value ? "primary" : "outline-secondary"}
-        aria-label={
-          value ? `First Hit Location: ${value}` : emptyCaption
-        }
+        aria-label={value ? `First Hit Location: ${value}` : emptyCaption}
         aria-haspopup="menu"
         aria-controls="attacker-damage-first-hit-location-menu"
         aria-expanded={open}
         aria-describedby={ariaDescribedBy}
         aria-invalid={Boolean(ariaDescribedBy)}
         onKeyDown={handleToggleKeyDown}
-        className={`${styles.toggle} ${formStyles.locationControl} ${value ? formStyles.locationControlActive : ""} ${ariaDescribedBy ? "border-danger" : ""}`}
+        className={`${styles.toggle} ${formStyles.locationControl} ${
+          value ? formStyles.locationControlActive : ""
+        } ${ariaDescribedBy ? "border-danger" : ""}`}
       >
         {value || emptyCaption}
       </Dropdown.Toggle>

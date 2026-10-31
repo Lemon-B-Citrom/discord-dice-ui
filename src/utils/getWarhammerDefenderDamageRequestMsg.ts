@@ -40,7 +40,9 @@ export interface WarhammerDefenderDamageRequestMsg {
 const INVALID_RESULT = "Invalid Warhammer damage result";
 
 const omittedNotice = (first: number, last: number, count: number) =>
-  `Hits #${first}–#${last} (${count} hit${count === 1 ? "" : "s"}) omitted. Totals include all hits; full breakdown is available in the app.`;
+  `Hits #${first}–#${last} (${count} hit${
+    count === 1 ? "" : "s"
+  }) omitted. Totals include all hits; full breakdown is available in the app.`;
 const DETAILS_OMITTED_NOTICE =
   "Equations shortened; full breakdown is available in the app.";
 const SUMMARY_DESCRIPTION_LIMIT = 2000;
@@ -53,7 +55,10 @@ const assertSafeIntegers = (values: ReadonlyArray<number>): void => {
 function assertDefenses(defenses: WarhammerDefenderDefenses): void {
   if (defenses.mode === "advanced") {
     DAMAGE_LOCATIONS.forEach((location) => {
-      assertSafeIntegers([defenses.armor[location], defenses.toughnessBonus[location]]);
+      assertSafeIntegers([
+        defenses.armor[location],
+        defenses.toughnessBonus[location],
+      ]);
     });
     return;
   }
@@ -103,14 +108,20 @@ function formatHit(
     };
   }
 
-  assertSafeIntegers([entry.baseMagnitude, entry.devastatingAdded, entry.magnitude]);
+  assertSafeIntegers([
+    entry.baseMagnitude,
+    entry.devastatingAdded,
+    entry.magnitude,
+  ]);
   const classification = getHordeClassificationLabel(entry.classification);
   const magnitudeEquation = formatEquationTokens(
     getMagnitudeEquationTokens(entry)
   );
   const essential = `${heading}${
     classification ? ` **${classification}**` : ""
-  } **${entry.finalDamage}** Damage, **${entry.magnitude}** Magnitude\n${location}`;
+  } **${entry.finalDamage}** Damage, **${
+    entry.magnitude
+  }** Magnitude\n${location}`;
   return {
     essential,
     row: `${essential}\n${damageEquation}\n${magnitudeEquation}`,
@@ -129,7 +140,10 @@ function assertHitNumbers(entry: WarhammerDefenderDamageHit): void {
     entry.finalDamage,
   ]);
   if (entry.targetFamily === "humanoid") {
-    assertSafeIntegers([entry.effectiveToughnessBonus, entry.toughnessBeforeFelling]);
+    assertSafeIntegers([
+      entry.effectiveToughnessBonus,
+      entry.toughnessBeforeFelling,
+    ]);
   } else {
     assertSafeIntegers([entry.baseDamage, entry.righteousFuryExtra]);
   }
@@ -138,7 +152,10 @@ function assertHitNumbers(entry: WarhammerDefenderDamageHit): void {
   }
 }
 
-function getContext(result: WarhammerDefenderDamageResult, includeSummary: boolean): string {
+function getContext(
+  result: WarhammerDefenderDamageResult,
+  includeSummary: boolean
+): string {
   const request = result.request;
   // Derive the summary from the validated request so the embed always matches
   // the numbers that are shown, independent of the raw draft text.
@@ -152,7 +169,9 @@ function getContext(result: WarhammerDefenderDamageResult, includeSummary: boole
     assertSafeIntegers([request.trueHits, request.magPer, request.woundsPer]);
   }
   return [
-    `:dart: ${request.mode === "horde" ? "Horde" : "Single target"} x${hitCount}${hitBreakdown}${includeSummary ? `: \`${summary}\`` : ""}`,
+    `:dart: ${
+      request.mode === "horde" ? "Horde" : "Single target"
+    } x${hitCount}${hitBreakdown}${includeSummary ? `: \`${summary}\`` : ""}`,
     request.targetFamily === "vehicle"
       ? `:mens: Starting at ${request.firstHitLocation} · Facing ${request.vehicleFacing}`
       : `:mens: Starting at ${request.firstHitLocation}`,
@@ -165,7 +184,11 @@ function getTotalsField(
   assertSafeIntegers([result.totals.damage]);
   const rows = [`Total Damage: ${result.totals.damage}`];
   if (result.request.mode === "horde") {
-    const { magnitude = 0, killCount = 0, killCountUnavailable } = result.totals;
+    const {
+      magnitude = 0,
+      killCount = 0,
+      killCountUnavailable,
+    } = result.totals;
     assertSafeIntegers([magnitude]);
     rows.push(`Total Magnitude: ${magnitude}`);
     if (!killCountUnavailable) assertSafeIntegers([killCount]);
@@ -210,7 +233,8 @@ export default function getWarhammerDefenderDamageRequestMsg(
         getWarhammerAttackerDamageSummaryFragments(request.summary),
         EMBED_FIELD_VALUE_MAX - 2
       ).map((value, index) => ({
-        name: index === 0 ? ":boom: Attack Summary" : "Attack Summary (continued)",
+        name:
+          index === 0 ? ":boom: Attack Summary" : "Attack Summary (continued)",
         value: `\`${value}\``,
       }))
     : [];

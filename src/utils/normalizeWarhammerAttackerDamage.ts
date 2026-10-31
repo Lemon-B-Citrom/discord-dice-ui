@@ -4,10 +4,7 @@ import {
   WarhammerAttackerDamageInput,
 } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import { parseSafeInteger } from "./safeInteger";
-import {
-  isDamageLocation,
-  isVehicleDamageLocation,
-} from "./damageLocations";
+import { isDamageLocation, isVehicleDamageLocation } from "./damageLocations";
 
 export const WARHAMMER_ATTACKER_DAMAGE_DEFAULTS: Omit<
   WarhammerAttackerDamageInput,
@@ -102,7 +99,8 @@ export default function normalizeWarhammerAttackerDamage(
       >),
       alwaysConfirm: values.alwaysConfirm,
       tearing: values.tearing,
-      firstHitLocation: location as WarhammerAttackerDamageInput["firstHitLocation"],
+      firstHitLocation:
+        location as WarhammerAttackerDamageInput["firstHitLocation"],
     },
     errors,
   };

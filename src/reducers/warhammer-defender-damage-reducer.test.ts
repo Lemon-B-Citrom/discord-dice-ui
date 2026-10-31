@@ -26,7 +26,10 @@ test("Clear restores the empty advanced draft", () => {
     undefined,
     changeWarhammerDefenderDamageDraft("advancedArmorBody", "2")
   );
-  const cleared = warhammerDefenderDamage(dirty, clearWarhammerDefenderDamageDraft());
+  const cleared = warhammerDefenderDamage(
+    dirty,
+    clearWarhammerDefenderDamageDraft()
+  );
 
   expect(cleared.draft).toEqual(EMPTY_DEFENDER_DAMAGE_DRAFT);
   expect(cleared.draft.advancedEnabled).toBe(false);

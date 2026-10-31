@@ -108,7 +108,9 @@ function WarhammerDefenderDamageForm({
   const visibleErrors = { ...liveErrors, ...errors };
   const summaryErrorId = `${fieldControlIds.attackSummaryString}-error`;
   const facingErrorId = `${fieldControlIds.facing}-error`;
-  const parsedSummary = parseWarhammerAttackerDamageSummary(draft.attackSummaryString);
+  const parsedSummary = parseWarhammerAttackerDamageSummary(
+    draft.attackSummaryString
+  );
   // An untouched form defaults to humanoid defenses. Once text is entered, only
   // a successfully parsed summary selects which defense panel to show.
   const showDefenses =

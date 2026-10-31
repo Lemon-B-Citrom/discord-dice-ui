@@ -47,7 +47,9 @@ function WarhammerDefenderDamageModal({
     onChange(field, value);
     if (field !== "attackSummaryString") return;
     const parsed = parseWarhammerAttackerDamageSummary(String(value));
-    const humanoid = Boolean(parsed.summary) && !isVehicleDamageLocation(parsed.summary?.firstHitLocation || "");
+    const humanoid =
+      Boolean(parsed.summary) &&
+      !isVehicleDamageLocation(parsed.summary?.firstHitLocation || "");
     if (!humanoid) setAdvancedOpen(false);
   };
 
@@ -87,11 +89,7 @@ function WarhammerDefenderDamageModal({
           <Button variant="outline-secondary" type="button" onClick={onClear}>
             Clear
           </Button>
-          <Button
-            variant="primary"
-            type="button"
-            onClick={submitDamageForm}
-          >
+          <Button variant="primary" type="button" onClick={submitDamageForm}>
             Calculate
           </Button>
         </Modal.Footer>

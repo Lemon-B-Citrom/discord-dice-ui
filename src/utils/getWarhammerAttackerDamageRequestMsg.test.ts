@@ -357,29 +357,46 @@ test("rejects a worst-case RF-annotated summary that cannot fit one embed", () =
     selectedAttemptIndex: 1,
   }));
 
-  expect(() => getWarhammerAttackerDamageRequestMsg(
-    attack,
-    "A very long player name".repeat(20)
-  )).toThrow("Unable to fit Warhammer attack webhook message");
+  expect(() =>
+    getWarhammerAttackerDamageRequestMsg(
+      attack,
+      "A very long player name".repeat(20)
+    )
+  ).toThrow("Unable to fit Warhammer attack webhook message");
 });
 
 test("preserves all hit totals and bounds every Discord embed field for maximum-sized results", () => {
   const attack = result();
-  attack.input = { ...input, hits: 50, damageDice: 100, tearing: "tripleTearing" };
-  attack.damages = Array.from({ length: 50 }, (_, index) => 1_000_000_000 + index);
+  attack.input = {
+    ...input,
+    hits: 50,
+    damageDice: 100,
+    tearing: "tripleTearing",
+  };
+  attack.damages = Array.from(
+    { length: 50 },
+    (_, index) => 1_000_000_000 + index
+  );
   attack.hitDetails = attack.damages.map((damage) => ({
-    attempts: [0, 1, 2].map(() => ({ baseRolls: [], righteousFuryRolls: [1], damage })),
+    attempts: [0, 1, 2].map(() => ({
+      baseRolls: [],
+      righteousFuryRolls: [1],
+      damage,
+    })),
     selectedAttemptIndex: 1,
   }));
   const message = getWarhammerAttackerDamageRequestMsg(attack, "Alex");
   const summaryFragments = message.fields
-    .filter(({ name }) => name === ":boom: Summary" || name === "Summary (continued)")
+    .filter(
+      ({ name }) => name === ":boom: Summary" || name === "Summary (continued)"
+    )
     .map(({ value }) => value.slice(1, -1));
   const reconstructedSummary = summaryFragments.join(" ");
   expect(summaryFragments.length).toBeGreaterThan(1);
   expect(summaryFragments.slice(1).length).toBeGreaterThan(0);
   expect(reconstructedSummary.length).toBeGreaterThan(1022);
-  const parsedSummary = parseWarhammerAttackerDamageSummary(reconstructedSummary);
+  const parsedSummary =
+    parseWarhammerAttackerDamageSummary(reconstructedSummary);
   const allHitValues = message.fields
     .filter(({ name }) => name.startsWith("Damage"))
     .map(({ value }) => value)

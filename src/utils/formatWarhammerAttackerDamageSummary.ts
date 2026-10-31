@@ -46,7 +46,10 @@ export function formatWarhammerAttackerDamageHit(
 export function getWarhammerAttackerDamageSummaryFragments(
   summary: WarhammerAttackerDamageSummary
 ): ReadonlyArray<string> {
-  if (summary.baseDamages && summary.baseDamages.length !== summary.damages.length) {
+  if (
+    summary.baseDamages &&
+    summary.baseDamages.length !== summary.damages.length
+  ) {
     throw new Error("Invalid Righteous Fury base damage metadata");
   }
   return [

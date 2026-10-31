@@ -22,7 +22,9 @@ const renderModal = (
     />
   );
 
-const ARMOR_LABELS = ADVANCED_DEFENSE_FIELDS.map((field) => `Armor ${field.label}`);
+const ARMOR_LABELS = ADVANCED_DEFENSE_FIELDS.map(
+  (field) => `Armor ${field.label}`
+);
 const TOUGHNESS_LABELS = ADVANCED_DEFENSE_FIELDS.map(
   (field) => `+Toughness ${field.label}`
 );
@@ -33,7 +35,9 @@ test("shows both centered halves with their summary text and twelve zeroed field
   expect(getByText("Armor")).toBeInTheDocument();
   expect(getByText("+Toughness")).toBeInTheDocument();
   expect(getByText("Sets armor for specific bodyparts")).toBeInTheDocument();
-  expect(getByText("Adds to base TB for specific bodyparts")).toBeInTheDocument();
+  expect(
+    getByText("Adds to base TB for specific bodyparts")
+  ).toBeInTheDocument();
   [...ARMOR_LABELS, ...TOUGHNESS_LABELS].forEach((label) => {
     const input = getByLabelText(label) as HTMLInputElement;
     expect(input).toHaveAttribute("type", "number");
@@ -74,7 +78,11 @@ test("lays the body out in centred rows with one width for every field", () => {
 
 test("reports an invalid override and blocks Confirm", () => {
   const onClose = jest.fn();
-  const { getByText, getByRole } = renderModal({ advancedArmorBody: "1.5" }, jest.fn(), onClose);
+  const { getByText, getByRole } = renderModal(
+    { advancedArmorBody: "1.5" },
+    jest.fn(),
+    onClose
+  );
 
   expect(getByText(NON_NEGATIVE_INTEGER_ERROR)).toBeInTheDocument();
   fireEvent.click(getByRole("button", { name: "Confirm" }));
@@ -88,7 +96,9 @@ test("forwards each edit under its own draft field", () => {
   fireEvent.change(getByLabelText("Armor R. Leg"), { target: { value: "4" } });
   expect(onChange).toHaveBeenCalledWith("advancedArmorRightLeg", "4");
 
-  fireEvent.change(getByLabelText("+Toughness Head"), { target: { value: "2" } });
+  fireEvent.change(getByLabelText("+Toughness Head"), {
+    target: { value: "2" },
+  });
   expect(onChange).toHaveBeenCalledWith("advancedToughnessHead", "2");
 });
 
@@ -112,7 +122,11 @@ test("Clear empties all twelve overrides", () => {
 
 test("Confirm closes the editor and keeps the values", () => {
   const onClose = jest.fn();
-  const { getByRole } = renderModal({ advancedArmorHead: "4" }, jest.fn(), onClose);
+  const { getByRole } = renderModal(
+    { advancedArmorHead: "4" },
+    jest.fn(),
+    onClose
+  );
 
   fireEvent.click(getByRole("button", { name: "Confirm" }));
   expect(onClose).toHaveBeenCalledTimes(1);

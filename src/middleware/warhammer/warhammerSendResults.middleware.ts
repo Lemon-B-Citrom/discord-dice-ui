@@ -15,10 +15,10 @@ export default (store: any) => (next: any) => (action: any) => {
 
     const { SL, isSuccess, isAutoSuccess, isDouble } = successLevels;
 
-    const useFastSL = (slType === sl.fast);
-    const useDarkHeresySL = (slType === sl.dh);
-    const useOnlyWarSL = (slType === sl.ow);
-    const useWarhammer2eSL = (slType === sl.wfrp2e);
+    const useFastSL = slType === sl.fast;
+    const useDarkHeresySL = slType === sl.dh;
+    const useOnlyWarSL = slType === sl.ow;
+    const useWarhammer2eSL = slType === sl.wfrp2e;
 
     const msgTitle = `${username} rolled **\`1d100\`**. Result: \`${result}\`.`;
     const fields = [];
@@ -62,7 +62,7 @@ export default (store: any) => (next: any) => (action: any) => {
     });
 
     let slWord = "Success Level";
-    let slString = ((SL > 0) ? `+${SL}` : `${SL}`);
+    let slString = SL > 0 ? `+${SL}` : `${SL}`;
 
     if (useDarkHeresySL || useOnlyWarSL || useWarhammer2eSL) {
       slString = `${Math.abs(SL)}`;

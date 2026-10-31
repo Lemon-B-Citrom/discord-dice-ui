@@ -94,7 +94,9 @@ export const getDamageLocationByWireToken = (
   DAMAGE_LOCATION_BY_WIRE_TOKEN[token] ||
   VEHICLE_DAMAGE_LOCATION_BY_WIRE_TOKEN[token];
 
-export const isDamageLocation = (location: string): location is DamageLocation =>
+export const isDamageLocation = (
+  location: string
+): location is DamageLocation =>
   (DAMAGE_LOCATIONS as ReadonlyArray<string>).indexOf(location) >= 0;
 
 export const isVehicleDamageLocation = (

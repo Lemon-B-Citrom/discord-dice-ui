@@ -3,7 +3,10 @@ import { applyMiddleware, createStore } from "redux";
 import { fireEvent, render } from "@testing-library/react";
 import { Provider } from "react-redux";
 import reducers from "../../reducers";
-import { failWarhammerAttackerDamage, saveWarhammerAttackerDamageResults } from "../../actions/warhammerAttackerDamage.actions";
+import {
+  failWarhammerAttackerDamage,
+  saveWarhammerAttackerDamageResults,
+} from "../../actions/warhammerAttackerDamage.actions";
 import { createWarhammerAttackerDamageRollRequestedMiddleware } from "../../middleware/warhammer/warhammerAttackerDamageRollRequested.middleware";
 import WarhammerAttackerDamageResultsModal from "./WarhammerAttackerDamageResultsModal";
 import WarhammerDefenderDamageForm from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageForm";
@@ -96,10 +99,12 @@ test("copies a vehicle attacker summary that the defender accepts as input", () 
     firstHitLocation: "Hull" as const,
   };
   const store = createStore(reducers);
-  store.dispatch(saveWarhammerAttackerDamageResults({
-    ...resultWithDamages([17]),
-    input: vehicleAttack,
-  }));
+  store.dispatch(
+    saveWarhammerAttackerDamageResults({
+      ...resultWithDamages([17]),
+      input: vehicleAttack,
+    })
+  );
   const originalClipboard = navigator.clipboard;
   const writeText = jest.fn().mockResolvedValue(undefined);
   Object.defineProperty(navigator, "clipboard", {
@@ -107,17 +112,28 @@ test("copies a vehicle attacker summary that the defender accepts as input", () 
     value: { writeText },
   });
   const { getByRole, unmount } = render(
-    <Provider store={store}><WarhammerAttackerDamageResultsModal /></Provider>
+    <Provider store={store}>
+      <WarhammerAttackerDamageResultsModal />
+    </Provider>
   );
   fireEvent.click(getByRole("button", { name: "Copy" }));
   const summary = writeText.mock.calls[0][0];
   expect(summary).toBe("Pen 3, Fel 2, @hull: 17");
   unmount();
 
-  const draft = { ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: summary, facing: "Side" };
+  const draft = {
+    ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+    attackSummaryString: summary,
+    facing: "Side",
+  };
   const onChange = jest.fn();
   const form = render(
-    <WarhammerDefenderDamageForm draft={draft} errors={{}} onChange={onChange} onCalculate={jest.fn()} />
+    <WarhammerDefenderDamageForm
+      draft={draft}
+      errors={{}}
+      onChange={onChange}
+      onCalculate={jest.fn()}
+    />
   );
   expect(form.getByLabelText("AP Front")).toBeInTheDocument();
   expect(normalizeWarhammerDefenderDamage(draft).request).toMatchObject({
@@ -133,10 +149,14 @@ test("copies a vehicle attacker summary that the defender accepts as input", () 
 
 test("shows the webhook size warning without removing local results or Copy", () => {
   const store = createStore(reducers);
-  store.dispatch(saveWarhammerAttackerDamageResults(resultWithDamages([17, 24])));
-  store.dispatch(failWarhammerAttackerDamage(
-    "The attack summary is too large to send to Discord. Local results and Copy are still available; reduce the number of hits or simplify the summary, then calculate again."
-  ));
+  store.dispatch(
+    saveWarhammerAttackerDamageResults(resultWithDamages([17, 24]))
+  );
+  store.dispatch(
+    failWarhammerAttackerDamage(
+      "The attack summary is too large to send to Discord. Local results and Copy are still available; reduce the number of hits or simplify the summary, then calculate again."
+    )
+  );
 
   const { getByRole, getByText } = render(
     <Provider store={store}>

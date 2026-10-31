@@ -5,8 +5,14 @@ import useDiceModuleFormStore, { disallowModifierFor } from "./store";
 import "./DiceModuleForm.css";
 
 function DiceModuleForm() {
-  const { mode, toggleMode, useModifier, toggleModifier, preserveDiceOrder, togglePreserveDiceOrder } =
-    useDiceModuleFormStore();
+  const {
+    mode,
+    toggleMode,
+    useModifier,
+    toggleModifier,
+    preserveDiceOrder,
+    togglePreserveDiceOrder,
+  } = useDiceModuleFormStore();
   const disableModifier = disallowModifierFor.includes(mode);
 
   return (

@@ -62,7 +62,10 @@ function AdvancedDefenseControl({
         </Button>
       </div>
       {hasError && (
-        <Form.Text className={`text-danger ${styles.advancedError}`} role="alert">
+        <Form.Text
+          className={`text-danger ${styles.advancedError}`}
+          role="alert"
+        >
           Check the Advanced armor and Toughness values
         </Form.Text>
       )}

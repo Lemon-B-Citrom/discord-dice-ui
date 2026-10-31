@@ -59,7 +59,7 @@
 }
 
 @media (max-width: 767.98px) {
-  .attackDetails> :last-child {
+  .attackDetails > :last-child {
     margin-top: 1rem;
   }
 }

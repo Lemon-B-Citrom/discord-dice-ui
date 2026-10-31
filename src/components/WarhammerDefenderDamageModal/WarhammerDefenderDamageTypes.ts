@@ -191,7 +191,9 @@ export type WarhammerHumanoidDamageRequest =
   | WarhammerDefenderSingleDamageRequest
   | WarhammerDefenderHordeDamageRequest;
 
-export interface DefenderDamageEntryBase<L extends AnyDamageLocation = AnyDamageLocation> {
+export interface DefenderDamageEntryBase<
+  L extends AnyDamageLocation = AnyDamageLocation
+> {
   kind: "hit";
   index: number;
   number: number;

@@ -8,10 +8,14 @@ test.each([
   ["Body", ["Body", "Left Leg", "Right Arm", "Body", "Right Leg", "Left Arm"]],
   ["Right Leg", ["Right Leg", "Body", "Left Leg", "Body", "Right Leg", "Body"]],
   ["Left Leg", ["Left Leg", "Body", "Right Leg", "Body", "Left Leg", "Body"]],
-] as Array<[DamageLocation, DamageLocation[]]>) (
+] as Array<[DamageLocation, DamageLocation[]]>)(
   "%s cycle repeats after six entries",
   (start, expected) => {
-    expect(expected.map((_location, index) => getWarhammerDefenderDamageHitLocation(start, index))).toEqual(expected);
+    expect(
+      expected.map((_location, index) =>
+        getWarhammerDefenderDamageHitLocation(start, index)
+      )
+    ).toEqual(expected);
     expect(getWarhammerDefenderDamageHitLocation(start, 6)).toBe(expected[0]);
     expect(getWarhammerDefenderDamageHitLocation(start, 7)).toBe(expected[1]);
   }

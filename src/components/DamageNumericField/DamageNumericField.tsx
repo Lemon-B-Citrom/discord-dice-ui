@@ -32,10 +32,7 @@ function DamageNumericField({
 }: DamageNumericFieldProps) {
   const errorId = `${id}-error`;
   const stacked = layout === "stacked";
-  const groupClassName = [
-    stacked ? styles.stacked : styles.row,
-    className,
-  ]
+  const groupClassName = [stacked ? styles.stacked : styles.row, className]
     .filter(Boolean)
     .join(" ");
   return (

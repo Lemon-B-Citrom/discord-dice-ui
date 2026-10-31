@@ -106,28 +106,57 @@ test("rendering and Back do not consume vehicle locations; a new calculation doe
   };
   const store = createStore(
     reducers,
-    applyMiddleware(createWarhammerDefenderDamageCalculationRequestedMiddleware(
-      (request) => calculateWarhammerDefenderDamage(request, () => { draws += 1; return 50; })
-    ))
+    applyMiddleware(
+      createWarhammerDefenderDamageCalculationRequestedMiddleware((request) =>
+        calculateWarhammerDefenderDamage(request, () => {
+          draws += 1;
+          return 50;
+        })
+      )
+    )
   );
   store.dispatch(requestWarhammerDefenderDamage(vehicleDraft));
   expect(draws).toBe(2);
-  store.dispatch(saveWarhammerAttackerDamageResults({
-    input: {
-      hits: 1, damageDice: 1, damageModifier: 0, penetration: 0,
-      felling: 0, devastating: 0, proven: 0, rfOn: 10, rfConfirmsOn: 0,
-      alwaysConfirm: false, tearing: "none", firstHitLocation: "Hull",
-    },
-    damages: [10],
-    hitDetails: [{ attempts: [{ baseRolls: [{ roll: 10, damage: 10 }], righteousFuryRolls: [], damage: 10 }], selectedAttemptIndex: 0 }],
-  }));
+  store.dispatch(
+    saveWarhammerAttackerDamageResults({
+      input: {
+        hits: 1,
+        damageDice: 1,
+        damageModifier: 0,
+        penetration: 0,
+        felling: 0,
+        devastating: 0,
+        proven: 0,
+        rfOn: 10,
+        rfConfirmsOn: 0,
+        alwaysConfirm: false,
+        tearing: "none",
+        firstHitLocation: "Hull",
+      },
+      damages: [10],
+      hitDetails: [
+        {
+          attempts: [
+            {
+              baseRolls: [{ roll: 10, damage: 10 }],
+              righteousFuryRolls: [],
+              damage: 10,
+            },
+          ],
+          selectedAttemptIndex: 0,
+        },
+      ],
+    })
+  );
   const originalClipboard = navigator.clipboard;
   Object.defineProperty(navigator, "clipboard", {
     configurable: true,
     value: { writeText: jest.fn().mockResolvedValue(undefined) },
   });
   const attackerResults = render(
-    <Provider store={store}><WarhammerAttackerDamageResultsModal /></Provider>
+    <Provider store={store}>
+      <WarhammerAttackerDamageResultsModal />
+    </Provider>
   );
   fireEvent.click(attackerResults.getByRole("button", { name: "Copy" }));
   expect(draws).toBe(2);
@@ -137,7 +166,9 @@ test("rendering and Back do not consume vehicle locations; a new calculation doe
     value: originalClipboard,
   });
   const { getByRole } = render(
-    <Provider store={store}><WarhammerDefenderDamageResultsModal /></Provider>
+    <Provider store={store}>
+      <WarhammerDefenderDamageResultsModal />
+    </Provider>
   );
   fireEvent.click(getByRole("button", { name: "Back" }));
   expect(draws).toBe(2);
@@ -338,9 +369,9 @@ test("calculates per-location advanced defenses through the production store", (
     "5 = 12 − Armor (4) − Toughness (2 + 1 = 3)"
   );
   expect(document.body.textContent).toContain("Total Damage: 5");
-  expect(store.getState().warhammerDefenderDamage.results?.request).toMatchObject(
-    { targetFamily: "humanoid", defenses: { mode: "advanced" } }
-  );
+  expect(
+    store.getState().warhammerDefenderDamage.results?.request
+  ).toMatchObject({ targetFamily: "humanoid", defenses: { mode: "advanced" } });
 });
 
 test.each([
@@ -367,11 +398,10 @@ test.each([
       tearing: "none",
       firstHitLocation: location,
     };
-    const attackerResult = calculateWarhammerAttackerDamage(
-      attackerInput,
-      "",
-      { rollD10: () => 4, rollD100: () => 100 }
-    );
+    const attackerResult = calculateWarhammerAttackerDamage(attackerInput, "", {
+      rollD10: () => 4,
+      rollD100: () => 100,
+    });
     const attackSummary = formatWarhammerAttackerDamageSummary({
       penetration: attackerInput.penetration,
       felling: attackerInput.felling,

@@ -79,9 +79,7 @@ export default function resolveWarhammerArmorLayout(
     const inheritedSource: ArmorSource = inheritedSlot ? "other-part" : "body";
     INHERITING_SLOTS.forEach((slot) => {
       if (sources[slot] !== "explicit") {
-        armor[slot] = inheritedSlot
-          ? armor[inheritedSlot]
-          : armor.bodyAP;
+        armor[slot] = inheritedSlot ? armor[inheritedSlot] : armor.bodyAP;
         sources[slot] = inheritedSource;
       }
     });

@@ -64,7 +64,12 @@ export default (store: any) => (next: any) => (action: any) => {
     }
 
     const { preserveDiceOrder } = diceModuleOptionsStore.getState();
-    result.results = getResultsArray(diceTypeNum, diceAmount, undefined, !preserveDiceOrder);
+    result.results = getResultsArray(
+      diceTypeNum,
+      diceAmount,
+      undefined,
+      !preserveDiceOrder
+    );
 
     if (itemsToStay?.length) {
       diceAmount = diceAmount + itemsToStay.length;

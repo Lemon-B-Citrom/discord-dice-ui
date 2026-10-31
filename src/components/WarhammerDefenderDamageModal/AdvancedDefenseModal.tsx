@@ -50,7 +50,9 @@ function AdvancedDefenseModal({
       aria-labelledby={ADVANCED_DEFENSE_TITLE_ID}
     >
       <Modal.Header closeButton>
-        <Modal.Title id={ADVANCED_DEFENSE_TITLE_ID}>Advanced Defenses</Modal.Title>
+        <Modal.Title id={ADVANCED_DEFENSE_TITLE_ID}>
+          Advanced Defenses
+        </Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <div className={styles.panels}>

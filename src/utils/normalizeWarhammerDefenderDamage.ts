@@ -11,10 +11,7 @@ import normalizeAdvancedDefenses, {
   NormalizeAdvancedDefensesResult,
 } from "./advancedDefenses";
 import parseWarhammerAttackerDamageSummary from "./parseWarhammerAttackerDamageSummary";
-import {
-  isVehicleDamageLocation,
-  isVehicleFacing,
-} from "./damageLocations";
+import { isVehicleDamageLocation, isVehicleFacing } from "./damageLocations";
 import resolveWarhammerArmorLayout, {
   ResolveArmorResult,
 } from "./resolveWarhammerArmorLayout";

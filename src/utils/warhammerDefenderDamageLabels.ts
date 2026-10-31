@@ -90,7 +90,6 @@ export function getWarhammerToughnessTerm(
     felling: request.summary.felling,
     effective: entry.effectiveToughnessBonus,
     reduced: entry.effectiveToughnessBonus < entry.toughnessBeforeFelling,
-    fellingExceedsBase:
-      request.summary.felling > entry.toughnessBeforeFelling,
+    fellingExceedsBase: request.summary.felling > entry.toughnessBeforeFelling,
   };
 }

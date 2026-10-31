@@ -21,14 +21,14 @@ const percentIcon = (
 
 const createRenderer =
   (render: any) =>
-    // @ts-ignore
-    ({ input, label, id, inputValue, textMuted, meta, disabled }, ...rest) => {
-      return (
-        <>
-          {render(input, label, id, inputValue, textMuted, meta, disabled, rest)}
-        </>
-      );
-    };
+  // @ts-ignore
+  ({ input, label, id, inputValue, textMuted, meta, disabled }, ...rest) => {
+    return (
+      <>
+        {render(input, label, id, inputValue, textMuted, meta, disabled, rest)}
+      </>
+    );
+  };
 
 const renderInput = createRenderer(
   // @ts-ignore
