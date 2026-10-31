@@ -91,9 +91,11 @@ test("switches the selected location from vehicle to humanoid and back", () => {
   fireEvent.click(getByRole("button", { name: "Humanoid" }));
   fireEvent.click(getByRole("menuitemradio", { name: "Left Leg" }));
   expect(vehicle.value).toBe("");
+  expect(vehicle.querySelector('option[value=""]')).toHaveTextContent("Vehicle");
   fireEvent.change(vehicle, { target: { value: "Turret" } });
   expect(getByRole("button", { name: "Humanoid" })).toBeInTheDocument();
   expect(vehicle.value).toBe("Turret");
+  expect(vehicle.querySelector('option[value=""]')).toBeNull();
 });
 
 test("requires a location and reports its validation error", () => {

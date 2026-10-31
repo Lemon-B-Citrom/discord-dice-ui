@@ -54,6 +54,36 @@ test("keeps the advanced editor shut until the box is ticked", () => {
   expect(getByRole("button", { name: "Advanced" })).toBeDisabled();
 });
 
+test("calculates an RF-annotated humanoid summary with simple armor", () => {
+  const onCalculate = jest.fn();
+  const draft = {
+    ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+    attackSummaryString: "Pen 3, @larm: 30(21) 22(21) 23(21)",
+    toughnessBonus: "12",
+    fortitude: "0",
+    armorHead: "8",
+    armorBody: "10",
+    armorArms: "8",
+    armorLegs: "8",
+  };
+  const { getByRole, queryByRole } = render(
+    <WarhammerDefenderDamageModal
+      showModal
+      closeWarhammerDefenderDamageModal={jest.fn()}
+      draft={draft}
+      errors={{}}
+      onChange={jest.fn()}
+      onCalculate={onCalculate}
+      onClear={jest.fn()}
+      clearCounter={0}
+    />
+  );
+
+  fireEvent.click(getByRole("button", { name: "Calculate" }));
+  expect(onCalculate).toHaveBeenCalledWith(draft);
+  expect(queryByRole("alert")).toBeNull();
+});
+
 test("opens the advanced editor over the modal without closing it", () => {
   const closeModal = jest.fn();
   const { getByRole, getByText, queryByText } = render(

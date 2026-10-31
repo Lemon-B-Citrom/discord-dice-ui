@@ -2,7 +2,8 @@ import {
   WarhammerDefenderDamageHit,
   WarhammerDefenderDamageRequest,
   WarhammerDefenderHordeDamageHit,
-  WarhammerDefenderSingleDamageHit,
+  WarhammerDefenderVehicleDamageHit,
+  WarhammerHumanoidDamageHit,
   WarhammerHumanoidDamageRequest,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import {
@@ -39,7 +40,7 @@ const subtraction = (
 ];
 
 const armorTokens = (
-  entry: WarhammerDefenderSingleDamageHit | WarhammerDefenderHordeDamageHit,
+  entry: WarhammerHumanoidDamageHit,
   request: WarhammerHumanoidDamageRequest
 ): EquationToken[] => {
   if (!entry.showArmorTerm) return [];
@@ -55,7 +56,7 @@ const armorTokens = (
 };
 
 const toughnessTokens = (
-  entry: WarhammerDefenderSingleDamageHit | WarhammerDefenderHordeDamageHit,
+  entry: WarhammerHumanoidDamageHit,
   request: WarhammerHumanoidDamageRequest
 ): EquationToken[] => {
   const term = getWarhammerToughnessTerm(entry, request);
@@ -93,6 +94,33 @@ const toughnessTokens = (
     : [code(effective)];
 };
 
+/**
+ * `**16** = Base \`11\` − AP (\`10\`) + RF \`15\`` for a hit whose base penetrated,
+ * and `**1** = Base \`10\` − AP (\`20\`) → \`0\` (RF suppressed) → \`1\`` for one whose
+ * base was absorbed: a suppressed Fury cannot open the armor, but still chips
+ * one damage. Vehicle hits subtract no Toughness, so none is shown.
+ */
+const vehicleDamageTokens = (
+  entry: WarhammerDefenderVehicleDamageHit
+): EquationToken[] => {
+  const baseApplied = Math.max(0, entry.baseDamage - entry.effectiveArmor);
+  const tokens = [
+    strongCode(entry.finalDamage),
+    text(" = Base "),
+    code(entry.baseDamage),
+    text(" − AP ("),
+    code(entry.effectiveArmor),
+    text(")"),
+  ];
+  if (baseApplied === 0) tokens.push(text(" → "), code(baseApplied));
+
+  if (entry.righteousFuryExtra === 0) return tokens;
+  if (entry.rfApplied) {
+    return [...tokens, text(" + RF "), code(entry.righteousFuryExtra)];
+  }
+  return [...tokens, text(" (RF suppressed) → "), code(entry.finalDamage)];
+};
+
 /** `**9** = \`10\` − Armor (\`4\` − \`3\` = \`1\`) − Toughness (\`3\` − \`5\` → \`0\`)` */
 export function getDamageEquationTokens(
   entry: WarhammerDefenderDamageHit,
@@ -100,11 +128,7 @@ export function getDamageEquationTokens(
 ): EquationToken[] {
   if (entry.targetFamily === "vehicle") {
     if (request.targetFamily !== "vehicle") throw new Error("Damage entry and request targets do not match");
-    return [
-      strongCode(entry.finalDamage), text(" = Base "), code(entry.baseDamage),
-      text(" − AP ("), code(entry.effectiveArmor), text(")"),
-      ...(entry.righteousFuryExtra ? [text(entry.rfApplied ? " + RF " : " (RF suppressed)"), ...(entry.rfApplied ? [code(entry.righteousFuryExtra)] : [])] : []),
-    ];
+    return vehicleDamageTokens(entry);
   }
   if (request.targetFamily !== "humanoid") throw new Error("Damage entry and request targets do not match");
   const armor = armorTokens(entry, request);

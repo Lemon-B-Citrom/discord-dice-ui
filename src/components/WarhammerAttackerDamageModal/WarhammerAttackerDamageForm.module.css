@@ -87,32 +87,34 @@
   border-radius: 0.25rem;
 }
 
-.locationControl:not(.locationControlActive) {
+/* Resting border for both controls, without painting over an error border. */
+.locationControl:not(.locationControlActive):not(:global(.is-invalid)):not(:global(.border-danger)) {
   border-color: #6c757d;
 }
 
-.locationControlActive {
+.locationControlActive:not(:global(.is-invalid)):not(:global(.border-danger)) {
   border-color: #007bff;
   background-color: #007bff;
   color: #fff;
 }
 
 .humanoidLocationColumn {
-  flex: 0 0 48%;
-  max-width: 48%;
+  flex: 0 0 43%;
+  max-width: 43%;
 }
 
 .vehicleLocationColumn {
-  flex: 0 0 52%;
-  max-width: 52%;
+  flex: 0 0 57%;
+  max-width: 57%;
 }
 
+/* A chosen location inverts the native list, which inherits the text colour. */
 .vehicleLocationColumn select option {
   background-color: #fff;
   color: #212529;
 }
 
-.locationControl.locationControlActive:focus {
+.locationControl.locationControlActive:not(:global(.is-invalid)):not(:global(.border-danger)):focus {
   border-color: #007bff;
   background-color: #007bff;
   color: #fff;

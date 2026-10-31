@@ -26,7 +26,7 @@ const attack = {
 };
 
 const resultWithDamages = (damages: number[]) => ({
-  input: attack,
+  input: { ...attack, hits: damages.length },
   damages,
   hitDetails: damages.map((damage) => ({
     attempts: [
@@ -90,7 +90,11 @@ test("copies the Attack summary without a trailing newline", () => {
 });
 
 test("copies a vehicle attacker summary that the defender accepts as input", () => {
-  const vehicleAttack = { ...attack, firstHitLocation: "Hull" as const };
+  const vehicleAttack = {
+    ...attack,
+    hits: 1,
+    firstHitLocation: "Hull" as const,
+  };
   const store = createStore(reducers);
   store.dispatch(saveWarhammerAttackerDamageResults({
     ...resultWithDamages([17]),
@@ -209,7 +213,7 @@ test("shows per-hit equations with selected tearing damage first and a gray comp
   const store = createStore(reducers);
   store.dispatch(
     saveWarhammerAttackerDamageResults({
-      input: { ...attack, damageModifier: 2, tearing: "tearing" },
+      input: { ...attack, hits: 1, damageModifier: 2, tearing: "tearing" },
       damages: [16],
       hitDetails: [
         {
@@ -287,7 +291,7 @@ test("labels multiple Fury bonus dice and annotates Proven adjustments", () => {
   const store = createStore(reducers);
   store.dispatch(
     saveWarhammerAttackerDamageResults({
-      input: { ...attack, proven: 7 },
+      input: { ...attack, hits: 1, proven: 7 },
       damages: [22],
       hitDetails: [
         {
@@ -323,7 +327,7 @@ test("shows all triple-tearing attempts after the selected damage in descending 
   const store = createStore(reducers);
   store.dispatch(
     saveWarhammerAttackerDamageResults({
-      input: { ...attack, tearing: "tripleTearing" },
+      input: { ...attack, hits: 1, tearing: "tripleTearing" },
       damages: [20],
       hitDetails: [
         {

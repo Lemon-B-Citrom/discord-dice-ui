@@ -9,9 +9,19 @@ export default function projectWarhammerAttackerDamageSummary(
   result: WarhammerAttackerDamageResult
 ): WarhammerAttackerDamageSummary {
   const { input, damages, hitDetails } = result;
+  if (damages.length !== input.hits || hitDetails.length !== input.hits) {
+    throw new Error("Invalid Warhammer attack result");
+  }
   const baseDamages = hitDetails.map((hit) => {
     const selected = hit.attempts[hit.selectedAttemptIndex];
-    if (!selected) throw new Error("Invalid Warhammer attack result");
+    if (
+      hit.attempts.length === 0 ||
+      hit.selectedAttemptIndex < 0 ||
+      hit.selectedAttemptIndex >= hit.attempts.length ||
+      !selected
+    ) {
+      throw new Error("Invalid Warhammer attack result");
+    }
     const fury = selected.righteousFuryRolls.reduce(
       (sum, roll) => requireSafeInteger(sum + roll, "Righteous Fury total"),
       0

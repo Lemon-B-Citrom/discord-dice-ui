@@ -11,11 +11,13 @@ import styles from "./WarhammerAttackerDamageForm.module.css";
 import FirstHitLocationSelect from "./FirstHitLocationSelect";
 import {
   AnyDamageLocation,
-  DamageLocation,
-  DAMAGE_LOCATIONS,
+  VEHICLE_DAMAGE_LOCATIONS,
   VehicleDamageLocation,
 } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { VEHICLE_DAMAGE_LOCATIONS } from "../../utils/damageLocations";
+import {
+  isDamageLocation,
+  isVehicleDamageLocation,
+} from "../../utils/damageLocations";
 
 export type AttackerDamageNumericField =
   | "hits"
@@ -66,6 +68,18 @@ function WarhammerAttackerDamageProfileFields({
   onLocationChange,
   locationError,
 }: WarhammerAttackerDamageProfileFieldsProps) {
+  // Both selectors read the one stored location, so picking either one clears
+  // the other without a second source of truth.
+  const locationErrorId = locationError
+    ? "attacker-damage-first-hit-location-error"
+    : undefined;
+  const humanoidLocation = isDamageLocation(values.firstHitLocation)
+    ? values.firstHitLocation
+    : "";
+  const vehicleLocation = isVehicleDamageLocation(values.firstHitLocation)
+    ? values.firstHitLocation
+    : "";
+
   return (
     <Row className={styles.attackDetails}>
       <Col xs={12} md={7}>
@@ -107,14 +121,16 @@ function WarhammerAttackerDamageProfileFields({
           ))}
         </fieldset>
         <fieldset className={styles.locationField}>
-          <legend className={styles.locationHeading}>First Hit Location</legend>
+          <legend className={styles.locationHeading}>
+            First Hit Location
+          </legend>
           <Row>
             <Col xs={6} className={styles.humanoidLocationColumn}>
               <FirstHitLocationSelect
-                value={DAMAGE_LOCATIONS.indexOf(values.firstHitLocation as DamageLocation) >= 0 ? values.firstHitLocation : ""}
-                onChange={(location) => onLocationChange(location)}
+                value={humanoidLocation}
+                onChange={onLocationChange}
                 emptyCaption="Humanoid"
-                ariaDescribedBy={locationError ? "attacker-damage-first-hit-location-error" : undefined}
+                ariaDescribedBy={locationErrorId}
               />
             </Col>
             <Col xs={6} className={styles.vehicleLocationColumn}>
@@ -122,20 +138,34 @@ function WarhammerAttackerDamageProfileFields({
                 as="select"
                 id="attacker-damage-vehicle-hit-location"
                 aria-label="Vehicle"
-                className={`${styles.locationControl} ${VEHICLE_DAMAGE_LOCATIONS.indexOf(values.firstHitLocation as VehicleDamageLocation) >= 0 ? styles.locationControlActive : ""}`}
-                value={VEHICLE_DAMAGE_LOCATIONS.indexOf(values.firstHitLocation as VehicleDamageLocation) >= 0 ? values.firstHitLocation : ""}
+                className={`${styles.locationControl}${
+                  vehicleLocation ? ` ${styles.locationControlActive}` : ""
+                }`}
+                value={vehicleLocation}
                 isInvalid={Boolean(locationError)}
-                aria-describedby={locationError ? "attacker-damage-first-hit-location-error" : undefined}
-                onChange={(event) => onLocationChange(event.target.value as VehicleDamageLocation)}
+                aria-describedby={locationErrorId}
+                onChange={(event) =>
+                  onLocationChange(
+                    event.target.value as VehicleDamageLocation
+                  )
+                }
               >
-                <option value="" disabled>Vehicle</option>
-                {VEHICLE_DAMAGE_LOCATIONS.map((location) => <option key={location} value={location}>{location}</option>)}
+                {!vehicleLocation && (
+                  <option value="" disabled>
+                    Vehicle
+                  </option>
+                )}
+                {VEHICLE_DAMAGE_LOCATIONS.map((location) => (
+                  <option key={location} value={location}>
+                    {location}
+                  </option>
+                ))}
               </Form.Control>
             </Col>
             {locationError && (
               <Col xs={12}>
                 <Form.Text
-                  id="attacker-damage-first-hit-location-error"
+                  id={locationErrorId}
                   className="text-danger"
                   role="alert"
                 >

@@ -1,9 +1,9 @@
 .dialog {
-  /* Wider than the Defender dialog to fit the Devastating label column. */
-  max-width: 520px;
+  /* Give the profile side room for the full location selector labels. */
+  max-width: 572px;
 }
 
-@media (max-width: 551.98px) {
+@media (max-width: 603.98px) {
   .dialog {
     max-width: calc(100% - 1rem);
   }

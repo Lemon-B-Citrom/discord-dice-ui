@@ -2,6 +2,8 @@ import {
   EMPTY_DEFENDER_DAMAGE_DRAFT,
   WarhammerAdvancedDefenses,
   WarhammerDefenderDamageDraft,
+  WarhammerDefenderDamageRequest,
+  WarhammerHumanoidDamageRequest,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import normalizeWarhammerDefenderDamage from "./normalizeWarhammerDefenderDamage";
 import { NON_NEGATIVE_INTEGER_ERROR } from "./safeInteger";
@@ -34,6 +36,16 @@ const validDraft = (patch: Partial<WarhammerDefenderDamageDraft> = {}) => ({
     patch.hordeEnabled ??
     ("bonusHits" in patch || "magPer" in patch || "woundsPer" in patch),
 });
+
+/** Every valid draft here is humanoid, so only that branch can be reachable. */
+const humanoidRequest = (
+  request: WarhammerDefenderDamageRequest | null
+): WarhammerHumanoidDamageRequest => {
+  if (!request || request.targetFamily !== "humanoid") {
+    throw new Error("Expected a humanoid damage request");
+  }
+  return request;
+};
 
 test.each(["", "0", "2", String(Number.MAX_SAFE_INTEGER)])(
   "accepts Fortitude %p without enabling Horde",
@@ -161,7 +173,7 @@ test("uses the inherited armor slots while advanced mode is off", () => {
   const normalized = normalizeWarhammerDefenderDamage(
     validDraft({ armorBody: "4" })
   );
-  expect(normalized.request?.defenses).toEqual({
+  expect(humanoidRequest(normalized.request).defenses).toEqual({
     mode: "simple",
     armor: {
       headAP: 4,
@@ -183,7 +195,7 @@ test("ignores the simple armor rules while advanced mode is on", () => {
     validDraft({ advancedEnabled: true, armorHead: "7" })
   );
   expect(normalized.errors).toEqual({});
-  expect(normalized.request?.defenses).toEqual({
+  expect(humanoidRequest(normalized.request).defenses).toEqual({
     mode: "advanced",
     ...zeroAdvancedDefenses,
   });
@@ -199,7 +211,7 @@ test("reads per-location overrides and keeps both sides independent", () => {
     })
   );
   expect(normalized.errors).toEqual({});
-  expect(normalized.request?.defenses).toEqual({
+  expect(humanoidRequest(normalized.request).defenses).toEqual({
     mode: "advanced",
     armor: {
       Head: 0,
@@ -235,5 +247,5 @@ test("keeps stored overrides inert and invalid ones harmless while the mode is o
     validDraft({ advancedArmorHead: "-1", advancedToughnessBody: "abc" })
   );
   expect(normalized.errors).toEqual({});
-  expect(normalized.request?.defenses.mode).toBe("simple");
+  expect(humanoidRequest(normalized.request).defenses.mode).toBe("simple");
 });

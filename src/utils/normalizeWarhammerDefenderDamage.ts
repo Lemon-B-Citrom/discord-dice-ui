@@ -5,13 +5,16 @@ import {
   WarhammerDefenderDamageDraft,
   WarhammerDefenderDamageRequest,
   WarhammerDefenderDefenses,
-  VehicleFacing,
+  WarhammerDefenderVehicleDamageRequest,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import normalizeAdvancedDefenses, {
   NormalizeAdvancedDefensesResult,
 } from "./advancedDefenses";
 import parseWarhammerAttackerDamageSummary from "./parseWarhammerAttackerDamageSummary";
-import { isVehicleDamageLocation } from "./damageLocations";
+import {
+  isVehicleDamageLocation,
+  isVehicleFacing,
+} from "./damageLocations";
 import resolveWarhammerArmorLayout, {
   ResolveArmorResult,
 } from "./resolveWarhammerArmorLayout";
@@ -58,16 +61,44 @@ export default function normalizeWarhammerDefenderDamage(
   }
 
   if (isVehicleDamageLocation(parsed.summary.firstHitLocation)) {
-    const facing = draft.facing;
-    if (["Front", "Side", "Rear"].indexOf(facing) < 0) errors.facing = "Choose a facing";
-    const armorFront = parseNonNegative(draft.armorFront, "armorFront", errors, false);
-    const armorSide = parseNonNegative(draft.armorSide, "armorSide", errors, false);
-    const armorRear = parseNonNegative(draft.armorRear, "armorRear", errors, false);
-    if (Object.keys(errors).length || armorFront === null || armorSide === null || armorRear === null) return { request: null, errors };
-    const request: WarhammerDefenderDamageRequest = {
-      mode: "single", targetFamily: "vehicle", summary: parsed.summary,
+    // Facing is required even for a Turret-only summary, so the request stays
+    // valid whatever the later random locations turn out to be.
+    const facing = isVehicleFacing(draft.facing) ? draft.facing : null;
+    if (!facing) errors.facing = "Choose a facing";
+    // Each blank facing AP is its own zero: no humanoid inheritance applies.
+    const armorFront = parseNonNegative(
+      draft.armorFront,
+      "armorFront",
+      errors,
+      false
+    );
+    const armorSide = parseNonNegative(
+      draft.armorSide,
+      "armorSide",
+      errors,
+      false
+    );
+    const armorRear = parseNonNegative(
+      draft.armorRear,
+      "armorRear",
+      errors,
+      false
+    );
+    if (
+      Object.keys(errors).length > 0 ||
+      !facing ||
+      armorFront === null ||
+      armorSide === null ||
+      armorRear === null
+    ) {
+      return { request: null, errors };
+    }
+    const request: WarhammerDefenderVehicleDamageRequest = {
+      mode: "single",
+      targetFamily: "vehicle",
+      summary: parsed.summary,
       firstHitLocation: parsed.summary.firstHitLocation,
-      vehicleFacing: facing as VehicleFacing,
+      vehicleFacing: facing,
       vehicleArmor: { Front: armorFront, Side: armorSide, Rear: armorRear },
     };
     return { request, errors };

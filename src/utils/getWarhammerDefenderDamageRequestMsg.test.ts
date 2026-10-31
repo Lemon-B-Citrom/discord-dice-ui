@@ -7,7 +7,13 @@ import {
   WarhammerDefenderSingleDamageHit,
   WarhammerDefenderHordeDamageHit,
   WarhammerBonusDevastatingEntry,
+  WarhammerHumanoidDamageRequest,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+
+/** These fixtures are all humanoid, so the humanoid branch is always live. */
+interface HumanoidResult extends WarhammerDefenderDamageResult {
+  request: WarhammerHumanoidDamageRequest;
+}
 
 const defenses = {
   mode: "simple" as const,
@@ -50,7 +56,7 @@ const singleHit: WarhammerDefenderSingleDamageHit = {
   finalDamage: 10,
 };
 
-function singleResult(): WarhammerDefenderDamageResult {
+function singleResult(): HumanoidResult {
   return {
     request: {
       targetFamily: "humanoid",
@@ -72,7 +78,7 @@ function singleResult(): WarhammerDefenderDamageResult {
   };
 }
 
-function hordeResult(): WarhammerDefenderDamageResult {
+function hordeResult(): HumanoidResult {
   const trueHit: WarhammerDefenderHordeDamageHit = {
     ...singleHit,
     mode: "horde",
@@ -185,7 +191,6 @@ test("derives the summary line from the validated request", () => {
     penetration: 7,
     felling: 0,
     devastating: 0,
-    firstHitLocation: "Body",
     firstHitLocation: "Body",
     damages: [3],
   };

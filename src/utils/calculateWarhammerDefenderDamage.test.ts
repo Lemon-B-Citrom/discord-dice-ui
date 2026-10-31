@@ -1,9 +1,17 @@
 import {
   EMPTY_DEFENDER_DAMAGE_DRAFT,
   WarhammerDefenderDamageDraft,
+  WarhammerDefenderDamageEntry,
+  WarhammerHumanoidDamageHit,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import calculateWarhammerDefenderDamage from "./calculateWarhammerDefenderDamage";
 import normalizeWarhammerDefenderDamage from "./normalizeWarhammerDefenderDamage";
+
+/** Every draft here is humanoid, so only humanoid hits can come back. */
+const isHumanoidHit = (
+  entry: WarhammerDefenderDamageEntry
+): entry is WarhammerHumanoidDamageHit =>
+  entry.kind === "hit" && entry.targetFamily === "humanoid";
 
 const makeResult = (patch: Partial<WarhammerDefenderDamageDraft>) => {
   // Horde mode is opt-in, so a patch that supplies Horde fields ticks the box.
@@ -29,7 +37,7 @@ test("doubles Toughness before Felling for the first N single hits including zer
   expect(
     result.entries.map(
       (hit) =>
-        hit.kind === "hit" && [
+        isHumanoidHit(hit) && [
           hit.fortitudeApplied,
           hit.effectiveToughnessBonus,
           hit.finalDamage,
@@ -53,7 +61,7 @@ test("uses independent true and double-sized bonus Fortitude quotas", () => {
     woundsPer: "20",
   });
   expect(
-    result.entries.map((hit) => hit.kind === "hit" && hit.fortitudeApplied)
+    result.entries.map((hit) => isHumanoidHit(hit) && hit.fortitudeApplied)
   ).toEqual([true, false, true, true, false, false]);
   expect(result.entries[0]).toMatchObject({
     classification: "partial-overkill",
@@ -76,7 +84,7 @@ test.each(["0", "3", "4"])(
     expect(
       result.entries
         .filter((hit) => hit.kind === "hit")
-        .every((hit) => hit.kind === "hit" && hit.fortitudeApplied)
+        .every((hit) => isHumanoidHit(hit) && hit.fortitudeApplied)
     ).toBe(true);
     // Zero bonus hits leaves no bonus hit, so no synthetic Devastating entry.
     expect(
@@ -116,7 +124,7 @@ test("does not transfer unused true-hit protection to bonus hits", () => {
     woundsPer: "20",
   });
   expect(
-    result.entries.map((hit) => hit.kind === "hit" && hit.fortitudeApplied)
+    result.entries.map((hit) => isHumanoidHit(hit) && hit.fortitudeApplied)
   ).toEqual([true, true, true, true, true, false]);
 });
 
@@ -126,7 +134,7 @@ test("accepts single-target Fortitude beyond the number of hits", () => {
     fortitude: String(Number.MAX_SAFE_INTEGER),
   });
   expect(
-    result.entries.every((hit) => hit.kind === "hit" && hit.fortitudeApplied)
+    result.entries.every((hit) => isHumanoidHit(hit) && hit.fortitudeApplied)
   ).toBe(true);
 });
 
@@ -293,7 +301,7 @@ test("adds the location Toughness before Fortitude doubles it", () => {
   });
   expect(
     result.entries.map((entry) =>
-      entry.kind === "hit"
+      isHumanoidHit(entry)
         ? {
             location: entry.location,
             fortitudeApplied: entry.fortitudeApplied,
@@ -349,7 +357,7 @@ test("combines per-location armor and Toughness for the worked example", () => {
   });
   expect(
     result.entries.map((entry) =>
-      entry.kind === "hit"
+      isHumanoidHit(entry)
         ? [
             entry.location,
             entry.effectiveArmor,

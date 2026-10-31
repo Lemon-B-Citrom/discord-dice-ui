@@ -12,7 +12,8 @@ import {
 } from "./WarhammerDefenderDamageTypes";
 import normalizeWarhammerDefenderDamage from "../../utils/normalizeWarhammerDefenderDamage";
 import parseWarhammerAttackerDamageSummary from "../../utils/parseWarhammerAttackerDamageSummary";
-import { VEHICLE_DAMAGE_LOCATIONS } from "../../utils/damageLocations";
+import { isVehicleDamageLocation } from "../../utils/damageLocations";
+import { VEHICLE_FACINGS } from "./WarhammerDefenderDamageTypes";
 
 export const DEFENDER_DAMAGE_FORM_ID = "warhammer-defender-damage-form";
 
@@ -71,6 +72,15 @@ const ARMOR_FIELDS: ReadonlyArray<{
   { field: "armorLegs", label: "AP Legs" },
 ];
 
+const VEHICLE_ARMOR_FIELDS: ReadonlyArray<{
+  field: "armorFront" | "armorSide" | "armorRear";
+  label: string;
+}> = [
+  { field: "armorFront", label: "AP Front" },
+  { field: "armorSide", label: "AP Side" },
+  { field: "armorRear", label: "AP Rear" },
+];
+
 const HORDE_FIELDS: ReadonlyArray<{
   field: "woundsPer" | "bonusHits" | "magPer";
   label: string;
@@ -97,11 +107,17 @@ function WarhammerDefenderDamageForm({
     : {};
   const visibleErrors = { ...liveErrors, ...errors };
   const summaryErrorId = `${fieldControlIds.attackSummaryString}-error`;
+  const facingErrorId = `${fieldControlIds.facing}-error`;
   const parsedSummary = parseWarhammerAttackerDamageSummary(draft.attackSummaryString);
-  const isVehicle = Boolean(parsedSummary.summary && VEHICLE_DAMAGE_LOCATIONS.indexOf(parsedSummary.summary.firstHitLocation as any) >= 0);
-  const showDefenses = Boolean(parsedSummary.summary);
+  // An untouched form defaults to humanoid defenses. Once text is entered, only
+  // a successfully parsed summary selects which defense panel to show.
+  const showDefenses =
+    !draft.attackSummaryString.trim() || Boolean(parsedSummary.summary);
+  const isVehicle =
+    Boolean(parsedSummary.summary) &&
+    isVehicleDamageLocation(parsedSummary.summary?.firstHitLocation || "");
 
-  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setHasAttemptedSubmit(true);
     const normalized = normalizeWarhammerDefenderDamage(draft);
@@ -124,7 +140,7 @@ function WarhammerDefenderDamageForm({
     <Form
       id={DEFENDER_DAMAGE_FORM_ID}
       className={styles.form}
-      onSubmit={submit}
+      onSubmit={handleSubmit}
     >
       {visibleErrors.form && (
         <Form.Text className="text-danger d-block" role="alert">
@@ -171,104 +187,127 @@ function WarhammerDefenderDamageForm({
                 id={fieldControlIds.facing}
                 value={draft.facing}
                 isInvalid={Boolean(visibleErrors.facing)}
+                aria-describedby={
+                  visibleErrors.facing ? facingErrorId : undefined
+                }
                 onChange={(event) => onChange("facing", event.target.value)}
               >
                 <option value="">Choose…</option>
-                <option>Front</option>
-                <option>Side</option>
-                <option>Rear</option>
+                {VEHICLE_FACINGS.map((facing) => (
+                  <option key={facing} value={facing}>
+                    {facing}
+                  </option>
+                ))}
               </Form.Control>
               {visibleErrors.facing && (
-                <Form.Control.Feedback type="invalid">
+                <Form.Control.Feedback id={facingErrorId} type="invalid">
                   {visibleErrors.facing}
                 </Form.Control.Feedback>
               )}
             </Form.Group>
           )}
-          {!isVehicle && <>
-          <DamageNumericField
-            id="defender-damage-toughness-bonus"
-            label="Toughness Bonus"
-            value={draft.toughnessBonus}
-            error={visibleErrors.toughnessBonus}
-            onChange={(value) => onChange("toughnessBonus", value)}
-          />
-          <DamageNumericField
-            id="defender-damage-fortitude"
-            label="Fortitude #"
-            value={draft.fortitude}
-            error={visibleErrors.fortitude}
-            onChange={(value) => onChange("fortitude", value)}
-          />
-          </>}
+          {!isVehicle && (
+            <>
+              <DamageNumericField
+                id={fieldControlIds.toughnessBonus}
+                label="Toughness Bonus"
+                value={draft.toughnessBonus}
+                error={visibleErrors.toughnessBonus}
+                onChange={(value) => onChange("toughnessBonus", value)}
+              />
+              <DamageNumericField
+                id={fieldControlIds.fortitude}
+                label="Fortitude #"
+                value={draft.fortitude}
+                error={visibleErrors.fortitude}
+                onChange={(value) => onChange("fortitude", value)}
+              />
+            </>
+          )}
         </div>
-        {showDefenses && <div className={styles.armorFields}>
-          {isVehicle ? <>
-            <DamageNumericField id={fieldControlIds.armorFront} label="AP Front" value={draft.armorFront} error={visibleErrors.armorFront} onChange={(value) => onChange("armorFront", value)} />
-            <DamageNumericField id={fieldControlIds.armorSide} label="AP Side" value={draft.armorSide} error={visibleErrors.armorSide} onChange={(value) => onChange("armorSide", value)} />
-            <DamageNumericField id={fieldControlIds.armorRear} label="AP Rear" value={draft.armorRear} error={visibleErrors.armorRear} onChange={(value) => onChange("armorRear", value)} />
-          </> : <>
-          <div
-            className={
-              draft.advancedEnabled ? styles.armorFieldsDisabled : undefined
-            }
-          >
-            {ARMOR_FIELDS.map(({ field, label }) => (
+        {showDefenses && (
+          <div className={styles.armorFields}>
+            {isVehicle ? (
+              <>
+                {VEHICLE_ARMOR_FIELDS.map(({ field, label }) => (
+                  <DamageNumericField
+                    key={field}
+                    id={fieldControlIds[field]}
+                    label={label}
+                    value={draft[field]}
+                    error={visibleErrors[field]}
+                    onChange={(value) => onChange(field, value)}
+                  />
+                ))}
+              </>
+            ) : (
+              <>
+                <div
+                  className={
+                    draft.advancedEnabled
+                      ? styles.armorFieldsDisabled
+                      : undefined
+                  }
+                >
+                  {ARMOR_FIELDS.map(({ field, label }) => (
+                    <DamageNumericField
+                      key={field}
+                      id={fieldControlIds[field]}
+                      label={label}
+                      value={draft[field]}
+                      error={visibleErrors[field]}
+                      disabled={draft.advancedEnabled}
+                      onChange={(value) => onChange(field, value)}
+                    />
+                  ))}
+                </div>
+                <AdvancedDefenseControl
+                  draft={draft}
+                  errors={visibleErrors}
+                  onChange={onChange}
+                  onOpen={onOpenAdvanced}
+                />
+              </>
+            )}
+          </div>
+        )}
+      </div>
+
+      <hr />
+
+      {!isVehicle && (
+        <fieldset className={styles.hordeOptions}>
+          <legend>Horde Options</legend>
+          <div className={styles.hordeGrid}>
+            <Form.Group className={styles.hordeEnable}>
+              <Form.Check
+                id={fieldControlIds.hordeEnabled}
+                type="checkbox"
+                className={styles.hordeCheck}
+                label="Enable"
+                checked={draft.hordeEnabled}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange("hordeEnabled", event.target.checked)
+                }
+              />
+            </Form.Group>
+            {HORDE_FIELDS.map(({ field, label }) => (
               <DamageNumericField
                 key={field}
                 id={fieldControlIds[field]}
                 label={label}
                 value={draft[field]}
                 error={visibleErrors[field]}
-                disabled={draft.advancedEnabled}
+                disabled={!draft.hordeEnabled}
+                className={
+                  draft.hordeEnabled ? undefined : styles.hordeFieldDisabled
+                }
                 onChange={(value) => onChange(field, value)}
               />
             ))}
           </div>
-          <AdvancedDefenseControl
-            draft={draft}
-            errors={visibleErrors}
-            onChange={onChange}
-            onOpen={onOpenAdvanced}
-          />
-          </>}
-        </div>
-        }
-      </div>
-
-      <hr />
-
-      {!isVehicle && <fieldset className={styles.hordeOptions}>
-        <legend>Horde Options</legend>
-        <div className={styles.hordeGrid}>
-          <Form.Group className={styles.hordeEnable}>
-            <Form.Check
-              id={fieldControlIds.hordeEnabled}
-              type="checkbox"
-              className={styles.hordeCheck}
-              label="Enable"
-              checked={draft.hordeEnabled}
-              onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                onChange("hordeEnabled", event.target.checked)
-              }
-            />
-          </Form.Group>
-          {HORDE_FIELDS.map(({ field, label }) => (
-            <DamageNumericField
-              key={field}
-              id={fieldControlIds[field]}
-              label={label}
-              value={draft[field]}
-              error={visibleErrors[field]}
-              disabled={!draft.hordeEnabled}
-              className={
-                draft.hordeEnabled ? undefined : styles.hordeFieldDisabled
-              }
-              onChange={(value) => onChange(field, value)}
-            />
-          ))}
-        </div>
-      </fieldset>}
+        </fieldset>
+      )}
     </Form>
   );
 }

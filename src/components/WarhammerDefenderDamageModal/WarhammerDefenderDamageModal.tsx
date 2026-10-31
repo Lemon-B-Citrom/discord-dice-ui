@@ -10,7 +10,7 @@ import {
 } from "./WarhammerDefenderDamageTypes";
 import { DEFENDER_DAMAGE_FORM_ID } from "./WarhammerDefenderDamageForm";
 import parseWarhammerAttackerDamageSummary from "../../utils/parseWarhammerAttackerDamageSummary";
-import { VEHICLE_DAMAGE_LOCATIONS } from "../../utils/damageLocations";
+import { isVehicleDamageLocation } from "../../utils/damageLocations";
 
 interface WarhammerDefenderDamageModalProps {
   showModal: boolean;
@@ -39,12 +39,28 @@ function WarhammerDefenderDamageModal({
   // The editor is a sibling of this modal, never a child of its <form>, so its
   // buttons and Enter key cannot submit the calculation.
   const [isAdvancedOpen, setAdvancedOpen] = useState(false);
-  const updateDraft = (field: keyof WarhammerDefenderDamageDraft, value: string | boolean) => {
+  // The humanoid editor must not stay open over a vehicle or invalid summary.
+  const updateDraft = (
+    field: keyof WarhammerDefenderDamageDraft,
+    value: string | boolean
+  ) => {
     onChange(field, value);
-    if (field === "attackSummaryString") {
-      const parsed = parseWarhammerAttackerDamageSummary(String(value));
-      if (!parsed.summary || VEHICLE_DAMAGE_LOCATIONS.indexOf(parsed.summary.firstHitLocation as any) >= 0) setAdvancedOpen(false);
-    }
+    if (field !== "attackSummaryString") return;
+    const parsed = parseWarhammerAttackerDamageSummary(String(value));
+    const humanoid = Boolean(parsed.summary) && !isVehicleDamageLocation(parsed.summary?.firstHitLocation || "");
+    if (!humanoid) setAdvancedOpen(false);
+  };
+
+  const submitDamageForm = () => {
+    const form = document.getElementById(
+      DEFENDER_DAMAGE_FORM_ID
+    ) as HTMLFormElement | null;
+    if (!form) return;
+
+    // The Calculate button is outside Modal.Body, where the form is rendered.
+    form.dispatchEvent(
+      new window.Event("submit", { bubbles: true, cancelable: true })
+    );
   };
 
   return (
@@ -73,8 +89,8 @@ function WarhammerDefenderDamageModal({
           </Button>
           <Button
             variant="primary"
-            type="submit"
-            form={DEFENDER_DAMAGE_FORM_ID}
+            type="button"
+            onClick={submitDamageForm}
           >
             Calculate
           </Button>

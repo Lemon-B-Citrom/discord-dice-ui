@@ -45,10 +45,19 @@ test("keeps the existing field controls and zero minimums", () => {
   });
 });
 
-test("keeps the defense panel empty until a valid summary is entered", () => {
+test("defaults to humanoid defenses without a summary and hides them for invalid text", () => {
   const empty = renderForm({ ...EMPTY_DEFENDER_DAMAGE_DRAFT });
-  expect(() => empty.getByLabelText("AP Body")).toThrow();
+  expect(empty.getByLabelText("AP Body")).toBeInTheDocument();
+  expect(() => empty.getByLabelText("Facing")).toThrow();
   empty.unmount();
+
+  const invalid = renderForm({
+    ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+    attackSummaryString: "not a valid summary",
+  });
+  expect(() => invalid.getByLabelText("AP Body")).toThrow();
+  invalid.unmount();
+
   const humanoid = renderForm({ ...EMPTY_DEFENDER_DAMAGE_DRAFT, attackSummaryString: "Pen 0, @body: 1" });
   expect(humanoid.getByLabelText("AP Body")).toBeInTheDocument();
 });
@@ -65,6 +74,33 @@ test("places vehicle Facing in the left column and armor AP fields in the right"
   expect(leftColumn?.contains(facing)).toBe(true);
   expect(rightColumn?.contains(facing)).toBe(false);
   expect(rightColumn).toHaveTextContent("AP Front");
+  expect(
+    Array.from(facing.querySelectorAll("option")).map((option) => option.value)
+  ).toEqual(["", "Front", "Side", "Rear"]);
+});
+
+test("associates the required vehicle facing error with its control", () => {
+  const { getByLabelText, getByText } = render(
+    <WarhammerDefenderDamageForm
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @hull: 1",
+      }}
+      errors={{ facing: "Choose a facing" }}
+      onChange={jest.fn()}
+      onCalculate={jest.fn()}
+    />
+  );
+
+  const facing = getByLabelText("Facing");
+  expect(facing).toHaveAttribute(
+    "aria-describedby",
+    "defender-damage-facing-error"
+  );
+  expect(getByText("Choose a facing")).toHaveAttribute(
+    "id",
+    "defender-damage-facing-error"
+  );
 });
 
 test("blocks invalid submission and associates the summary error with its input", () => {

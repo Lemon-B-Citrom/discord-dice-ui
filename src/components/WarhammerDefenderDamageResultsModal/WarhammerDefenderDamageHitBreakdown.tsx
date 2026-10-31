@@ -6,7 +6,10 @@ import {
   WarhammerDefenderDamageEntry,
   WarhammerDefenderDamageRequest,
 } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { getHordeClassificationLabel } from "../../utils/warhammerDefenderDamageLabels";
+import {
+  getHordeClassificationLabel,
+  getWarhammerHitLocationLabel,
+} from "../../utils/warhammerDefenderDamageLabels";
 import {
   EquationToken,
   getDamageEquationTokens,
@@ -89,8 +92,7 @@ function WarhammerDefenderDamageHitBreakdown({
         )}
       </div>
       <div className={styles.location}>
-        {entry.location}
-        {entry.targetFamily === "vehicle" && ` · Facing ${entry.facing}`}
+        {getWarhammerHitLocationLabel(entry)}
       </div>
       <div className={styles.equation}>
         {renderEquation(getDamageEquationTokens(entry, request))}

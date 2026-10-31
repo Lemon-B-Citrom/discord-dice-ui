@@ -1,5 +1,6 @@
 import {
   DamageLocation,
+  VehicleDamageLocation,
   WarhammerDefenderDamageEntry,
   WarhammerDefenderDamageRequest,
   WarhammerDefenderDamageResult,
@@ -19,8 +20,75 @@ import LiberImperiumVehicleHitLocation from "./LiberImperiumVehicleHitLocation";
 /** Bonus hits get their own Fortitude quota, covering two hits each. */
 const BONUS_HITS_PER_FORTITUDE = 2;
 
+/** An absorbed Fury still costs a vehicle one damage, but cannot open armor. */
+const SUPPRESSED_FURY_DAMAGE = 1;
+
 const checkedAdd = (left: number, right: number, description: string): number =>
   requireSafeInteger(left + right, description);
+
+/** A fresh percentile for a later vehicle hit; injected sources are validated. */
+const rollVehicleHitLocation = (rollD100: () => number): number => {
+  const roll = rollD100();
+  if (!Number.isInteger(roll) || roll < 1 || roll > 100) {
+    throw new Error("Vehicle hit-location roll must be an integer from 1 to 100");
+  }
+  return roll;
+};
+
+/** The table reads 100 as a zero roll, so adapt the fresh percentile to it. */
+const vehicleLocationForRoll = (roll: number): VehicleDamageLocation => {
+  const location = LiberImperiumVehicleHitLocation(roll === 100 ? 0 : roll);
+  if (!location) {
+    throw new Error(`Vehicle hit-location roll ${roll} matched no location`);
+  }
+  return location as VehicleDamageLocation;
+};
+
+/**
+ * The first hit uses the summary's location; every later hit draws its own, so
+ * repeats are possible and no humanoid cycle applies.
+ */
+const resolveVehicleLocation = (
+  index: number,
+  firstHitLocation: VehicleDamageLocation,
+  rollD100: () => number
+): { location: VehicleDamageLocation; roll?: number } => {
+  if (index === 0) return { location: firstHitLocation };
+  const roll = rollVehicleHitLocation(rollD100);
+  return { location: vehicleLocationForRoll(roll), roll };
+};
+
+/**
+ * Armor-only vehicle damage. The summary keeps the pre-Fury base separate, so
+ * Fury damage rides on a base that already beat the armor; when the armor
+ * absorbs the base, the hit is still Fury-suppressed and costs one damage.
+ */
+const vehicleDamageParts = (
+  baseDamage: number,
+  effectiveArmor: number,
+  furyExtra: number
+): { rfApplied: boolean; damage: number } => {
+  const baseApplied = Math.max(
+    0,
+    requireSafeInteger(
+      baseDamage - effectiveArmor,
+      "Vehicle base damage after armor"
+    )
+  );
+  if (baseApplied >= 1) {
+    return {
+      rfApplied: furyExtra > 0,
+      damage: requireSafeInteger(
+        baseApplied + furyExtra,
+        "Final vehicle damage"
+      ),
+    };
+  }
+  return {
+    rfApplied: false,
+    damage: furyExtra > 0 ? SUPPRESSED_FURY_DAMAGE : 0,
+  };
+};
 
 const baseHit = (
   request: WarhammerDefenderDamageRequest,
@@ -72,29 +140,58 @@ function calculateWarhammerDefenderDamage(
 
   if (request.targetFamily === "vehicle") {
     request.summary.damages.forEach((damage, index) => {
-      const roll = index === 0 ? undefined : rollD100();
-      if (index > 0 && (!Number.isInteger(roll) || roll! < 1 || roll! > 100)) throw new Error("Vehicle hit-location roll must be an integer from 1 to 100");
-      const rolledLocation = index === 0 ? request.firstHitLocation : LiberImperiumVehicleHitLocation(roll === 100 ? 0 : roll!);
-      if (!rolledLocation) throw new Error("Vehicle hit-location roll must be an integer from 1 to 100");
-      const location = rolledLocation;
+      const { location, roll } = resolveVehicleLocation(
+        index,
+        request.firstHitLocation,
+        rollD100
+      );
       const facing = request.vehicleFacing;
+      // A turret always sits behind the front armor; the facing itself stands.
       const armorFacing = location === "Turret" ? "Front" : facing;
-      const armor = requireSafeInteger(request.vehicleArmor[armorFacing], "Vehicle armor");
-      const effectiveArmor = Math.max(0, requireSafeInteger(armor - request.summary.penetration, "Effective armor"));
-      const baseDamage = request.summary.baseDamages ? request.summary.baseDamages[index] : damage;
-      const extra = requireSafeInteger(damage - baseDamage, "Righteous Fury extra");
-      if (extra < 0) throw new Error("Righteous Fury base cannot exceed total damage");
-      const baseApplied = Math.max(0, requireSafeInteger(baseDamage - effectiveArmor, "Vehicle base damage after armor"));
-      const rfApplied = baseApplied >= 1;
-      const finalDamage = requireSafeInteger(
-        baseApplied + (rfApplied ? extra : extra > 0 ? 1 : 0),
-        "Final vehicle damage"
+      const armor = requireSafeInteger(
+        request.vehicleArmor[armorFacing],
+        "Vehicle armor"
+      );
+      const effectiveArmor = Math.max(
+        0,
+        requireSafeInteger(
+          armor - request.summary.penetration,
+          "Effective armor"
+        )
+      );
+      const baseDamage = request.summary.baseDamages?.[index] ?? damage;
+      const furyExtra = requireSafeInteger(
+        damage - baseDamage,
+        "Righteous Fury extra"
+      );
+      if (furyExtra < 0) {
+        throw new Error("Righteous Fury base cannot exceed total damage");
+      }
+      const { rfApplied, damage: finalDamage } = vehicleDamageParts(
+        baseDamage,
+        effectiveArmor,
+        furyExtra
       );
       totalDamage = checkedAdd(totalDamage, finalDamage, "Total damage");
-      const hit: WarhammerDefenderVehicleDamageHit = { kind: "hit", targetFamily: "vehicle", mode: "single", role: "single", index, number: index + 1,
-        location, facing, armorFacing, locationRoll: roll, originalDamage: damage,
-        baseDamage, righteousFuryExtra: extra, rfApplied, armorBeforePenetration: armor,
-        effectiveArmor, finalDamage };
+      const hit: WarhammerDefenderVehicleDamageHit = {
+        kind: "hit",
+        targetFamily: "vehicle",
+        mode: "single",
+        role: "single",
+        index,
+        number: index + 1,
+        location,
+        facing,
+        armorFacing,
+        locationRoll: roll,
+        originalDamage: damage,
+        baseDamage,
+        righteousFuryExtra: furyExtra,
+        rfApplied,
+        armorBeforePenetration: armor,
+        effectiveArmor,
+        finalDamage,
+      };
       entries.push(hit);
     });
     return { request, entries, totals: { damage: totalDamage } };

@@ -8,10 +8,16 @@ export const DAMAGE_LOCATIONS = [
 ] as const;
 
 export type DamageLocation = typeof DAMAGE_LOCATIONS[number];
-export const VEHICLE_DAMAGE_LOCATIONS = ["Motive Systems", "Hull", "Weapons", "Turret"] as const;
+export const VEHICLE_DAMAGE_LOCATIONS = [
+  "Motive Systems",
+  "Hull",
+  "Weapons",
+  "Turret",
+] as const;
 export type VehicleDamageLocation = typeof VEHICLE_DAMAGE_LOCATIONS[number];
 export type AnyDamageLocation = DamageLocation | VehicleDamageLocation;
-export type VehicleFacing = "Front" | "Side" | "Rear";
+export const VEHICLE_FACINGS = ["Front", "Side", "Rear"] as const;
+export type VehicleFacing = typeof VEHICLE_FACINGS[number];
 
 export type ArmorSlot = "headAP" | "bodyAP" | "armsAP" | "legsAP";
 
@@ -196,16 +202,20 @@ export interface DefenderDamageEntryBase<L extends AnyDamageLocation = AnyDamage
   finalDamage: number;
 }
 
-export interface WarhammerDefenderSingleDamageHit
+export interface WarhammerHumanoidDamageHitBase
   extends DefenderDamageEntryBase<DamageLocation> {
   targetFamily: "humanoid";
-  mode: "single";
-  role: "single";
   armorSlot: ArmorSlot;
   showArmorTerm: boolean;
   effectiveToughnessBonus: number;
   fortitudeApplied: boolean;
   toughnessBeforeFelling: number;
+}
+
+export interface WarhammerDefenderSingleDamageHit
+  extends WarhammerHumanoidDamageHitBase {
+  mode: "single";
+  role: "single";
 }
 
 export type HordeDamageClassification =
@@ -216,15 +226,9 @@ export type HordeDamageClassification =
   | "bonus";
 
 export interface WarhammerDefenderHordeDamageHit
-  extends DefenderDamageEntryBase<DamageLocation> {
-  targetFamily: "humanoid";
+  extends WarhammerHumanoidDamageHitBase {
   mode: "horde";
   role: "true" | "bonus";
-  armorSlot: ArmorSlot;
-  showArmorTerm: boolean;
-  effectiveToughnessBonus: number;
-  fortitudeApplied: boolean;
-  toughnessBeforeFelling: number;
   classification: HordeDamageClassification;
   baseMagnitude: number;
   devastatingAdded: number;
@@ -250,9 +254,13 @@ export interface WarhammerBonusDevastatingEntry {
   magnitude: number;
 }
 
-export type WarhammerDefenderDamageHit =
+/** The two humanoid hit branches, which share every Toughness and armor slot. */
+export type WarhammerHumanoidDamageHit =
   | WarhammerDefenderSingleDamageHit
-  | WarhammerDefenderHordeDamageHit
+  | WarhammerDefenderHordeDamageHit;
+
+export type WarhammerDefenderDamageHit =
+  | WarhammerHumanoidDamageHit
   | WarhammerDefenderVehicleDamageHit;
 
 export type WarhammerDefenderDamageEntry =

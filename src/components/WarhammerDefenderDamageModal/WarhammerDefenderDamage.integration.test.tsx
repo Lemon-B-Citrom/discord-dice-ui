@@ -20,6 +20,7 @@ import { WarhammerAttackerDamageInput } from "../WarhammerAttackerDamageModal/Wa
 import {
   EMPTY_DEFENDER_DAMAGE_DRAFT,
   WarhammerDefenderDamageDraft,
+  WarhammerHumanoidDamageHit,
 } from "./WarhammerDefenderDamageTypes";
 
 const draft: WarhammerDefenderDamageDraft = {
@@ -337,9 +338,9 @@ test("calculates per-location advanced defenses through the production store", (
     "5 = 12 − Armor (4) − Toughness (2 + 1 = 3)"
   );
   expect(document.body.textContent).toContain("Total Damage: 5");
-  expect(
-    store.getState().warhammerDefenderDamage.results?.request.defenses.mode
-  ).toBe("advanced");
+  expect(store.getState().warhammerDefenderDamage.results?.request).toMatchObject(
+    { targetFamily: "humanoid", defenses: { mode: "advanced" } }
+  );
 });
 
 test.each([
@@ -398,7 +399,11 @@ test.each([
     const result = store.getState().warhammerDefenderDamage.results;
     expect(result?.request.firstHitLocation).toBe(location);
     expect(result?.request.summary.firstHitLocation).toBe(location);
-    const hits = result?.entries.filter((entry) => entry.kind === "hit") || [];
+    const hits =
+      result?.entries.filter(
+        (entry): entry is WarhammerHumanoidDamageHit =>
+          entry.kind === "hit" && entry.targetFamily === "humanoid"
+      ) || [];
     const expectedLocations = HIT_LOCATION_CYCLES[location].slice(0, 3);
     const armorByLocation = {
       Head: 1,

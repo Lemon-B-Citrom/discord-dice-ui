@@ -13,7 +13,6 @@ export const ADVANCED_DEFENSE_TITLE_ID = "advanced-defense-title";
 // The Defender modal sits at Bootstrap's 1050. The editor and its backdrop are
 // lifted above it so the whole screen, including that modal, dims behind it.
 const EDITOR_Z_INDEX = 1070;
-const EDITOR_BACKDROP_Z_INDEX = 1060;
 
 interface AdvancedDefenseModalProps {
   show: boolean;

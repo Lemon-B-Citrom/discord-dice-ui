@@ -3,13 +3,18 @@ import {
   WarhammerAttackerDamageResult,
 } from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { EMBED_FIELD_VALUE_MAX, EMBED_TOTAL_MAX } from "../consts/discordEmbed";
+import {
+  EMBED_FIELD_VALUE_MAX,
+  EMBED_TOTAL_MAX,
+} from "../consts/discordEmbed";
 import chunkEmbedRows, {
   chunkTextForEmbed,
   EmbedField,
   fitsInOneEmbed,
 } from "./embedFields";
-import { formatWarhammerAttackerDamageSummaryHeader } from "./formatWarhammerAttackerDamageSummary";
+import {
+  getWarhammerAttackerDamageSummaryFragments,
+} from "./formatWarhammerAttackerDamageSummary";
 import { getColor } from "./getColor";
 import orderWarhammerAttackerDamageAttempts from "./orderWarhammerAttackerDamageAttempts";
 import projectWarhammerAttackerDamageSummary from "./projectWarhammerAttackerDamageSummary";
@@ -143,14 +148,7 @@ function formatAttemptLine(
 function createSummaryFields(
   summary: WarhammerAttackerDamageSummary
 ): WarhammerAttackerDamageRequestMsgField[] {
-  const fragments = [
-    `${formatWarhammerAttackerDamageSummaryHeader(summary)} `,
-    ...summary.damages.map((damage, index) => {
-      const base = summary.baseDamages && summary.baseDamages[index];
-      const token = base !== undefined && base !== damage ? `${damage}(${base})` : `${damage}`;
-      return `${index > 0 ? " " : ""}${token}`;
-    }),
-  ];
+  const fragments = getWarhammerAttackerDamageSummaryFragments(summary);
   return chunkTextForEmbed(fragments, EMBED_FIELD_VALUE_MAX - 2).map(
     (value, index) => ({
       name: index === 0 ? ":boom: Summary" : "Summary (continued)",
@@ -190,19 +188,8 @@ export default function getWarhammerAttackerDamageRequestMsg(
   result: WarhammerAttackerDamageResult,
   username: string
 ): WarhammerAttackerDamageRequestMsg {
-  const { input, damages, hitDetails } = result;
-  if (
-    damages.length !== input.hits ||
-    hitDetails.length !== input.hits ||
-    hitDetails.some(
-      ({ attempts, selectedAttemptIndex }) =>
-        attempts.length === 0 ||
-        selectedAttemptIndex < 0 ||
-        selectedAttemptIndex >= attempts.length
-    )
-  ) {
-    throw new Error("Invalid Warhammer attack result");
-  }
+  const { input, damages } = result;
+  const summary = projectWarhammerAttackerDamageSummary(result);
 
   const modifier =
     input.damageModifier < 0
@@ -227,7 +214,6 @@ export default function getWarhammerAttackerDamageRequestMsg(
   ]
     .filter(Boolean)
     .join("\n");
-  const summary = projectWarhammerAttackerDamageSummary(result);
   const summaryFields = createSummaryFields(summary);
   const hitRows = damages.map((_, index) => createHitRow(result, index));
 
@@ -270,19 +256,11 @@ export default function getWarhammerAttackerDamageRequestMsg(
   });
 
   const fields = fieldsFor(withDetail, detailsShortened);
-  const noticeFits = fitsInOneEmbed(
-    msgTitle,
-    description,
-    fields,
-    EMBED_TOTAL_MAX
-  );
+  // Never send a headline-only payload that silently loses the attack summary,
+  // so an unfittable result becomes a reported failure instead.
+  if (!fitsInOneEmbed(msgTitle, description, fields, EMBED_TOTAL_MAX)) {
+    throw new Error("Unable to fit Warhammer attack webhook message");
+  }
 
-  return {
-    msgTitle,
-    description,
-    color: getColor(),
-    // Never send a headline-only payload that silently loses the attack summary.
-    // This can only fail for a pathological hit count/annotation size.
-    fields: noticeFits ? fields : (() => { throw new Error("Unable to fit Warhammer attack webhook message"); })(),
-  };
+  return { msgTitle, description, color: getColor(), fields };
 }

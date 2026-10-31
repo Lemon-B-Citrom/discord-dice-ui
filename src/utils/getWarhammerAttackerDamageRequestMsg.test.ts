@@ -219,7 +219,8 @@ test("omits zero Felling and Proven and shows only the configured Fury details",
     rfOn: 9,
     rfConfirmsOn: 100,
   };
-  attack.damages = [10];
+  // The selected attempt totals 16, so the summary must agree with it.
+  attack.damages = [16];
   attack.hitDetails = [result().hitDetails[0]];
 
   const message = getWarhammerAttackerDamageRequestMsg(attack, "Alex");
@@ -252,7 +253,7 @@ test("omits zero Felling and Proven and shows only the configured Fury details",
 test("reports No Righteous Fury when the confirmation threshold is zero", () => {
   const attack = result();
   attack.input = { ...input, hits: 1, rfOn: 10, rfConfirmsOn: 0 };
-  attack.damages = [2];
+  attack.damages = [16];
   attack.hitDetails = [result().hitDetails[0]];
 
   const message = getWarhammerAttackerDamageRequestMsg(attack, "Lemon");
@@ -273,7 +274,7 @@ test("reports always-confirming Fury instead of a confirmation threshold", () =>
     rfConfirmsOn: 0,
     alwaysConfirm: true,
   };
-  attack.damages = [2];
+  attack.damages = [16];
   attack.hitDetails = [result().hitDetails[0]];
 
   expect(

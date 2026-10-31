@@ -1,11 +1,15 @@
 import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import { parseSafeInteger, requireNonNegativeInteger } from "./safeInteger";
-import { DAMAGE_LOCATION_BY_WIRE_TOKEN, VEHICLE_DAMAGE_LOCATION_BY_WIRE_TOKEN } from "./damageLocations";
+import { getDamageLocationByWireToken } from "./damageLocations";
 
 export const MAX_DAMAGE_HITS = 100;
 export const MAX_DAMAGE_SUMMARY_LENGTH = 4096;
 export const SUMMARY_FORMAT_ERROR =
   "Summary needs a first hit location; add one humanoid token (@head, @body, @larm, @rarm, @lleg, @rleg) or vehicle token (@motv, @hull, @wpns, @turr) before the colon. Use Pen X [, Fel Y] [, Dev Z]: damage damage ...";
+export const DAMAGE_VALUE_ERROR =
+  "Damage values must be safe whole numbers, optionally followed by a parenthesised pre-Fury base such as 25(10)";
+export const FURY_BASE_ERROR =
+  "Righteous Fury base damage cannot exceed the total damage";
 
 export type ParseDamageSummaryResult =
   | { summary: WarhammerAttackerDamageSummary; error: null }
@@ -30,6 +34,10 @@ const HEADER_LABELS: Record<SummaryHeaderKey, string> = {
 
 // One header entry: a key word, whitespace, and a non-negative whole number.
 const HEADER_TOKEN = /^([A-Za-z]+)\s+(\d+)$/;
+
+// One hit: a signed total, optionally followed by a parenthesised signed base.
+// No whitespace is allowed inside a hit, so `25 (10)` is two invalid tokens.
+const DAMAGE_TOKEN = /^([+-]?\d+)(?:\(([+-]?\d+)\))?$/;
 
 /**
  * Parse one attack summary. `Pen` is required; `Fel` and `Dev` are optional and
@@ -70,8 +78,7 @@ export default function parseWarhammerAttackerDamageSummary(
     | null = null;
   for (const token of headerTokens) {
     if (token.charAt(0) === "@") {
-      const normalizedToken = token.toLowerCase();
-      const location = DAMAGE_LOCATION_BY_WIRE_TOKEN[normalizedToken] || VEHICLE_DAMAGE_LOCATION_BY_WIRE_TOKEN[normalizedToken] || null;
+      const location = getDamageLocationByWireToken(token.toLowerCase());
       if (!location || firstHitLocation) {
         return {
           summary: null,
@@ -134,19 +141,25 @@ export default function parseWarhammerAttackerDamageSummary(
   const damages: number[] = [];
   const baseDamages: number[] = [];
   let hasBaseAnnotations = false;
-  tokens.forEach((token) => {
-    const match = /^([+-]?\d+)(?:\(([+-]?\d+)\))?$/.exec(token);
-    if (!match) return;
+  for (const token of tokens) {
+    const match = DAMAGE_TOKEN.exec(token);
+    if (!match) return { summary: null, error: DAMAGE_VALUE_ERROR };
+    const annotated = match[2] !== undefined;
     const total = parseSafeInteger(match[1]);
-    const base = match[2] === undefined ? total : parseSafeInteger(match[2]);
-    if (total === null || base === null || total - base > Number.MAX_SAFE_INTEGER || total - base < 0 || !Number.isSafeInteger(total - base)) return;
-    if (match[2] !== undefined && base > total) return;
-    hasBaseAnnotations = hasBaseAnnotations || match[2] !== undefined;
+    const base = annotated ? parseSafeInteger(match[2]) : total;
+    if (total === null || base === null) {
+      return { summary: null, error: DAMAGE_VALUE_ERROR };
+    }
+    // Two individually safe values can still disagree safely, so check the
+    // difference itself rather than trusting either operand.
+    const furyExtra = total - base;
+    if (!Number.isSafeInteger(furyExtra)) {
+      return { summary: null, error: DAMAGE_VALUE_ERROR };
+    }
+    if (furyExtra < 0) return { summary: null, error: FURY_BASE_ERROR };
+    hasBaseAnnotations = hasBaseAnnotations || annotated;
     damages.push(total);
-    baseDamages.push(base as number);
-  });
-  if (damages.length !== tokens.length) {
-    return { summary: null, error: "Damage values must be safe whole numbers" };
+    baseDamages.push(base);
   }
 
   return {

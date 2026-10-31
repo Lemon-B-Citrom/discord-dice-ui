@@ -34,9 +34,8 @@ const INHERITING_SLOTS: ReadonlyArray<ArmorSlot> = [
 /**
  * Resolve the four simple armor slots from the draft.
  *
- * Only the Body slot inherits: a lone Body value covers every location, and the
- * one-arm-or-leg case fills the remaining locations from it. Anything else must
- * be supplied explicitly, which is what the per-field errors report.
+ * Body can fill every omitted slot; when one other slot is supplied, that value
+ * fills the remaining omitted slots. Other partial layouts need explicit values.
  */
 export default function resolveWarhammerArmorLayout(
   draft: WarhammerDefenderDamageDraft
@@ -70,7 +69,6 @@ export default function resolveWarhammerArmorLayout(
   });
 
   if (Object.keys(errors).length > 0) return { armor: null, errors };
-  if (supplied.length === 0) return { armor: { ...armor, sources }, errors };
 
   const bodySupplied = supplied.indexOf("bodyAP") !== -1;
   const otherSupplied = supplied.filter((slot) => slot !== "bodyAP");
@@ -87,13 +85,16 @@ export default function resolveWarhammerArmorLayout(
         sources[slot] = inheritedSource;
       }
     });
-    return { armor: { ...armor, sources }, errors };
+  } else if (supplied.length > 0 && supplied.length < ARMOR_FIELDS.length) {
+    ARMOR_FIELDS.forEach(({ field, slot }) => {
+      if (sources[slot] === "omitted") {
+        errors[field] = "Enter armor for this location";
+      }
+    });
+    if (Object.keys(errors).length > 0) {
+      return { armor: null, errors };
+    }
   }
 
-  ARMOR_FIELDS.forEach(({ field, slot }) => {
-    if (sources[slot] === "omitted") {
-      errors[field] = "Enter armor for this location";
-    }
-  });
-  return { armor: null, errors };
+  return { armor: { ...armor, sources }, errors };
 }

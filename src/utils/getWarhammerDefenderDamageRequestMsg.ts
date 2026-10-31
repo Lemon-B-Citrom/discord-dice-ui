@@ -6,12 +6,22 @@ import {
   WarhammerDefenderDamageResult,
   WarhammerDefenderDefenses,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import chunkEmbedRows, { EmbedField, fitsInOneEmbed, chunkTextForEmbed } from "./embedFields";
-import formatWarhammerAttackerDamageSummary, { formatWarhammerAttackerDamageSummaryHeader } from "./formatWarhammerAttackerDamageSummary";
+import { EMBED_FIELD_VALUE_MAX } from "../consts/discordEmbed";
+import chunkEmbedRows, {
+  chunkTextForEmbed,
+  EmbedField,
+  fitsInOneEmbed,
+} from "./embedFields";
+import formatWarhammerAttackerDamageSummary, {
+  getWarhammerAttackerDamageSummaryFragments,
+} from "./formatWarhammerAttackerDamageSummary";
 import { getColor } from "./getColor";
 import { requireSafeInteger } from "./safeInteger";
 import sanitizeDiscordUsername from "./sanitizeDiscordUsername";
-import { getHordeClassificationLabel } from "./warhammerDefenderDamageLabels";
+import {
+  getHordeClassificationLabel,
+  getWarhammerHitLocationLabel,
+} from "./warhammerDefenderDamageLabels";
 import {
   formatEquationTokens,
   getDamageEquationTokens,
@@ -33,6 +43,7 @@ const omittedNotice = (first: number, last: number, count: number) =>
   `Hits #${first}–#${last} (${count} hit${count === 1 ? "" : "s"}) omitted. Totals include all hits; full breakdown is available in the app.`;
 const DETAILS_OMITTED_NOTICE =
   "Equations shortened; full breakdown is available in the app.";
+const SUMMARY_DESCRIPTION_LIMIT = 2000;
 
 const assertSafeIntegers = (values: ReadonlyArray<number>): void => {
   values.forEach((value) => requireSafeInteger(value, "Damage value"));
@@ -77,7 +88,7 @@ function formatHit(
   const heading = `#${entry.number}${
     entry.mode === "horde" && entry.role === "bonus" ? " (Bonus)" : ""
   }: :arrow_right:`;
-  const location = `-# ${entry.location}${entry.targetFamily === "vehicle" ? ` · Facing ${entry.facing}` : ""}`;
+  const location = `-# ${getWarhammerHitLocationLabel(entry)}`;
   const damageEquation = formatEquationTokens(
     getDamageEquationTokens(entry, request)
   );
@@ -192,16 +203,13 @@ export default function getWarhammerDefenderDamageRequestMsg(
     request.mode === "horde" ? "Horde" : "Single target"
   }`;
   const fullContext = getContext(result, true);
-  const moveSummaryToFields = fullContext.length > 2000;
+  const moveSummaryToFields = fullContext.length > SUMMARY_DESCRIPTION_LIMIT;
   const context = moveSummaryToFields ? getContext(result, false) : fullContext;
   const summaryFields = moveSummaryToFields
-    ? chunkTextForEmbed([
-        `${formatWarhammerAttackerDamageSummaryHeader(request.summary)} `,
-        ...request.summary.damages.map((damage, index) => {
-          const base = request.summary.baseDamages && request.summary.baseDamages[index];
-          return `${index ? " " : ""}${base !== undefined && base !== damage ? `${damage}(${base})` : damage}`;
-        }),
-      ], 1022).map((value, index) => ({
+    ? chunkTextForEmbed(
+        getWarhammerAttackerDamageSummaryFragments(request.summary),
+        EMBED_FIELD_VALUE_MAX - 2
+      ).map((value, index) => ({
         name: index === 0 ? ":boom: Attack Summary" : "Attack Summary (continued)",
         value: `\`${value}\``,
       }))

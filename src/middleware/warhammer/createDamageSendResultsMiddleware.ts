@@ -15,6 +15,7 @@ interface DamageRequestMsg {
  * Both damage calculators notify Discord the same way: save the result, then
  * build one embed from it. Only the trigger action and the builder differ, so a
  * notification problem must never turn a saved result into a failure.
+ * `onBuildError` lets a feature surface that failure in its own state.
  */
 export function createDamageSendResultsMiddleware<Result>(
   actionType: string,
@@ -32,7 +33,7 @@ export function createDamageSendResultsMiddleware<Result>(
       store.dispatch(requestMsgReady(buildMessage(result, username)));
     } catch (_error) {
       console.error("Unable to prepare a Warhammer damage webhook message.");
-      onBuildError && onBuildError(store);
+      onBuildError?.(store);
     }
 
     return nextResult;

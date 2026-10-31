@@ -1,7 +1,9 @@
 import parseWarhammerAttackerDamageSummary, {
   SUMMARY_FORMAT_ERROR,
 } from "./parseWarhammerAttackerDamageSummary";
-import formatWarhammerAttackerDamageSummary from "./formatWarhammerAttackerDamageSummary";
+import formatWarhammerAttackerDamageSummary, {
+  getWarhammerAttackerDamageSummaryFragments,
+} from "./formatWarhammerAttackerDamageSummary";
 
 const locations = [
   ["@head", "Head"],
@@ -55,6 +57,36 @@ test("explains how to repair legacy location-free summaries", () => {
   expect(SUMMARY_FORMAT_ERROR).toContain("first hit location");
 });
 
+test("rejects a Fury base above its total with an actionable error", () => {
+  const result = parseWarhammerAttackerDamageSummary("Pen 0, @hull: 25(30)");
+  expect(result.summary).toBeNull();
+  expect(result.error).toContain("cannot exceed the total damage");
+});
+
+test.each([
+  "Pen 0, @hull: 25 (10)",
+  "Pen 0, @hull: 25(10",
+  "Pen 0, @hull: 25(10)(9)",
+])("names the Fury annotation grammar when rejecting %p", (text) => {
+  const result = parseWarhammerAttackerDamageSummary(text);
+  expect(result.summary).toBeNull();
+  expect(result.error).toContain("parenthesised pre-Fury base");
+});
+
+test("keeps an equal Fury annotation so the formatter can drop it", () => {
+  const parsed = parseWarhammerAttackerDamageSummary("Pen 0, @hull: 25(25)");
+  if (!parsed.summary) throw new Error(parsed.error);
+
+  expect(parsed.summary).toMatchObject({
+    firstHitLocation: "Hull",
+    damages: [25],
+    baseDamages: [25],
+  });
+  expect(formatWarhammerAttackerDamageSummary(parsed.summary)).toBe(
+    "Pen 0, @hull: 25"
+  );
+});
+
 test("accepts a trailing comma and counts flattened damage values", () => {
   expect(
     parseWarhammerAttackerDamageSummary("Pen 0, @body: 1, -2,").summary?.damages
@@ -94,4 +126,21 @@ test("formats the documented example exactly", () => {
       damages: [23, 22, 15, 32],
     })
   ).toBe("Pen 3, Fel 2, @head: 23 22 15 32");
+});
+
+test("summary fragments preserve the formatted text and keep Fury hits atomic", () => {
+  const summary = {
+    penetration: 3,
+    felling: 0,
+    devastating: 0,
+    firstHitLocation: "Left Arm" as const,
+    damages: [30, 22],
+    baseDamages: [21, 22],
+  };
+  const fragments = getWarhammerAttackerDamageSummaryFragments(summary);
+
+  expect(fragments).toEqual(["Pen 3, @larm: ", "30(21)", " 22"]);
+  expect(fragments.join("")).toBe(
+    formatWarhammerAttackerDamageSummary(summary)
+  );
 });

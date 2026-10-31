@@ -1,7 +1,12 @@
 import {
+  AnyDamageLocation,
   ArmorSlot,
+  DAMAGE_LOCATIONS,
   DamageLocation,
+  VEHICLE_DAMAGE_LOCATIONS,
+  VEHICLE_FACINGS,
   VehicleDamageLocation,
+  VehicleFacing,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
 /**
@@ -45,40 +50,60 @@ export const DAMAGE_LOCATION_WIRE_TOKENS: Record<DamageLocation, string> = {
   "Right Leg": "@rleg",
 };
 
-export const DAMAGE_LOCATION_BY_WIRE_TOKEN: Record<string, DamageLocation> =
-  Object.keys(DAMAGE_LOCATION_WIRE_TOKENS).reduce<
-    Record<string, DamageLocation>
-  >((tokens, location) => {
-    const typedLocation = location as DamageLocation;
-    tokens[DAMAGE_LOCATION_WIRE_TOKENS[typedLocation]] = typedLocation;
-    return tokens;
-  }, {});
+/** Invert a forward location-to-token map into a token-to-location map. */
+const invertTokens = <Location extends string>(
+  tokens: Record<Location, string>
+): Record<string, Location> =>
+  (Object.keys(tokens) as Location[]).reduce<Record<string, Location>>(
+    (inverted, location) => {
+      inverted[tokens[location]] = location;
+      return inverted;
+    },
+    {}
+  );
 
-export const VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS: Record<VehicleDamageLocation, string> = {
+export const DAMAGE_LOCATION_BY_WIRE_TOKEN: Record<string, DamageLocation> =
+  invertTokens(DAMAGE_LOCATION_WIRE_TOKENS);
+
+export const VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS: Record<
+  VehicleDamageLocation,
+  string
+> = {
   "Motive Systems": "@motv",
   Hull: "@hull",
   Weapons: "@wpns",
   Turret: "@turr",
 };
 
-export const VEHICLE_DAMAGE_LOCATION_BY_WIRE_TOKEN: Record<string, VehicleDamageLocation> =
-  Object.keys(VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS).reduce<Record<string, VehicleDamageLocation>>(
-    (tokens, location) => {
-      const typedLocation = location as VehicleDamageLocation;
-      tokens[VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS[typedLocation]] = typedLocation;
-      return tokens;
-    },
-    {}
-  );
+export const VEHICLE_DAMAGE_LOCATION_BY_WIRE_TOKEN: Record<
+  string,
+  VehicleDamageLocation
+> = invertTokens(VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS);
 
-export const VEHICLE_DAMAGE_LOCATIONS: ReadonlyArray<VehicleDamageLocation> = [
-  "Motive Systems", "Hull", "Weapons", "Turret",
-];
+/** The canonical wire token for a location, or `undefined` for a stranger. */
+export const getDamageLocationWireToken = (
+  location: AnyDamageLocation
+): string | undefined =>
+  DAMAGE_LOCATION_WIRE_TOKENS[location as DamageLocation] ||
+  VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS[location as VehicleDamageLocation];
+
+/** The location a wire token stands for, or `undefined` for a stranger. */
+export const getDamageLocationByWireToken = (
+  token: string
+): AnyDamageLocation | undefined =>
+  DAMAGE_LOCATION_BY_WIRE_TOKEN[token] ||
+  VEHICLE_DAMAGE_LOCATION_BY_WIRE_TOKEN[token];
+
+export const isDamageLocation = (location: string): location is DamageLocation =>
+  (DAMAGE_LOCATIONS as ReadonlyArray<string>).indexOf(location) >= 0;
 
 export const isVehicleDamageLocation = (
-  location: DamageLocation | VehicleDamageLocation
+  location: string
 ): location is VehicleDamageLocation =>
-  VEHICLE_DAMAGE_LOCATIONS.indexOf(location as VehicleDamageLocation) >= 0;
+  (VEHICLE_DAMAGE_LOCATIONS as ReadonlyArray<string>).indexOf(location) >= 0;
+
+export const isVehicleFacing = (facing: string): facing is VehicleFacing =>
+  (VEHICLE_FACINGS as ReadonlyArray<string>).indexOf(facing) >= 0;
 
 /** The armor slot that covers each body part in simple defense mode. */
 export const ARMOR_SLOT_BY_LOCATION: Record<DamageLocation, ArmorSlot> = {

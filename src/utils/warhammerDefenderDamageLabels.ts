@@ -1,7 +1,8 @@
 import {
   HordeDamageClassification,
+  WarhammerDefenderDamageHit,
   WarhammerDefenderHordeDamageHit,
-  WarhammerDefenderSingleDamageHit,
+  WarhammerHumanoidDamageHit,
   WarhammerHumanoidDamageRequest,
 } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import getWarhammerDefenseForLocation from "./getWarhammerDefenseForLocation";
@@ -36,6 +37,19 @@ export function getHordeClassificationLabel(
 }
 
 /**
+ * Single owner of the hit-location wording, shared by the results modal and the
+ * Discord formatter. A vehicle hit states the facing the defender chose; the
+ * armor facing it actually used stays on the entry for auditing.
+ */
+export function getWarhammerHitLocationLabel(
+  entry: WarhammerDefenderDamageHit
+): string {
+  return entry.targetFamily === "vehicle"
+    ? `${entry.location} · Facing ${entry.facing}`
+    : entry.location;
+}
+
+/**
  * Single owner of the Horde magnitude label rules, shared by the results modal
  * and the Discord formatter so both renderers cannot disagree.
  */
@@ -61,7 +75,7 @@ export function getWarhammerMagnitudeBasis(
  * and the Discord formatter.
  */
 export function getWarhammerToughnessTerm(
-  entry: WarhammerDefenderSingleDamageHit | WarhammerDefenderHordeDamageHit,
+  entry: WarhammerHumanoidDamageHit,
   request: WarhammerHumanoidDamageRequest
 ): WarhammerToughnessTerm {
   const defense = getWarhammerDefenseForLocation(
