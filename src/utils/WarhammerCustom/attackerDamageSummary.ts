@@ -13,7 +13,7 @@ import {
 export const MAX_DAMAGE_HITS = 100;
 export const MAX_DAMAGE_SUMMARY_LENGTH = 4096;
 export const SUMMARY_FORMAT_ERROR =
-  "Summary needs a first hit location; add one humanoid token (@head, @body, @larm, @rarm, @lleg, @rleg) or vehicle token (@motv, @hull, @wpns, @turr) before the colon. Use Pen X [, Fel Y] [, Dev Z]: damage damage ...";
+  "You must provide a damage summary.\nExample: Pen 3, @head: 23 21";
 export const DAMAGE_VALUE_ERROR =
   "Damage values must be safe whole numbers, optionally followed by a parenthesised pre-Fury base such as 25(10)";
 export const FURY_BASE_ERROR =
