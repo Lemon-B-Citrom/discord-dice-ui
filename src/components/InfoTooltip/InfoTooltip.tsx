@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faQuestionCircle } from "@fortawesome/free-regular-svg-icons";
 import classNames from "classnames";
 import styles from "./info-tooltip.module.css";
-import getRandom from "../../utils/getRandom";
+import getUniqueId from "../../utils/getUniqueId";
 
 type infoTooltipPropType = {
   content: any;
@@ -23,7 +23,7 @@ function InfoTooltip({
   className = "",
   containerClassName = "",
 }: infoTooltipPropType) {
-  const id = `tooltip-${getRandom(999)}`;
+  const id = getUniqueId("tooltip");
   let icon;
 
   switch (type) {

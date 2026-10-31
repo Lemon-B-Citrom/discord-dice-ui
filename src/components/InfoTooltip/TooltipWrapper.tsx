@@ -1,7 +1,7 @@
 import React, { FC, ReactNode } from "react";
 import OverlayTrigger from "react-bootstrap/OverlayTrigger";
 import Tooltip from "react-bootstrap/Tooltip";
-import getRandom from "../../utils/getRandom";
+import getUniqueId from "../../utils/getUniqueId";
 
 interface TooltipWrapperProps {
   content: string | ReactNode;
@@ -16,7 +16,7 @@ const TooltipWrapper: FC<TooltipWrapperProps> = ({
   className,
 }: any) => {
   if (content) {
-    const id = `tooltip-${getRandom(999)}`;
+    const id = getUniqueId("tooltip");
 
     return (
       <OverlayTrigger
