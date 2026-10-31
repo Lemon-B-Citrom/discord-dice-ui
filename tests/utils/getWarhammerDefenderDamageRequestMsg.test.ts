@@ -1,6 +1,6 @@
-import getWarhammerDefenderDamageRequestMsg from "../../src/utils/getWarhammerDefenderDamageRequestMsg";
-import calculateWarhammerDefenderDamage from "../../src/utils/calculateWarhammerDefenderDamage";
-import normalizeWarhammerDefenderDamage from "../../src/utils/normalizeWarhammerDefenderDamage";
+import getWarhammerDefenderDamageRequestMsg from "../../src/utils/WarhammerCustom/getWarhammerDefenderDamageRequestMsg";
+import calculateWarhammerDefenderDamage from "../../src/utils/WarhammerCustom/calculateWarhammerDefenderDamage";
+import normalizeWarhammerDefenderDamage from "../../src/utils/WarhammerCustom/normalizeWarhammerDefenderDamage";
 import {
   EMPTY_DEFENDER_DAMAGE_DRAFT,
   WarhammerDefenderDamageResult,

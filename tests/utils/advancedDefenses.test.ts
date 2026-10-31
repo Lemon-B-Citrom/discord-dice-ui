@@ -1,7 +1,7 @@
 import normalizeAdvancedDefenses, {
   ADVANCED_DEFENSE_FIELDS,
   ADVANCED_DEFENSE_FIELD_KEYS,
-} from "../../src/utils/advancedDefenses";
+} from "../../src/utils/WarhammerCustom/advancedDefenses";
 import {
   AdvancedDefenseField,
   EMPTY_DEFENDER_DAMAGE_DRAFT,

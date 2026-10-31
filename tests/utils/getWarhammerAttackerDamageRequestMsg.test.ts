@@ -1,6 +1,6 @@
-import getWarhammerAttackerDamageRequestMsg from "../../src/utils/getWarhammerAttackerDamageRequestMsg";
+import getWarhammerAttackerDamageRequestMsg from "../../src/utils/WarhammerCustom/getWarhammerAttackerDamageRequestMsg";
 import { WarhammerAttackerDamageResult } from "../../src/components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
-import parseWarhammerAttackerDamageSummary from "../../src/utils/parseWarhammerAttackerDamageSummary";
+import { parseWarhammerAttackerDamageSummary } from "../../src/utils/WarhammerCustom/attackerDamageSummary";
 
 const input: WarhammerAttackerDamageResult["input"] = {
   hits: 2,

@@ -1,6 +1,6 @@
 import React from "react";
-import { ADVANCED_DEFENSE_BY_LOCATION } from "../../utils/advancedDefenses";
-import { DAMAGE_LOCATION_ROWS } from "../../utils/damageLocations";
+import { ADVANCED_DEFENSE_BY_LOCATION } from "../../utils/WarhammerCustom/advancedDefenses";
+import { DAMAGE_LOCATION_ROWS } from "../../utils/WarhammerCustom/damageLocations";
 import DamageNumericField from "../DamageNumericField/DamageNumericField";
 import styles from "./AdvancedDefenseModal.module.css";
 import {

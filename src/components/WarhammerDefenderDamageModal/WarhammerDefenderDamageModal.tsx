@@ -9,8 +9,8 @@ import {
   WarhammerDefenderDamageDraft,
 } from "./WarhammerDefenderDamageTypes";
 import { DEFENDER_DAMAGE_FORM_ID } from "./WarhammerDefenderDamageForm";
-import parseWarhammerAttackerDamageSummary from "../../utils/parseWarhammerAttackerDamageSummary";
-import { isVehicleDamageLocation } from "../../utils/damageLocations";
+import { parseWarhammerAttackerDamageSummary } from "../../utils/WarhammerCustom/attackerDamageSummary";
+import { isVehicleDamageLocation } from "../../utils/WarhammerCustom/damageLocations";
 
 interface WarhammerDefenderDamageModalProps {
   showModal: boolean;

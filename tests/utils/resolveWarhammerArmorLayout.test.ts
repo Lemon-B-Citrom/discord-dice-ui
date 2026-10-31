@@ -2,7 +2,7 @@ import {
   EMPTY_DEFENDER_DAMAGE_DRAFT,
   WarhammerDefenderDamageDraft,
 } from "../../src/components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import resolveWarhammerArmorLayout from "../../src/utils/resolveWarhammerArmorLayout";
+import resolveWarhammerArmorLayout from "../../src/utils/WarhammerCustom/resolveWarhammerArmorLayout";
 
 const resolve = (patch: Partial<WarhammerDefenderDamageDraft>) =>
   resolveWarhammerArmorLayout({ ...EMPTY_DEFENDER_DAMAGE_DRAFT, ...patch });

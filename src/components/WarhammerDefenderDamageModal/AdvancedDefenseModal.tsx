@@ -3,7 +3,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import normalizeAdvancedDefenses, {
   ADVANCED_DEFENSE_FIELD_KEYS,
-} from "../../utils/advancedDefenses";
+} from "../../utils/WarhammerCustom/advancedDefenses";
 import AdvancedDefensePanel from "./AdvancedDefensePanel";
 import styles from "./AdvancedDefenseModal.module.css";
 import { WarhammerDefenderDamageDraft } from "./WarhammerDefenderDamageTypes";

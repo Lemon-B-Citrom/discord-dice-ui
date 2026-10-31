@@ -1,6 +1,6 @@
 import calculateWarhammerAttackerDamage, {
   WarhammerAttackerDamageDiceSource,
-} from "../../src/utils/calculateWarhammerAttackerDamage";
+} from "../../src/utils/WarhammerCustom/calculateWarhammerAttackerDamage";
 import { WarhammerAttackerDamageInput } from "../../src/components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import sl from "../../src/components/WarhammerModal/sl";
 

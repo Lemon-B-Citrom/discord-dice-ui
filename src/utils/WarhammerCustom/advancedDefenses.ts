@@ -4,12 +4,12 @@ import {
   DefenderDamageValidationErrors,
   WarhammerAdvancedDefenses,
   WarhammerDefenderDamageDraft,
-} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+} from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import { DAMAGE_LOCATION_SHORT_LABELS } from "./damageLocations";
 import {
   NON_NEGATIVE_INTEGER_ERROR,
   parseOptionalNonNegativeInteger,
-} from "./safeInteger";
+} from "../safeInteger";
 
 export interface AdvancedDefenseFieldMap {
   location: DamageLocation;

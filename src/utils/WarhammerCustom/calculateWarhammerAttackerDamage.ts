@@ -1,14 +1,14 @@
-import getResultsArray from "./getResultsArray";
-import getWarhammerSuccessLevels from "./getWarhammerSuccessLevels";
-import sl from "../components/WarhammerModal/sl";
+import getResultsArray from "../getResultsArray";
+import getWarhammerSuccessLevels from "../getWarhammerSuccessLevels";
+import sl from "../../components/WarhammerModal/sl";
 import {
   WarhammerAttackerDamageAttempt,
   WarhammerAttackerDamageDie,
   WarhammerAttackerDamageHit,
   WarhammerAttackerDamageInput,
   WarhammerAttackerDamageResult,
-} from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
-import { requireSafeInteger } from "./safeInteger";
+} from "../../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import { requireSafeInteger } from "../safeInteger";
 
 export interface WarhammerAttackerDamageDiceSource {
   rollD10: () => number;

@@ -6,11 +6,11 @@ import {
   WarhammerDefenderDamageRequest,
   WarhammerDefenderDefenses,
   WarhammerDefenderVehicleDamageRequest,
-} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+} from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import normalizeAdvancedDefenses, {
   NormalizeAdvancedDefensesResult,
 } from "./advancedDefenses";
-import parseWarhammerAttackerDamageSummary from "./parseWarhammerAttackerDamageSummary";
+import { parseWarhammerAttackerDamageSummary } from "./attackerDamageSummary";
 import { isVehicleDamageLocation, isVehicleFacing } from "./damageLocations";
 import resolveWarhammerArmorLayout, {
   ResolveArmorResult,
@@ -18,7 +18,7 @@ import resolveWarhammerArmorLayout, {
 import {
   NON_NEGATIVE_INTEGER_ERROR,
   parseOptionalNonNegativeInteger,
-} from "./safeInteger";
+} from "../safeInteger";
 
 const parseNonNegative = (
   value: string,

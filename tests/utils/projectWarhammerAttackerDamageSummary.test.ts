@@ -1,5 +1,5 @@
 import { WarhammerAttackerDamageResult } from "../../src/components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
-import projectWarhammerAttackerDamageSummary from "../../src/utils/projectWarhammerAttackerDamageSummary";
+import { projectWarhammerAttackerDamageSummary } from "../../src/utils/WarhammerCustom/attackerDamageSummary";
 
 const result = (): WarhammerAttackerDamageResult => ({
   input: {
@@ -55,3 +55,15 @@ test("rejects incomplete attack snapshots at the projection boundary", () => {
     "Invalid Warhammer attack result"
   );
 });
+
+test.each([10, 20])(
+  "rejects a recorded damage of %s that disagrees with the selected attempt",
+  (damage) => {
+    const inconsistent = result();
+    inconsistent.damages[0] = damage;
+
+    expect(() => projectWarhammerAttackerDamageSummary(inconsistent)).toThrow(
+      "Invalid Warhammer attack result"
+    );
+  }
+);

@@ -9,8 +9,10 @@ import {
   requestWarhammerAttackerDamage,
 } from "../../actions/warhammerAttackerDamage.actions";
 import { WarhammerAttackerDamageState } from "../../reducers/warhammer-attacker-damage-reducer";
-import formatWarhammerAttackerDamageSummary from "../../utils/formatWarhammerAttackerDamageSummary";
-import projectWarhammerAttackerDamageSummary from "../../utils/projectWarhammerAttackerDamageSummary";
+import {
+  formatWarhammerAttackerDamageSummary,
+  projectWarhammerAttackerDamageSummary,
+} from "../../utils/WarhammerCustom/attackerDamageSummary";
 import CodeSpan from "../CodeSpan/CodeSpan";
 import WarhammerAttackerDamageHitBreakdown from "./WarhammerAttackerDamageHitBreakdown";
 import styles from "./WarhammerAttackerDamageResultsModal.module.css";

@@ -6,7 +6,7 @@ import {
   WarhammerAttackerDamageAttempt,
   WarhammerAttackerDamageHit,
 } from "../WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
-import orderWarhammerAttackerDamageAttempts from "../../utils/orderWarhammerAttackerDamageAttempts";
+import orderWarhammerAttackerDamageAttempts from "../../utils/WarhammerCustom/orderWarhammerAttackerDamageAttempts";
 import styles from "./WarhammerAttackerDamageHitBreakdown.module.css";
 
 interface WarhammerAttackerDamageHitBreakdownProps {

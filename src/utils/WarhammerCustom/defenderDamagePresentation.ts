@@ -1,15 +1,15 @@
 import {
+  HordeDamageClassification,
   WarhammerDefenderDamageHit,
   WarhammerDefenderDamageRequest,
   WarhammerDefenderHordeDamageHit,
   WarhammerDefenderVehicleDamageHit,
   WarhammerHumanoidDamageHit,
   WarhammerHumanoidDamageRequest,
-} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import {
-  getWarhammerMagnitudeBasis,
-  getWarhammerToughnessTerm,
-} from "./warhammerDefenderDamageLabels";
+} from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import getWarhammerDefenseForLocation from "./getWarhammerDefenseForLocation";
+
+// Presentation types.
 
 /**
  * One piece of a damage equation. Renderers decide how a code value looks, so
@@ -20,6 +20,84 @@ export type EquationToken =
   | { kind: "text"; text: string }
   | { kind: "code"; value: number }
   | { kind: "strongCode"; value: number };
+
+interface WarhammerMagnitudeBasis {
+  label: string;
+  operand: number;
+}
+
+interface WarhammerToughnessTerm {
+  fortitudeApplied: boolean;
+  /** Per-location Toughness added to the Toughness Bonus, 0 in simple mode. */
+  advanced: number;
+  beforeFelling: number;
+  felling: number;
+  effective: number;
+  reduced: boolean;
+  /** Felling exceeded the whole pool, so the result is floored at zero. */
+  fellingExceedsBase: boolean;
+}
+
+// Shared labels and operands.
+
+/** Shared wording for Horde classifications; renderers add their own emphasis. */
+export function getHordeClassificationLabel(
+  classification: HordeDamageClassification
+): string {
+  if (classification === "overkill") return "Overkill!";
+  if (classification === "partial-overkill") return "Partial Overkill!";
+  return "";
+}
+
+/** Shared hit-location wording for result and Discord renderers. */
+export function getWarhammerHitLocationLabel(
+  entry: WarhammerDefenderDamageHit
+): string {
+  return entry.targetFamily === "vehicle"
+    ? `${entry.location} · Facing ${entry.facing}`
+    : entry.location;
+}
+
+/** Resolve the magnitude operand and label used by a Horde hit. */
+function getWarhammerMagnitudeBasis(
+  hit: WarhammerDefenderHordeDamageHit
+): WarhammerMagnitudeBasis {
+  switch (hit.classification) {
+    case "overkill":
+      return { label: "Per-unit Magnitude", operand: hit.baseMagnitude };
+    case "partial-overkill":
+      return { label: "Halved Per-unit Magnitude", operand: hit.baseMagnitude };
+    case "no-damage":
+      return { label: "Nonpositive Damage (0)", operand: 0 };
+    default:
+      return hit.finalDamage > 0
+        ? { label: "Nonzero Damage (1)", operand: 1 }
+        : { label: "Nonpositive Damage (0)", operand: 0 };
+  }
+}
+
+/** Resolve the Toughness operands shown in the damage equation. */
+function getWarhammerToughnessTerm(
+  entry: WarhammerHumanoidDamageHit,
+  request: WarhammerHumanoidDamageRequest
+): WarhammerToughnessTerm {
+  const defense = getWarhammerDefenseForLocation(
+    request,
+    entry.location,
+    entry.armorSlot
+  );
+  return {
+    fortitudeApplied: entry.fortitudeApplied,
+    advanced: defense.toughnessBonusAdd,
+    beforeFelling: entry.toughnessBeforeFelling,
+    felling: request.summary.felling,
+    effective: entry.effectiveToughnessBonus,
+    reduced: entry.effectiveToughnessBonus < entry.toughnessBeforeFelling,
+    fellingExceedsBase: request.summary.felling > entry.toughnessBeforeFelling,
+  };
+}
+
+// Equation construction.
 
 const text = (value: string): EquationToken => ({ kind: "text", text: value });
 const code = (value: number): EquationToken => ({ kind: "code", value });
@@ -169,6 +247,8 @@ export function getMagnitudeEquationTokens(
       : []),
   ];
 }
+
+// Discord rendering.
 
 /** Discord markdown for a whole equation. */
 export function formatEquationTokens(

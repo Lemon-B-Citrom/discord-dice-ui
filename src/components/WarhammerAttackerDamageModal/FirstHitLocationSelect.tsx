@@ -7,7 +7,7 @@ import {
   DAMAGE_LOCATION_SHORT_LABELS,
   getAdjacentLocation,
   MenuMoveKey,
-} from "../../utils/damageLocations";
+} from "../../utils/WarhammerCustom/damageLocations";
 import { DamageLocation } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import styles from "./FirstHitLocationSelect.module.css";
 import formStyles from "./WarhammerAttackerDamageForm.module.css";

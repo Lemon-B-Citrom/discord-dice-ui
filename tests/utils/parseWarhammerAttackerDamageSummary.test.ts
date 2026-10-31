@@ -1,9 +1,9 @@
-import parseWarhammerAttackerDamageSummary, {
-  SUMMARY_FORMAT_ERROR,
-} from "../../src/utils/parseWarhammerAttackerDamageSummary";
-import formatWarhammerAttackerDamageSummary, {
+import {
+  formatWarhammerAttackerDamageSummary,
   getWarhammerAttackerDamageSummaryFragments,
-} from "../../src/utils/formatWarhammerAttackerDamageSummary";
+  parseWarhammerAttackerDamageSummary,
+  SUMMARY_FORMAT_ERROR,
+} from "../../src/utils/WarhammerCustom/attackerDamageSummary";
 
 const locations = [
   ["@head", "Head"],
@@ -49,6 +49,15 @@ test.each([
   expect(result.summary).toBeNull();
   expect(result.error).toBeTruthy();
 });
+
+test.each(["constructor", "Constructor", "unknown"])(
+  "rejects undeclared header alias %s",
+  (header) => {
+    expect(
+      parseWarhammerAttackerDamageSummary(`Pen 0, ${header} 1, @head: 10`)
+    ).toEqual({ summary: null, error: SUMMARY_FORMAT_ERROR });
+  }
+);
 
 test("explains how to repair legacy location-free summaries", () => {
   expect(parseWarhammerAttackerDamageSummary("Pen 3: 1").error).toContain(

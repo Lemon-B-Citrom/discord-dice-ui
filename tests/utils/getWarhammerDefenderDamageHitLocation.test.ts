@@ -1,5 +1,5 @@
 import { DamageLocation } from "../../src/components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import getWarhammerDefenderDamageHitLocation from "../../src/utils/getWarhammerDefenderDamageHitLocation";
+import { getWarhammerDefenderDamageHitLocation } from "../../src/utils/WarhammerCustom/damageLocations";
 
 test.each([
   ["Head", ["Head", "Right Arm", "Body", "Left Arm", "Body", "Head"]],

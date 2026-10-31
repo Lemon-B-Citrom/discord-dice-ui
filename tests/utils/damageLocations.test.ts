@@ -11,7 +11,7 @@ import {
   DAMAGE_LOCATION_BY_WIRE_TOKEN,
   getAdjacentLocation,
   MenuMoveKey,
-} from "../../src/utils/damageLocations";
+} from "../../src/utils/WarhammerCustom/damageLocations";
 
 test("lays the body out as one head, one arm/body/arm line and a leg pair", () => {
   expect(DAMAGE_LOCATION_ROWS.map((row) => row.length)).toEqual([1, 3, 2]);

@@ -5,16 +5,18 @@ import {
   WarhammerDefenderVehicleDamageHit,
   WarhammerDefenderVehicleDamageRequest,
 } from "../../src/components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS } from "../../src/utils/damageLocations";
-import formatWarhammerAttackerDamageSummary from "../../src/utils/formatWarhammerAttackerDamageSummary";
-import parseWarhammerAttackerDamageSummary from "../../src/utils/parseWarhammerAttackerDamageSummary";
-import normalizeWarhammerDefenderDamage from "../../src/utils/normalizeWarhammerDefenderDamage";
-import calculateWarhammerDefenderDamage from "../../src/utils/calculateWarhammerDefenderDamage";
-import getWarhammerDefenderDamageRequestMsg from "../../src/utils/getWarhammerDefenderDamageRequestMsg";
+import { VEHICLE_DAMAGE_LOCATION_WIRE_TOKENS } from "../../src/utils/WarhammerCustom/damageLocations";
+import {
+  formatWarhammerAttackerDamageSummary,
+  parseWarhammerAttackerDamageSummary,
+} from "../../src/utils/WarhammerCustom/attackerDamageSummary";
+import normalizeWarhammerDefenderDamage from "../../src/utils/WarhammerCustom/normalizeWarhammerDefenderDamage";
+import calculateWarhammerDefenderDamage from "../../src/utils/WarhammerCustom/calculateWarhammerDefenderDamage";
+import getWarhammerDefenderDamageRequestMsg from "../../src/utils/WarhammerCustom/getWarhammerDefenderDamageRequestMsg";
 import {
   formatEquationTokens,
   getDamageEquationTokens,
-} from "../../src/utils/warhammerDamageEquation";
+} from "../../src/utils/WarhammerCustom/defenderDamagePresentation";
 
 /** Normalize one vehicle draft, failing loudly on a validation error. */
 const vehicleRequest = (

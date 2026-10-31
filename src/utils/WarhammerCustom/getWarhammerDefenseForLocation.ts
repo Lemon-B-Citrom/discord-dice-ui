@@ -2,7 +2,7 @@ import {
   ArmorSlot,
   DamageLocation,
   WarhammerHumanoidDamageRequest,
-} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+} from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
 export interface LocationDefense {
   /** Armor of the body part before any Penetration is applied. */

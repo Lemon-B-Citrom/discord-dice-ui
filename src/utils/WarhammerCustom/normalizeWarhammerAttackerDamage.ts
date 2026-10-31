@@ -2,8 +2,8 @@ import {
   AttackerDamageErrors,
   AttackerDamageValues,
   WarhammerAttackerDamageInput,
-} from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
-import { parseSafeInteger } from "./safeInteger";
+} from "../../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import { parseSafeInteger } from "../safeInteger";
 import { isDamageLocation, isVehicleDamageLocation } from "./damageLocations";
 
 export const WARHAMMER_ATTACKER_DAMAGE_DEFAULTS: Omit<

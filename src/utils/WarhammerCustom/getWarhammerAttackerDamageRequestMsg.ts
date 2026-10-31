@@ -1,19 +1,24 @@
 import {
   WarhammerAttackerDamageAttempt,
   WarhammerAttackerDamageResult,
-} from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
-import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { EMBED_FIELD_VALUE_MAX, EMBED_TOTAL_MAX } from "../consts/discordEmbed";
+} from "../../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import { WarhammerAttackerDamageSummary } from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import {
+  EMBED_FIELD_VALUE_MAX,
+  EMBED_TOTAL_MAX,
+} from "../../consts/discordEmbed";
 import chunkEmbedRows, {
   chunkTextForEmbed,
   EmbedField,
   fitsInOneEmbed,
-} from "./embedFields";
-import { getWarhammerAttackerDamageSummaryFragments } from "./formatWarhammerAttackerDamageSummary";
-import { getColor } from "./getColor";
+} from "../embedFields";
+import {
+  getWarhammerAttackerDamageSummaryFragments,
+  projectWarhammerAttackerDamageSummary,
+} from "./attackerDamageSummary";
+import { getColor } from "../getColor";
 import orderWarhammerAttackerDamageAttempts from "./orderWarhammerAttackerDamageAttempts";
-import projectWarhammerAttackerDamageSummary from "./projectWarhammerAttackerDamageSummary";
-import sanitizeDiscordUsername from "./sanitizeDiscordUsername";
+import sanitizeDiscordUsername from "../sanitizeDiscordUsername";
 
 export type WarhammerAttackerDamageRequestMsgField = EmbedField;
 

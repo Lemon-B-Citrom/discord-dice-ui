@@ -5,28 +5,27 @@ import {
   WarhammerDefenderDamageRequest,
   WarhammerDefenderDamageResult,
   WarhammerDefenderDefenses,
-} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { EMBED_FIELD_VALUE_MAX } from "../consts/discordEmbed";
+} from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import { EMBED_FIELD_VALUE_MAX } from "../../consts/discordEmbed";
 import chunkEmbedRows, {
   chunkTextForEmbed,
   EmbedField,
   fitsInOneEmbed,
-} from "./embedFields";
-import formatWarhammerAttackerDamageSummary, {
-  getWarhammerAttackerDamageSummaryFragments,
-} from "./formatWarhammerAttackerDamageSummary";
-import { getColor } from "./getColor";
-import { requireSafeInteger } from "./safeInteger";
-import sanitizeDiscordUsername from "./sanitizeDiscordUsername";
+} from "../embedFields";
 import {
-  getHordeClassificationLabel,
-  getWarhammerHitLocationLabel,
-} from "./warhammerDefenderDamageLabels";
+  formatWarhammerAttackerDamageSummary,
+  getWarhammerAttackerDamageSummaryFragments,
+} from "./attackerDamageSummary";
+import { getColor } from "../getColor";
+import { requireSafeInteger } from "../safeInteger";
+import sanitizeDiscordUsername from "../sanitizeDiscordUsername";
 import {
   formatEquationTokens,
   getDamageEquationTokens,
+  getHordeClassificationLabel,
   getMagnitudeEquationTokens,
-} from "./warhammerDamageEquation";
+  getWarhammerHitLocationLabel,
+} from "./defenderDamagePresentation";
 
 export type WarhammerDefenderDamageRequestMsgField = EmbedField;
 

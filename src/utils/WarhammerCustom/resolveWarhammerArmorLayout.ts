@@ -4,11 +4,11 @@ import {
   DefenderDamageValidationErrors,
   WarhammerArmorLayout,
   WarhammerDefenderDamageDraft,
-} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+} from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import {
   NON_NEGATIVE_INTEGER_ERROR,
   requireNonNegativeInteger,
-} from "./safeInteger";
+} from "../safeInteger";
 
 export interface ResolveArmorResult {
   armor: WarhammerArmorLayout | null;

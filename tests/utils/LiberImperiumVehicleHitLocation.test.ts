@@ -1,4 +1,4 @@
-import LiberImperiumVehicleHitLocation from "../../src/utils/LiberImperiumVehicleHitLocation";
+import LiberImperiumVehicleHitLocation from "../../src/utils/WarhammerCustom/LiberImperiumVehicleHitLocation";
 
 describe("LiberImperiumVehicleHitLocation", () => {
   test.each([

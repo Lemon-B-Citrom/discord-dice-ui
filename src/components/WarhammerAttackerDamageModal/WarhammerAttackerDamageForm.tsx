@@ -5,7 +5,7 @@ import Row from "react-bootstrap/Row";
 import styles from "./WarhammerAttackerDamageForm.module.css";
 import normalizeWarhammerAttackerDamage, {
   WARHAMMER_ATTACKER_DAMAGE_DEFAULTS,
-} from "../../utils/normalizeWarhammerAttackerDamage";
+} from "../../utils/WarhammerCustom/normalizeWarhammerAttackerDamage";
 import {
   AttackerDamageErrors,
   AttackerDamageValues,

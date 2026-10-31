@@ -6,7 +6,7 @@ import {
 import getWarhammerSuccessLevels from "../../utils/getWarhammerSuccessLevels";
 import getReversedResult from "../../utils/getReversedResult";
 import getDarkHeresyIIHitLocation from "../../utils/getDarkHeresyIIHitLocation";
-import LiberImperiumVehicleHitLocation from "../../utils/LiberImperiumVehicleHitLocation";
+import LiberImperiumVehicleHitLocation from "../../utils/WarhammerCustom/LiberImperiumVehicleHitLocation";
 import getWarhammer2eHitLocation from "../../utils/getWarhammer2eHitLocation";
 import getWarhammer4eHitLocation from "../../utils/getWarhammer4eHitLocation";
 import sl from "../../components/WarhammerModal/sl";

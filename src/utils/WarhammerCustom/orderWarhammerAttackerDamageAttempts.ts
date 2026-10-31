@@ -1,7 +1,7 @@
 import {
   WarhammerAttackerDamageAttempt,
   WarhammerAttackerDamageHit,
-} from "../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+} from "../../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 
 export interface OrderedAttackerDamageAttempt {
   attempt: WarhammerAttackerDamageAttempt;

@@ -5,7 +5,7 @@ import {
   WarhammerDefenderDamageRequest,
   WarhammerHumanoidDamageRequest,
 } from "../../src/components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import normalizeWarhammerDefenderDamage from "../../src/utils/normalizeWarhammerDefenderDamage";
+import normalizeWarhammerDefenderDamage from "../../src/utils/WarhammerCustom/normalizeWarhammerDefenderDamage";
 import { NON_NEGATIVE_INTEGER_ERROR } from "../../src/utils/safeInteger";
 
 const zeroAdvancedDefenses: WarhammerAdvancedDefenses = {

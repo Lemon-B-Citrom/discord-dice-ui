@@ -5,7 +5,7 @@ import {
   EMPTY_DEFENDER_DAMAGE_DRAFT,
   WarhammerDefenderDamageDraft,
 } from "../../../src/components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { ADVANCED_DEFENSE_FIELDS } from "../../../src/utils/advancedDefenses";
+import { ADVANCED_DEFENSE_FIELDS } from "../../../src/utils/WarhammerCustom/advancedDefenses";
 import { NON_NEGATIVE_INTEGER_ERROR } from "../../../src/utils/safeInteger";
 
 const renderModal = (

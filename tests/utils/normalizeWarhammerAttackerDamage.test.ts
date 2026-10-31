@@ -1,6 +1,6 @@
 import normalizeWarhammerAttackerDamage, {
   WARHAMMER_ATTACKER_DAMAGE_DEFAULTS,
-} from "../../src/utils/normalizeWarhammerAttackerDamage";
+} from "../../src/utils/WarhammerCustom/normalizeWarhammerAttackerDamage";
 import { AttackerDamageValues } from "../../src/components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 
 const emptyValues: AttackerDamageValues = {

@@ -7,7 +7,7 @@ import {
   VEHICLE_FACINGS,
   VehicleDamageLocation,
   VehicleFacing,
-} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+} from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 
 /**
  * The body diagram as rows, each horizontally centred: one head, the
@@ -133,6 +133,15 @@ export const HIT_LOCATION_CYCLES: Record<
   "Right Leg": ["Right Leg", "Body", "Left Leg", "Body", "Right Leg", "Body"],
   "Left Leg": ["Left Leg", "Body", "Right Leg", "Body", "Left Leg", "Body"],
 };
+
+/** Resolve each successive humanoid hit through the starting location's cycle. */
+export function getWarhammerDefenderDamageHitLocation(
+  firstLocation: DamageLocation,
+  hitIndex: number
+): DamageLocation {
+  const cycle = HIT_LOCATION_CYCLES[firstLocation];
+  return cycle[hitIndex % cycle.length];
+}
 
 export type MenuMoveKey =
   | "ArrowUp"

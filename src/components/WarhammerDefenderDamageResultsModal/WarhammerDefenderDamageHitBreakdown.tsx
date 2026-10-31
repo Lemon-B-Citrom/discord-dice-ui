@@ -7,14 +7,12 @@ import {
   WarhammerDefenderDamageRequest,
 } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import {
-  getHordeClassificationLabel,
-  getWarhammerHitLocationLabel,
-} from "../../utils/warhammerDefenderDamageLabels";
-import {
   EquationToken,
   getDamageEquationTokens,
+  getHordeClassificationLabel,
+  getWarhammerHitLocationLabel,
   getMagnitudeEquationTokens,
-} from "../../utils/warhammerDamageEquation";
+} from "../../utils/WarhammerCustom/defenderDamagePresentation";
 import styles from "./WarhammerDefenderDamageHitBreakdown.module.css";
 
 interface WarhammerDefenderDamageHitBreakdownProps {

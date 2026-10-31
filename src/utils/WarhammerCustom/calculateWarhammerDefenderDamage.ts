@@ -7,14 +7,16 @@ import {
   WarhammerDefenderHordeDamageHit,
   WarhammerDefenderSingleDamageHit,
   WarhammerDefenderVehicleDamageHit,
-} from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { ARMOR_SLOT_BY_LOCATION } from "./damageLocations";
-import getWarhammerDefenderDamageHitLocation from "./getWarhammerDefenderDamageHitLocation";
+} from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import {
+  ARMOR_SLOT_BY_LOCATION,
+  getWarhammerDefenderDamageHitLocation,
+} from "./damageLocations";
 import getWarhammerDefenseForLocation, {
   LocationDefense,
 } from "./getWarhammerDefenseForLocation";
-import { requireSafeInteger } from "./safeInteger";
-import getResultsArray from "./getResultsArray";
+import { requireSafeInteger } from "../safeInteger";
+import getResultsArray from "../getResultsArray";
 import LiberImperiumVehicleHitLocation from "./LiberImperiumVehicleHitLocation";
 
 /** Bonus hits get their own Fortitude quota, covering two hits each. */

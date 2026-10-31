@@ -1,6 +1,14 @@
-import { WarhammerAttackerDamageSummary } from "../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { parseSafeInteger, requireNonNegativeInteger } from "./safeInteger";
-import { getDamageLocationByWireToken } from "./damageLocations";
+import { WarhammerAttackerDamageResult } from "../../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
+import { WarhammerAttackerDamageSummary } from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
+import {
+  parseSafeInteger,
+  requireNonNegativeInteger,
+  requireSafeInteger,
+} from "../safeInteger";
+import {
+  getDamageLocationByWireToken,
+  getDamageLocationWireToken,
+} from "./damageLocations";
 
 export const MAX_DAMAGE_HITS = 100;
 export const MAX_DAMAGE_SUMMARY_LENGTH = 4096;
@@ -39,11 +47,13 @@ const HEADER_TOKEN = /^([A-Za-z]+)\s+(\d+)$/;
 // No whitespace is allowed inside a hit, so `25 (10)` is two invalid tokens.
 const DAMAGE_TOKEN = /^([+-]?\d+)(?:\(([+-]?\d+)\))?$/;
 
+// Summary parsing.
+
 /**
  * Parse one attack summary. `Pen` is required; `Fel` and `Dev` are optional and
  * may appear in any order, so a missing trait means zero.
  */
-export default function parseWarhammerAttackerDamageSummary(
+export function parseWarhammerAttackerDamageSummary(
   rawSummary: string
 ): ParseDamageSummaryResult {
   if (rawSummary.length > MAX_DAMAGE_SUMMARY_LENGTH) {
@@ -92,10 +102,11 @@ export default function parseWarhammerAttackerDamageSummary(
     if (!match) {
       return { summary: null, error: SUMMARY_FORMAT_ERROR };
     }
-    const key = HEADER_KEYS[match[1].toLowerCase()];
-    if (!key) {
+    const alias = match[1].toLowerCase();
+    if (!Object.prototype.hasOwnProperty.call(HEADER_KEYS, alias)) {
       return { summary: null, error: SUMMARY_FORMAT_ERROR };
     }
+    const key = HEADER_KEYS[alias];
     if (headerValues[key] !== undefined) {
       return {
         summary: null,
@@ -172,5 +183,118 @@ export default function parseWarhammerAttackerDamageSummary(
       ...(hasBaseAnnotations ? { baseDamages } : {}),
     },
     error: null,
+  };
+}
+
+// Summary formatting.
+
+/**
+ * Build the canonical header for an attack summary. Zero-valued optional traits
+ * are omitted so a summary never states a trait the attack does not have; the
+ * parser treats an absent Felling or Devastating as zero.
+ */
+function formatWarhammerAttackerDamageSummaryHeader(
+  summary: WarhammerAttackerDamageSummary
+): string {
+  const parts = [`Pen ${summary.penetration}`];
+  if (summary.felling !== 0) {
+    parts.push(`Fel ${summary.felling}`);
+  }
+  if (summary.devastating !== 0) {
+    parts.push(`Dev ${summary.devastating}`);
+  }
+  const locationToken = getDamageLocationWireToken(summary.firstHitLocation);
+  if (!locationToken) throw new Error("Invalid first hit location");
+  parts.push(locationToken);
+  return `${parts.join(", ")}:`;
+}
+
+/**
+ * One hit as a single summary token: the total alone, or `25(10)` when a
+ * confirmed Fury raised it, where the parenthesised value is the pre-Fury base.
+ * Callers must keep a token whole when they chunk the summary.
+ */
+function formatWarhammerAttackerDamageHit(
+  damage: number,
+  baseDamage?: number
+): string {
+  const total = requireSafeInteger(damage, "Damage value");
+  if (baseDamage === undefined) return `${total}`;
+  const base = requireSafeInteger(baseDamage, "Base damage");
+  const furyExtra = requireSafeInteger(total - base, "Righteous Fury extra");
+  if (furyExtra < 0) {
+    throw new Error("Righteous Fury base cannot exceed total damage");
+  }
+  return furyExtra === 0 ? `${total}` : `${total}(${base})`;
+}
+
+/** Keep each hit token whole while callers pack summaries into embed fields. */
+export function getWarhammerAttackerDamageSummaryFragments(
+  summary: WarhammerAttackerDamageSummary
+): ReadonlyArray<string> {
+  if (
+    summary.baseDamages &&
+    summary.baseDamages.length !== summary.damages.length
+  ) {
+    throw new Error("Invalid Righteous Fury base damage metadata");
+  }
+  return [
+    `${formatWarhammerAttackerDamageSummaryHeader(summary)} `,
+    ...summary.damages.map(
+      (damage, index) =>
+        `${index > 0 ? " " : ""}${formatWarhammerAttackerDamageHit(
+          damage,
+          summary.baseDamages?.[index]
+        )}`
+    ),
+  ];
+}
+
+/**
+ * Single producer for the attack summary line, shared by the Attack results
+ * modal, the Attack Discord embed, and the Defender embed echo.
+ */
+export function formatWarhammerAttackerDamageSummary(
+  summary: WarhammerAttackerDamageSummary
+): string {
+  return getWarhammerAttackerDamageSummaryFragments(summary).join("");
+}
+
+// Completed attack projection.
+
+/** Project a completed attack through the single validated summary path. */
+export function projectWarhammerAttackerDamageSummary(
+  result: WarhammerAttackerDamageResult
+): WarhammerAttackerDamageSummary {
+  const { input, damages, hitDetails } = result;
+  if (damages.length !== input.hits || hitDetails.length !== input.hits) {
+    throw new Error("Invalid Warhammer attack result");
+  }
+  const baseDamages = hitDetails.map((hit, index) => {
+    const selected = hit.attempts[hit.selectedAttemptIndex];
+    if (
+      hit.attempts.length === 0 ||
+      hit.selectedAttemptIndex < 0 ||
+      hit.selectedAttemptIndex >= hit.attempts.length ||
+      !selected ||
+      selected.damage !== damages[index]
+    ) {
+      throw new Error("Invalid Warhammer attack result");
+    }
+    const fury = selected.righteousFuryRolls.reduce(
+      (sum, roll) => requireSafeInteger(sum + roll, "Righteous Fury total"),
+      0
+    );
+    return requireSafeInteger(selected.damage - fury, "Base damage");
+  });
+  return {
+    penetration: input.penetration,
+    felling: input.felling,
+    devastating: input.devastating,
+    firstHitLocation: input.firstHitLocation,
+    damages: damages.map((damage) =>
+      requireSafeInteger(damage, "Damage value")
+    ),
+    baseDamages,
   };
 }

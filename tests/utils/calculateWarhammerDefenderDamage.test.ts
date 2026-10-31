@@ -4,8 +4,8 @@ import {
   WarhammerDefenderDamageEntry,
   WarhammerHumanoidDamageHit,
 } from "../../src/components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import calculateWarhammerDefenderDamage from "../../src/utils/calculateWarhammerDefenderDamage";
-import normalizeWarhammerDefenderDamage from "../../src/utils/normalizeWarhammerDefenderDamage";
+import calculateWarhammerDefenderDamage from "../../src/utils/WarhammerCustom/calculateWarhammerDefenderDamage";
+import normalizeWarhammerDefenderDamage from "../../src/utils/WarhammerCustom/normalizeWarhammerDefenderDamage";
 
 /** Every draft here is humanoid, so only humanoid hits can come back. */
 const isHumanoidHit = (
