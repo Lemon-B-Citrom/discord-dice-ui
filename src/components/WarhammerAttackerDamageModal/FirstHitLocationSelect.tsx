@@ -5,9 +5,8 @@ import {
   DAMAGE_LOCATION_READING_ORDER,
   DAMAGE_LOCATION_ROWS,
   DAMAGE_LOCATION_SHORT_LABELS,
-  getAdjacentLocation,
-  MenuMoveKey,
-} from "../../utils/WarhammerCustom/damageLocations";
+} from "../../utils/WarhammerCustom/shared/damageLocations";
+import { getAdjacentLocation, MenuMoveKey } from "./hitLocationNavigation";
 import { DamageLocation } from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import styles from "./FirstHitLocationSelect.module.css";
 import formStyles from "./WarhammerAttackerDamageForm.module.css";

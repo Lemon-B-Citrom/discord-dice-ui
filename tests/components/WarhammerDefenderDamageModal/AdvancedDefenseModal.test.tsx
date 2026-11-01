@@ -5,7 +5,8 @@ import {
   EMPTY_DEFENDER_DAMAGE_DRAFT,
   WarhammerDefenderDamageDraft,
 } from "../../../src/components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import { ADVANCED_DEFENSE_FIELDS } from "../../../src/utils/WarhammerCustom/advancedDefenses";
+import { ADVANCED_DEFENSE_FIELDS } from "../../../src/utils/WarhammerCustom/defender/advancedDefenses";
+import { DAMAGE_LOCATION_SHORT_LABELS } from "../../../src/utils/WarhammerCustom/shared/damageLocations";
 import { NON_NEGATIVE_INTEGER_ERROR } from "../../../src/utils/safeInteger";
 
 const renderModal = (
@@ -23,10 +24,10 @@ const renderModal = (
   );
 
 const ARMOR_LABELS = ADVANCED_DEFENSE_FIELDS.map(
-  (field) => `Armor ${field.label}`
+  (field) => `Armor ${DAMAGE_LOCATION_SHORT_LABELS[field.location]}`
 );
 const TOUGHNESS_LABELS = ADVANCED_DEFENSE_FIELDS.map(
-  (field) => `+Toughness ${field.label}`
+  (field) => `+Toughness ${DAMAGE_LOCATION_SHORT_LABELS[field.location]}`
 );
 
 test("shows both centered halves with their summary text and twelve zeroed fields", () => {

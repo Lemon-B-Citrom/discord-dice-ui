@@ -10,7 +10,7 @@ import {
   WarhammerAttackerDamageResult,
 } from "../../components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import reducers from "../../reducers";
-import calculateWarhammerAttackerDamage from "../../utils/WarhammerCustom/calculateWarhammerAttackerDamage";
+import { calculateWarhammerAttackerDamage } from "../../utils/WarhammerCustom/attacker/calculateWarhammerAttackerDamage";
 
 type RootState = ReturnType<typeof reducers>;
 

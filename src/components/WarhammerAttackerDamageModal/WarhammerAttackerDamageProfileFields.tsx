@@ -6,7 +6,7 @@ import {
   AttackerDamageTearing,
   AttackerDamageValues,
 } from "./WarhammerAttackerDamageTypes";
-import { WARHAMMER_ATTACKER_DAMAGE_DEFAULTS } from "../../utils/WarhammerCustom/normalizeWarhammerAttackerDamage";
+import { WARHAMMER_ATTACKER_DAMAGE_DEFAULTS } from "../../utils/WarhammerCustom/attacker/normalizeWarhammerAttackerDamage";
 import styles from "./WarhammerAttackerDamageForm.module.css";
 import FirstHitLocationSelect from "./FirstHitLocationSelect";
 import {
@@ -17,7 +17,7 @@ import {
 import {
   isDamageLocation,
   isVehicleDamageLocation,
-} from "../../utils/WarhammerCustom/damageLocations";
+} from "../../utils/WarhammerCustom/shared/damageLocations";
 
 export type AttackerDamageNumericField =
   | "hits"

@@ -1,5 +1,5 @@
 import { WARHAMMER_DEFENDER_DAMAGE_RESULTS_SAVED } from "../../actions/warhammerDefenderDamage.actions";
-import getWarhammerDefenderDamageRequestMsg from "../../utils/WarhammerCustom/getWarhammerDefenderDamageRequestMsg";
+import { getWarhammerDefenderDamageRequestMsg } from "../../utils/WarhammerCustom/defender/getWarhammerDefenderDamageRequestMsg";
 import { createDamageSendResultsMiddleware } from "./createDamageSendResultsMiddleware";
 
 const warhammerDefenderDamageSendResults = createDamageSendResultsMiddleware(

@@ -1,7 +1,7 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
-import { ADVANCED_DEFENSE_FIELD_KEYS } from "../../utils/WarhammerCustom/advancedDefenses";
+import { ADVANCED_DEFENSE_FIELD_KEYS } from "../../utils/WarhammerCustom/defender/advancedDefenses";
 import styles from "./WarhammerDefenderDamageForm.module.css";
 import {
   DefenderDamageValidationErrors,

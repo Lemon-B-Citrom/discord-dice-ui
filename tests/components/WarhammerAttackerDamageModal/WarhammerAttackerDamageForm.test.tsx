@@ -2,7 +2,7 @@ import React from "react";
 import { fireEvent, render } from "@testing-library/react";
 import WarhammerAttackerDamageForm from "../../../src/components/WarhammerAttackerDamageModal/WarhammerAttackerDamageForm";
 import { WarhammerAttackerDamageInput } from "../../../src/components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
-import { WARHAMMER_ATTACKER_DAMAGE_DEFAULTS } from "../../../src/utils/WarhammerCustom/normalizeWarhammerAttackerDamage";
+import { WARHAMMER_ATTACKER_DAMAGE_DEFAULTS } from "../../../src/utils/WarhammerCustom/attacker/normalizeWarhammerAttackerDamage";
 
 const onRoll = (_input: WarhammerAttackerDamageInput) => undefined;
 

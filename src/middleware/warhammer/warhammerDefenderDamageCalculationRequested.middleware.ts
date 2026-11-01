@@ -6,8 +6,8 @@ import {
 } from "../../actions/warhammerDefenderDamage.actions";
 import { WarhammerDefenderDamageDraft } from "../../components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
 import reducers from "../../reducers";
-import calculateWarhammerDefenderDamage from "../../utils/WarhammerCustom/calculateWarhammerDefenderDamage";
-import normalizeWarhammerDefenderDamage from "../../utils/WarhammerCustom/normalizeWarhammerDefenderDamage";
+import { calculateWarhammerDefenderDamage } from "../../utils/WarhammerCustom/defender/calculateWarhammerDefenderDamage";
+import { normalizeWarhammerDefenderDamage } from "../../utils/WarhammerCustom/defender/normalizeWarhammerDefenderDamage";
 
 type RootState = ReturnType<typeof reducers>;
 type CalculateDamage = ReturnType<typeof calculateWarhammerDefenderDamage>;

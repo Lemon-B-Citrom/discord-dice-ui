@@ -3,9 +3,10 @@ import Col from "react-bootstrap/Col";
 import Form from "react-bootstrap/Form";
 import Row from "react-bootstrap/Row";
 import styles from "./WarhammerAttackerDamageForm.module.css";
-import normalizeWarhammerAttackerDamage, {
+import {
+  normalizeWarhammerAttackerDamage,
   WARHAMMER_ATTACKER_DAMAGE_DEFAULTS,
-} from "../../utils/WarhammerCustom/normalizeWarhammerAttackerDamage";
+} from "../../utils/WarhammerCustom/attacker/normalizeWarhammerAttackerDamage";
 import {
   AttackerDamageErrors,
   AttackerDamageValues,

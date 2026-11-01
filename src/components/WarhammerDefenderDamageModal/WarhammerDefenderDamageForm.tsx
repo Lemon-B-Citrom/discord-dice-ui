@@ -10,9 +10,9 @@ import {
   DefenderDamageValidationErrors,
   WarhammerDefenderDamageDraft,
 } from "./WarhammerDefenderDamageTypes";
-import normalizeWarhammerDefenderDamage from "../../utils/WarhammerCustom/normalizeWarhammerDefenderDamage";
-import { parseWarhammerAttackerDamageSummary } from "../../utils/WarhammerCustom/attackerDamageSummary";
-import { isVehicleDamageLocation } from "../../utils/WarhammerCustom/damageLocations";
+import { normalizeWarhammerDefenderDamage } from "../../utils/WarhammerCustom/defender/normalizeWarhammerDefenderDamage";
+import { parseWarhammerAttackerDamageSummary } from "../../utils/WarhammerCustom/attacker/attackerDamageSummary";
+import { isVehicleDamageLocation } from "../../utils/WarhammerCustom/shared/damageLocations";
 import { VEHICLE_FACINGS } from "./WarhammerDefenderDamageTypes";
 
 export const DEFENDER_DAMAGE_FORM_ID = "warhammer-defender-damage-form";

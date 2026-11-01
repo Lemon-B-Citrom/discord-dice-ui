@@ -11,7 +11,7 @@ import { createWarhammerAttackerDamageRollRequestedMiddleware } from "../../../s
 import WarhammerAttackerDamageResultsModal from "../../../src/components/WarhammerAttackerDamageResultsModal/WarhammerAttackerDamageResultsModal";
 import WarhammerDefenderDamageForm from "../../../src/components/WarhammerDefenderDamageModal/WarhammerDefenderDamageForm";
 import { EMPTY_DEFENDER_DAMAGE_DRAFT } from "../../../src/components/WarhammerDefenderDamageModal/WarhammerDefenderDamageTypes";
-import normalizeWarhammerDefenderDamage from "../../../src/utils/WarhammerCustom/normalizeWarhammerDefenderDamage";
+import { normalizeWarhammerDefenderDamage } from "../../../src/utils/WarhammerCustom/defender/normalizeWarhammerDefenderDamage";
 
 const attack = {
   hits: 2,

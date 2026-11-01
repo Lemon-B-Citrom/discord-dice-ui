@@ -1,6 +1,6 @@
 import { WARHAMMER_ATTACKER_DAMAGE_RESULTS_SAVED } from "../../actions/warhammerAttackerDamage.actions";
 import { failWarhammerAttackerDamage } from "../../actions/warhammerAttackerDamage.actions";
-import getWarhammerAttackerDamageRequestMsg from "../../utils/WarhammerCustom/getWarhammerAttackerDamageRequestMsg";
+import { getWarhammerAttackerDamageRequestMsg } from "../../utils/WarhammerCustom/attacker/getWarhammerAttackerDamageRequestMsg";
 import { createDamageSendResultsMiddleware } from "./createDamageSendResultsMiddleware";
 
 const warhammerAttackerDamageSendResults = createDamageSendResultsMiddleware(

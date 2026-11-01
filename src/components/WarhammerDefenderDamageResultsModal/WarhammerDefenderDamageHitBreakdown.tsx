@@ -12,7 +12,7 @@ import {
   getHordeClassificationLabel,
   getWarhammerHitLocationLabel,
   getMagnitudeEquationTokens,
-} from "../../utils/WarhammerCustom/defenderDamagePresentation";
+} from "../../utils/WarhammerCustom/defender/defenderDamagePresentation";
 import styles from "./WarhammerDefenderDamageHitBreakdown.module.css";
 
 interface WarhammerDefenderDamageHitBreakdownProps {

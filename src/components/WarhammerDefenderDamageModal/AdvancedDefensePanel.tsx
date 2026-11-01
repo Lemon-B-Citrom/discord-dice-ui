@@ -1,6 +1,9 @@
 import React from "react";
-import { ADVANCED_DEFENSE_BY_LOCATION } from "../../utils/WarhammerCustom/advancedDefenses";
-import { DAMAGE_LOCATION_ROWS } from "../../utils/WarhammerCustom/damageLocations";
+import { ADVANCED_DEFENSE_BY_LOCATION } from "../../utils/WarhammerCustom/defender/advancedDefenses";
+import {
+  DAMAGE_LOCATION_ROWS,
+  DAMAGE_LOCATION_SHORT_LABELS,
+} from "../../utils/WarhammerCustom/shared/damageLocations";
 import DamageNumericField from "../DamageNumericField/DamageNumericField";
 import styles from "./AdvancedDefenseModal.module.css";
 import {
@@ -41,14 +44,15 @@ function AdvancedDefensePanel({
           <div className={styles.bodyRow} key={row.join("-")}>
             {row.map((location) => {
               const field = ADVANCED_DEFENSE_BY_LOCATION[location];
+              const label = DAMAGE_LOCATION_SHORT_LABELS[location];
               const key =
                 kind === "armor" ? field.armorField : field.toughnessField;
               return (
                 <div className={styles.cell} key={key}>
                   <DamageNumericField
                     id={`defender-advanced-${kind}-${slug(field.location)}`}
-                    label={field.label}
-                    ariaLabel={`${heading} ${field.label}`}
+                    label={label}
+                    ariaLabel={`${heading} ${label}`}
                     layout="stacked"
                     value={draft[key]}
                     error={errors[key]}

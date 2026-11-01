@@ -12,10 +12,10 @@ import { saveWarhammerAttackerDamageResults } from "../../../src/actions/warhamm
 import { createWarhammerDefenderDamageCalculationRequestedMiddleware } from "../../../src/middleware/warhammer/warhammerDefenderDamageCalculationRequested.middleware";
 import WarhammerDefenderDamageResultsModal from "../../../src/components/WarhammerDefenderDamageResultsModal/WarhammerDefenderDamageResultsModal";
 import WarhammerAttackerDamageResultsModal from "../../../src/components/WarhammerAttackerDamageResultsModal/WarhammerAttackerDamageResultsModal";
-import { formatWarhammerAttackerDamageSummary } from "../../../src/utils/WarhammerCustom/attackerDamageSummary";
-import calculateWarhammerAttackerDamage from "../../../src/utils/WarhammerCustom/calculateWarhammerAttackerDamage";
-import calculateWarhammerDefenderDamage from "../../../src/utils/WarhammerCustom/calculateWarhammerDefenderDamage";
-import { HIT_LOCATION_CYCLES } from "../../../src/utils/WarhammerCustom/damageLocations";
+import { formatWarhammerAttackerDamageSummary } from "../../../src/utils/WarhammerCustom/attacker/attackerDamageSummaryFormat";
+import { calculateWarhammerAttackerDamage } from "../../../src/utils/WarhammerCustom/attacker/calculateWarhammerAttackerDamage";
+import { calculateWarhammerDefenderDamage } from "../../../src/utils/WarhammerCustom/defender/calculateWarhammerDefenderDamage";
+import { HIT_LOCATION_CYCLES } from "../../../src/utils/WarhammerCustom/shared/damageLocations";
 import { WarhammerAttackerDamageInput } from "../../../src/components/WarhammerAttackerDamageModal/WarhammerAttackerDamageTypes";
 import {
   EMPTY_DEFENDER_DAMAGE_DRAFT,

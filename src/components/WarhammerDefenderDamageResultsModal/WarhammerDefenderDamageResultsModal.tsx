@@ -6,7 +6,7 @@ import dieImage from "../../img/d10.png";
 import { backToWarhammerDefenderDamageForm } from "../../actions/warhammerDefenderDamage.actions";
 import { WarhammerDefenderDamageState } from "../../reducers/warhammer-defender-damage-reducer";
 import { ModalsStateTypes } from "../../reducers/modals-reducer";
-import { formatWarhammerAttackerDamageSummary } from "../../utils/WarhammerCustom/attackerDamageSummary";
+import { formatWarhammerAttackerDamageSummary } from "../../utils/WarhammerCustom/attacker/attackerDamageSummaryFormat";
 import CodeSpan from "../CodeSpan/CodeSpan";
 import WarhammerDefenderDamageHitBreakdown from "./WarhammerDefenderDamageHitBreakdown";
 import styles from "./WarhammerDefenderDamageResultsModal.module.css";

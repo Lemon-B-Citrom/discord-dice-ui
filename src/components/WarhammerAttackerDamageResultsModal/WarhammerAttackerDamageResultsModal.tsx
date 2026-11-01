@@ -12,7 +12,7 @@ import { WarhammerAttackerDamageState } from "../../reducers/warhammer-attacker-
 import {
   formatWarhammerAttackerDamageSummary,
   projectWarhammerAttackerDamageSummary,
-} from "../../utils/WarhammerCustom/attackerDamageSummary";
+} from "../../utils/WarhammerCustom/attacker/attackerDamageSummaryFormat";
 import CodeSpan from "../CodeSpan/CodeSpan";
 import WarhammerAttackerDamageHitBreakdown from "./WarhammerAttackerDamageHitBreakdown";
 import styles from "./WarhammerAttackerDamageResultsModal.module.css";
