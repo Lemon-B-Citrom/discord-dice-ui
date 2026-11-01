@@ -85,8 +85,29 @@
   margin: 0;
 }
 
+.turretCheck {
+  margin-top: 0.75rem;
+  padding-left: 1.75rem;
+}
+
+.turretCheck input {
+  height: 1.5rem;
+  margin-left: -1.75rem;
+  margin-top: 0;
+  width: 1.5rem;
+}
+
+.turretCheck label {
+  font-size: 1.0625rem;
+  margin: 0;
+}
+
 .hordeFieldDisabled {
   opacity: 0.55;
+}
+
+.woundsPerField {
+  grid-column: 2;
 }
 
 .advancedButton {

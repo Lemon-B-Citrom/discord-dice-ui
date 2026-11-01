@@ -144,11 +144,15 @@ function calculateWarhammerDefenderDamage(
 
   if (request.targetFamily === "vehicle") {
     request.summary.damages.forEach((damage, index) => {
-      const { location, roll } = resolveVehicleLocation(
+      const { location: rolledLocation, roll } = resolveVehicleLocation(
         index,
         request.firstHitLocation,
         rollD100
       );
+      const location =
+        rolledLocation === "Turret" && !request.hasTurret
+          ? "Hull"
+          : rolledLocation;
       const facing = request.vehicleFacing;
       // A turret always sits behind the front armor; the facing itself stands.
       const armorFacing = location === "Turret" ? "Front" : facing;

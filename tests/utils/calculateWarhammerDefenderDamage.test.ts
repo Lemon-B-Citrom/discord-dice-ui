@@ -15,8 +15,7 @@ const isHumanoidHit = (
 
 const makeResult = (patch: Partial<WarhammerDefenderDamageDraft>) => {
   // Horde mode is opt-in, so a patch that supplies Horde fields ticks the box.
-  const suppliesHordeFields =
-    "bonusHits" in patch || "magPer" in patch || "woundsPer" in patch;
+  const suppliesHordeFields = "bonusHits" in patch || "woundsPer" in patch;
   const draft = {
     ...EMPTY_DEFENDER_DAMAGE_DRAFT,
     attackSummaryString: "Pen 0, Fel 0, @body: 20 10 5 55",
@@ -57,7 +56,6 @@ test("uses independent true and double-sized bonus Fortitude quotas", () => {
     toughnessBonus: "6",
     fortitude: "1",
     bonusHits: "3",
-    magPer: "6",
     woundsPer: "20",
   });
   expect(
@@ -65,9 +63,9 @@ test("uses independent true and double-sized bonus Fortitude quotas", () => {
   ).toEqual([true, false, true, true, false, false]);
   expect(result.entries[0]).toMatchObject({
     classification: "partial-overkill",
-    magnitude: 4,
+    magnitude: 3,
   });
-  expect(result.totals).toEqual({ damage: 62, magnitude: 12, killCount: 2 });
+  expect(result.totals).toEqual({ damage: 62, magnitude: 10, killCount: 3 });
 });
 
 test.each(["0", "3", "4"])(
@@ -78,7 +76,6 @@ test.each(["0", "3", "4"])(
       toughnessBonus: "6",
       fortitude: String(Number.MAX_SAFE_INTEGER),
       bonusHits,
-      magPer: "6",
       woundsPer: "20",
     });
     expect(
@@ -120,7 +117,6 @@ test("does not transfer unused true-hit protection to bonus hits", () => {
     toughnessBonus: "6",
     fortitude: "2",
     bonusHits: "5",
-    magPer: "6",
     woundsPer: "20",
   });
   expect(
@@ -142,7 +138,6 @@ test("calculates the specified Horde totals and separate synthetic contribution"
   const result = makeResult({
     attackSummaryString: "Pen 0, Dev 1, @body: 20 10 5 55",
     bonusHits: "1",
-    magPer: "6",
     woundsPer: "20",
   });
   expect(
@@ -156,8 +151,8 @@ test("calculates the specified Horde totals and separate synthetic contribution"
         ? entry.magnitude
         : null
     )
-  ).toEqual([7, 4, 2, 1, 1]);
-  expect(result.totals).toEqual({ damage: 90, magnitude: 15, killCount: 2 });
+  ).toEqual([3, 2, 2, 1, 1]);
+  expect(result.totals).toEqual({ damage: 90, magnitude: 9, killCount: 4 });
   expect(result.entries[4]).toEqual({
     kind: "bonus-devastating",
     number: 5,
@@ -169,7 +164,6 @@ test("clamps received damage to zero and avoids Overkill at zero wounds", () => 
   const result = makeResult({
     attackSummaryString: "Pen 0, Dev 4, @body: 0 -1",
     bonusHits: "0",
-    magPer: "6",
     woundsPer: "0",
   });
   expect(
@@ -184,7 +178,11 @@ test("clamps received damage to zero and avoids Overkill at zero wounds", () => 
         : null
     )
   ).toEqual([0, 0]);
-  expect(result.totals).toEqual({ damage: 0, magnitude: 0, killCount: 0 });
+  expect(result.totals).toEqual({
+    damage: 0,
+    magnitude: 0,
+    killCountUnavailable: true,
+  });
 });
 
 test("prevents mitigated hits from subtracting damage from other hits", () => {
@@ -218,7 +216,6 @@ test("clamps both true and bonus Horde hits before assigning magnitude", () => {
     armorBody: "4",
     toughnessBonus: "3",
     bonusHits: "2",
-    magPer: "6",
     woundsPer: "20",
   });
   expect(
@@ -379,7 +376,6 @@ test("applies per-location armor to Horde bonus hits", () => {
     attackSummaryString: "Pen 0, Fel 0, @body: 20 20 20",
     toughnessBonus: "0",
     bonusHits: "2",
-    magPer: "6",
     woundsPer: "20",
     advancedEnabled: true,
     advancedArmorBody: "10",
@@ -391,9 +387,9 @@ test("applies per-location armor to Horde bonus hits", () => {
         : null
     )
   ).toEqual([
-    ["Body", 10, 3],
+    ["Body", 10, 2],
     ["Left Leg", 20, 1],
     ["Right Arm", 20, 1],
   ]);
-  expect(result.totals).toEqual({ damage: 50, magnitude: 5, killCount: 0 });
+  expect(result.totals).toEqual({ damage: 50, magnitude: 4, killCount: 1 });
 });

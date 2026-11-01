@@ -89,7 +89,6 @@ describe("vehicle damage summary and calculation", () => {
         hordeEnabled: true,
         advancedEnabled: true,
         advancedArmorHead: "invalid",
-        magPer: "bad",
       })
     );
     expect(normalized.errors).toEqual({});
@@ -98,7 +97,7 @@ describe("vehicle damage summary and calculation", () => {
     expect(normalized.request).not.toHaveProperty("mode", "horde");
   });
 
-  it("uses selected facing for vehicle locations and always uses Front for Turret", () => {
+  it("uses selected facing for vehicle locations and Front for enabled Turrets", () => {
     const armor = { Front: 2, Side: 5, Rear: 9 };
     const cases = [
       ["Motive Systems", "Front", "Front"],
@@ -119,6 +118,7 @@ describe("vehicle damage summary and calculation", () => {
               : "turr"
           }: 20`,
           facing,
+          hasTurret: location === "Turret",
           armorFront: `${armor.Front}`,
           armorSide: `${armor.Side}`,
           armorRear: `${armor.Rear}`,
@@ -133,11 +133,32 @@ describe("vehicle damage summary and calculation", () => {
     });
   });
 
+  it("redirects Turret hits to Hull and uses selected facing AP without a turret", () => {
+    const request = vehicleRequest(
+      vehicleDraft({
+        attackSummaryString: "Pen 0, @turr: 20",
+        facing: "Rear",
+        armorFront: "2",
+        armorRear: "9",
+      })
+    );
+    const hit = vehicleHits(calculateWarhammerDefenderDamage(request))[0];
+
+    expect(request.hasTurret).toBe(false);
+    expect(hit).toMatchObject({
+      location: "Hull",
+      armorFacing: "Rear",
+      armorBeforePenetration: 9,
+      finalDamage: 11,
+    });
+  });
+
   it("uses first location, fresh subsequent d100 locations, Turret Front AP, and the base-damage RF gate", () => {
     const request = vehicleRequest(
       vehicleDraft({
         attackSummaryString: "Pen 0, @hull: 25(10) 26(11) 5(-2)",
         facing: "Side",
+        hasTurret: true,
         armorFront: "20",
         armorSide: "10",
         armorRear: "30",
@@ -189,7 +210,7 @@ describe("vehicle damage summary and calculation", () => {
     ).toThrow(/integer from 1 to 100/);
   });
 
-  it("uses the full percentile boundary range for subsequent locations", () => {
+  it("uses the full percentile boundary range and redirects a Turret roll without one", () => {
     const request = vehicleRequest(
       vehicleDraft({
         attackSummaryString: "Pen 0, @hull: 1 1 1",
@@ -204,12 +225,12 @@ describe("vehicle damage summary and calculation", () => {
     expect(hits.map((hit) => hit.location)).toEqual([
       "Hull",
       "Motive Systems",
-      "Turret",
+      "Hull",
     ]);
     expect(hits.map((hit) => hit.armorFacing)).toEqual([
       "Rear",
       "Rear",
-      "Front",
+      "Rear",
     ]);
   });
 

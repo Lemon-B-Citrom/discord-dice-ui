@@ -97,6 +97,7 @@ export default function normalizeWarhammerDefenderDamage(
       firstHitLocation: parsed.summary.firstHitLocation,
       vehicleFacing: facing,
       vehicleArmor: { Front: armorFront, Side: armorSide, Rear: armorRear },
+      hasTurret: draft.hasTurret,
     };
     return { request, errors };
   }
@@ -130,12 +131,10 @@ export default function normalizeWarhammerDefenderDamage(
 
   let bonusHits: number | null = null;
   let trueHits: number | null = null;
-  let magPer: number | null = null;
   let woundsPer: number | null = null;
   if (isHorde) {
     // Zero bonus hits is the default, so a blank field is valid.
     bonusHits = parseNonNegative(draft.bonusHits, "bonusHits", errors, false);
-    magPer = parseNonNegative(draft.magPer, "magPer", errors, true);
     woundsPer = parseNonNegative(draft.woundsPer, "woundsPer", errors, true);
     if (bonusHits !== null && parsed.summary) {
       if (bonusHits > parsed.summary.damages.length) {
@@ -175,9 +174,17 @@ export default function normalizeWarhammerDefenderDamage(
     return { request, errors };
   }
 
-  if (trueHits === null || magPer === null || woundsPer === null) {
+  if (trueHits === null || woundsPer === null) {
     return { request: null, errors };
   }
+  const bodyArmor =
+    defenses.mode === "advanced"
+      ? defenses.armor.Body
+      : defenses.armor.bodyAP;
+  // Math.round rounds a positive half value up, as required by the rules.
+  const magPer = Math.round(
+    woundsPer / 10 + toughnessBonus / 5 + bodyArmor / 5
+  );
   const request: WarhammerDefenderDamageRequest = {
     ...common,
     mode: "horde",

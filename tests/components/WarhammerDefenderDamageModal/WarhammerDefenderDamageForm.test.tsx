@@ -37,8 +37,7 @@ test("keeps the existing field controls and zero minimums", () => {
     "AP Arms",
     "AP Legs",
     "Bonus Hits",
-    "Mag per",
-    "Wounds per",
+    "Wounds per Unit",
   ].forEach((label) => {
     const input = getByLabelText(label) as HTMLInputElement;
     expect(input).toHaveAttribute("type", "number");
@@ -74,15 +73,36 @@ test("places vehicle Facing in the left column and armor AP fields in the right"
     attackSummaryString: "Pen 0, @hull: 1",
   });
   const facing = getByLabelText("Facing");
+  const hasTurret = getByLabelText("Has Turret");
   const leftColumn = container.querySelector(".defensePrimary");
   const rightColumn = container.querySelector(".armorFields");
 
   expect(leftColumn?.contains(facing)).toBe(true);
+  expect(leftColumn?.contains(hasTurret)).toBe(true);
+  expect(hasTurret).not.toBeChecked();
   expect(rightColumn?.contains(facing)).toBe(false);
   expect(rightColumn).toHaveTextContent("AP Front");
   expect(
     Array.from(facing.querySelectorAll("option")).map((option) => option.value)
   ).toEqual(["", "Front", "Side", "Rear"]);
+});
+
+test("updates Has Turret from its checkbox", () => {
+  const onChange = jest.fn();
+  const { getByLabelText } = render(
+    <WarhammerDefenderDamageForm
+      draft={{
+        ...EMPTY_DEFENDER_DAMAGE_DRAFT,
+        attackSummaryString: "Pen 0, @hull: 1",
+      }}
+      errors={{}}
+      onChange={onChange}
+      onCalculate={jest.fn()}
+    />
+  );
+
+  fireEvent.click(getByLabelText("Has Turret"));
+  expect(onChange).toHaveBeenCalledWith("hasTurret", true);
 });
 
 test("associates the required vehicle facing error with its control", () => {
@@ -128,7 +148,7 @@ test("blocks invalid submission and associates the summary error with its input"
     "aria-describedby",
     "defender-damage-attack-summary-error"
   );
-  expect(getByText(/first hit location/)).toBeInTheDocument();
+  expect(getByText(/You must provide a damage summary/)).toBeInTheDocument();
 });
 
 test("passes a valid raw draft to calculation", () => {
@@ -162,17 +182,15 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
 
   const enable = off.getByLabelText("Enable");
   expect(enable).not.toBeChecked();
-  ["Wounds per", "Bonus Hits", "Mag per"].forEach((label) => {
+  ["Wounds per Unit", "Bonus Hits"].forEach((label) => {
     expect(off.getByLabelText(label)).toBeDisabled();
   });
 
-  // Grid flow fills two columns in DOM order, so this is Enable / Wounds per on
-  // the first line and Bonus Hits / Mag per on the second.
+  // Wounds per Unit sits in the right column beneath Bonus Hits.
   const order = [
     enable,
-    off.getByLabelText("Wounds per"),
     off.getByLabelText("Bonus Hits"),
-    off.getByLabelText("Mag per"),
+    off.getByLabelText("Wounds per Unit"),
   ];
   order.slice(1).forEach((field, index) => {
     expect(
@@ -198,7 +216,7 @@ test("gates Horde mode behind a labelled Enable box in the first grid cell", () 
     />
   );
   expect(on.getByLabelText("Enable")).toBeChecked();
-  ["Wounds per", "Bonus Hits", "Mag per"].forEach((label) => {
+  ["Wounds per Unit", "Bonus Hits"].forEach((label) => {
     expect(on.getByLabelText(label)).not.toBeDisabled();
   });
 });
@@ -267,7 +285,7 @@ test("requires the location token in the summary and associates the error with I
     "aria-describedby",
     "defender-damage-attack-summary-error"
   );
-  expect(getByText(/@head, @body, @larm/)).toBeInTheDocument();
+  expect(getByText(/You must provide a damage summary/)).toBeInTheDocument();
 });
 
 const ARMOR_LABELS = ["AP Head", "AP Body", "AP Arms", "AP Legs"];

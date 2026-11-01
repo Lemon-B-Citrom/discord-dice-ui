@@ -43,8 +43,8 @@ const fieldControlIds: Record<keyof WarhammerDefenderDamageDraft, string> = {
   armorSide: "defender-damage-armor-side",
   armorRear: "defender-damage-armor-rear",
   facing: "defender-damage-facing",
+  hasTurret: "defender-damage-has-turret",
   bonusHits: "defender-damage-bonus-hits",
-  magPer: "defender-damage-mag-per",
   woundsPer: "defender-damage-wounds-per",
   hordeEnabled: "defender-damage-horde-enabled",
   advancedEnabled: ADVANCED_DEFENSE_TOGGLE_ID,
@@ -82,12 +82,11 @@ const VEHICLE_ARMOR_FIELDS: ReadonlyArray<{
 ];
 
 const HORDE_FIELDS: ReadonlyArray<{
-  field: "woundsPer" | "bonusHits" | "magPer";
+  field: "woundsPer" | "bonusHits";
   label: string;
 }> = [
-  { field: "woundsPer", label: "Wounds per" },
   { field: "bonusHits", label: "Bonus Hits" },
-  { field: "magPer", label: "Mag per" },
+  { field: "woundsPer", label: "Wounds per Unit" },
 ];
 
 function WarhammerDefenderDamageForm({
@@ -206,6 +205,16 @@ function WarhammerDefenderDamageForm({
                   {visibleErrors.facing}
                 </Form.Control.Feedback>
               )}
+              <Form.Check
+                id={fieldControlIds.hasTurret}
+                type="checkbox"
+                className={styles.turretCheck}
+                label="Has Turret"
+                checked={draft.hasTurret}
+                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                  onChange("hasTurret", event.target.checked)
+                }
+              />
             </Form.Group>
           )}
           {!isVehicle && (
@@ -302,7 +311,12 @@ function WarhammerDefenderDamageForm({
                 error={visibleErrors[field]}
                 disabled={!draft.hordeEnabled}
                 className={
-                  draft.hordeEnabled ? undefined : styles.hordeFieldDisabled
+                  [
+                    field === "woundsPer" ? styles.woundsPerField : undefined,
+                    !draft.hordeEnabled ? styles.hordeFieldDisabled : undefined,
+                  ]
+                    .filter(Boolean)
+                    .join(" ") || undefined
                 }
                 onChange={(value) => onChange(field, value)}
               />

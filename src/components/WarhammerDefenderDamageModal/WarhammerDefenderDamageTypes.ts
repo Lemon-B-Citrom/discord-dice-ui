@@ -49,7 +49,6 @@ export interface WarhammerDefenderDamageDraft {
   armorLegs: string;
   /** Hits beyond the true hits; blank is the default of zero bonus hits. */
   bonusHits: string;
-  magPer: string;
   woundsPer: string;
   hordeEnabled: boolean;
   advancedEnabled: boolean;
@@ -57,6 +56,7 @@ export interface WarhammerDefenderDamageDraft {
   armorSide: string;
   armorRear: string;
   facing: string;
+  hasTurret: boolean;
   advancedArmorHead: string;
   advancedArmorBody: string;
   advancedArmorLeftArm: string;
@@ -80,7 +80,6 @@ export const EMPTY_DEFENDER_DAMAGE_DRAFT: WarhammerDefenderDamageDraft = {
   armorArms: "",
   armorLegs: "",
   bonusHits: "",
-  magPer: "",
   woundsPer: "",
   hordeEnabled: false,
   advancedEnabled: false,
@@ -88,6 +87,7 @@ export const EMPTY_DEFENDER_DAMAGE_DRAFT: WarhammerDefenderDamageDraft = {
   armorSide: "",
   armorRear: "",
   facing: "",
+  hasTurret: false,
   advancedArmorHead: "",
   advancedArmorBody: "",
   advancedArmorLeftArm: "",
@@ -180,6 +180,7 @@ export interface WarhammerDefenderVehicleDamageRequest
   firstHitLocation: VehicleDamageLocation;
   vehicleFacing: VehicleFacing;
   vehicleArmor: Record<VehicleFacing, number>;
+  hasTurret: boolean;
 }
 
 export type WarhammerDefenderDamageRequest =

@@ -209,7 +209,6 @@ test("renders the independent Horde Fortitude quotas in damage equations", () =>
       fortitude: "1",
       hordeEnabled: true,
       bonusHits: "3",
-      magPer: "6",
       woundsPer: "20",
     })
   );
@@ -255,7 +254,6 @@ test("Horde modal labels the damage and magnitude equations after the hit headin
       attackSummaryString: "Pen 0, Dev 1, @body: 12 8",
       hordeEnabled: true,
       bonusHits: "1",
-      magPer: "6",
       woundsPer: "10",
     })
   );
