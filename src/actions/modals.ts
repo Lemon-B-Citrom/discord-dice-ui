@@ -19,6 +19,9 @@ export const OPEN_WARHAMMER_DEFENDER_DAMAGE_MODAL =
   "OPEN_WARHAMMER_DEFENDER_DAMAGE_MODAL";
 export const CLOSE_WARHAMMER_DEFENDER_DAMAGE_MODAL =
   "CLOSE_WARHAMMER_DEFENDER_DAMAGE_MODAL";
+export const OPEN_WARHAMMER_CRITICALS_MODAL = "OPEN_WARHAMMER_CRITICALS_MODAL";
+export const CLOSE_WARHAMMER_CRITICALS_MODAL =
+  "CLOSE_WARHAMMER_CRITICALS_MODAL";
 
 export const OPEN_CONAN_MODAL = "OPEN_CONAN_MODAL";
 export const CLOSE_CONAN_MODAL = "CLOSE_CONAN_MODAL";
@@ -180,6 +183,14 @@ export function closeWarhammerDefenderDamageModal() {
   return {
     type: CLOSE_WARHAMMER_DEFENDER_DAMAGE_MODAL,
   };
+}
+
+export function openWarhammerCriticalsModal() {
+  return { type: OPEN_WARHAMMER_CRITICALS_MODAL };
+}
+
+export function closeWarhammerCriticalsModal() {
+  return { type: CLOSE_WARHAMMER_CRITICALS_MODAL };
 }
 
 export function warhammerMoneyRecalculated(

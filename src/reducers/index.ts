@@ -16,6 +16,7 @@ import lastRollOptions from "./last-roll-options-reducer";
 import rerollCount from "./reroll-count-reducer";
 import warhammerAttackerDamage from "./warhammer-attacker-damage-reducer";
 import warhammerDefenderDamage from "./warhammer-defender-damage-reducer";
+import warhammerCriticals from "./warhammer-criticals-reducer";
 
 export default combineReducers({
   userSettings,
@@ -35,4 +36,5 @@ export default combineReducers({
   rerollCount,
   warhammerAttackerDamage,
   warhammerDefenderDamage,
+  warhammerCriticals,
 });

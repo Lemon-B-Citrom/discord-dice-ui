@@ -9,6 +9,7 @@ import {
   WARHAMMER_MONEY,
   WARHAMMER_ATTACKER_DAMAGE,
   WARHAMMER_DEFENDER_DAMAGE,
+  WARHAMMER_CRITICALS,
   CTHULHU_SHEET_MODAL,
   COMBAT_TRACKER,
   TOR_SKILL_TEST,
@@ -24,6 +25,7 @@ import {
   openWarhammerMoneyModal,
   openWarhammerAttackerDamageModal,
   openWarhammerDefenderDamageModal,
+  openWarhammerCriticalsModal,
 } from "../actions/modals";
 import {
   requestRoll,
@@ -126,6 +128,8 @@ export default (store: any) => (next: any) => (action: any) => {
       store.dispatch(openWarhammerAttackerDamageModal());
     } else if (diceType === WARHAMMER_DEFENDER_DAMAGE) {
       store.dispatch(openWarhammerDefenderDamageModal());
+    } else if (diceType === WARHAMMER_CRITICALS) {
+      store.dispatch(openWarhammerCriticalsModal());
     } else if (diceType === CTHULHU_SHEET_MODAL) {
       store.dispatch(openCthulhuSheetModal());
     } else if (useModifier) {

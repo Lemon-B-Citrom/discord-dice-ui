@@ -10,6 +10,8 @@ import WarhammerAttackerDamageModalContainer from "../WarhammerAttackerDamageMod
 import WarhammerDefenderDamageModalContainer from "../WarhammerDefenderDamageModal/WarhammerDefenderDamageModalContainer";
 import WarhammerAttackerDamageResultsModal from "../WarhammerAttackerDamageResultsModal/WarhammerAttackerDamageResultsModal";
 import WarhammerDefenderDamageResultsModal from "../WarhammerDefenderDamageResultsModal/WarhammerDefenderDamageResultsModal";
+import WarhammerCriticalsModalContainer from "../WarhammerCriticalsModal/WarhammerCriticalsModalContainer";
+import WarhammerCriticalsResultsModal from "../WarhammerCriticalsModal/WarhammerCriticalsResultsModal";
 import ConanModalContainer from "../ConanModal/ConanModalContainer";
 import InfinityModalContainer from "../InfinityModal/InfinityModalContainer";
 import PoolBuilderModalContainer from "../PoolBuilderModal/PoolBuilderModalContainer";
@@ -74,8 +76,12 @@ function Modals({
       <WarhammerDefenderDamageModalContainer
         showModal={modalsState.isWarhammerDefenderDamageModalOpen}
       />
+      <WarhammerCriticalsModalContainer
+        showModal={modalsState.isWarhammerCriticalsModalOpen}
+      />
       <WarhammerAttackerDamageResultsModal />
       <WarhammerDefenderDamageResultsModal />
+      <WarhammerCriticalsResultsModal />
       <ConanModalContainer showModal={modalsState.isConanModalOpen} />
       <InfinityModalContainer showModal={modalsState.isInfinityModalOpen} />
       <DuneModalContainer showModal={modalsState.isDuneModalOpen} />

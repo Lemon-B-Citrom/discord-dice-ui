@@ -1,0 +1,54 @@
+.body {
+  max-height: 70vh;
+  max-height: min(70vh, 680px);
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+}
+
+.section + .section {
+  margin-top: 1rem;
+}
+
+.sectionHeading {
+  align-items: center;
+  display: flex;
+  font-size: 1rem;
+  gap: 0.4rem;
+  margin-bottom: 0;
+}
+
+.dieIcon {
+  height: 1.5rem;
+  object-fit: contain;
+  width: 1.5rem;
+}
+
+.section hr {
+  margin: 0.5rem 0;
+}
+
+.rollLog {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rollLog li {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.35rem 0;
+}
+
+.logNumber {
+  font-weight: 700;
+}
+
+.condition {
+  color: #6c757d;
+}
+
+.warning {
+  color: #856404;
+}

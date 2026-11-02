@@ -11,6 +11,8 @@ import {
   CLOSE_WARHAMMER_ATTACKER_DAMAGE_MODAL,
   OPEN_WARHAMMER_DEFENDER_DAMAGE_MODAL,
   CLOSE_WARHAMMER_DEFENDER_DAMAGE_MODAL,
+  OPEN_WARHAMMER_CRITICALS_MODAL,
+  CLOSE_WARHAMMER_CRITICALS_MODAL,
   OPEN_SETTINGS_MODAL,
   CLOSE_SETTINGS_MODAL,
   OPEN_POOL_BUILDER_MODAL,
@@ -24,6 +26,11 @@ import {
   WARHAMMER_DEFENDER_DAMAGE_BACK_TO_FORM,
   WARHAMMER_DEFENDER_DAMAGE_RESULTS_SAVED,
 } from "../actions/warhammerDefenderDamage.actions";
+import {
+  WARHAMMER_CRITICAL_BACK_TO_FORM,
+  WARHAMMER_CRITICAL_RESULTS_CLOSED,
+  WARHAMMER_CRITICAL_RESULTS_SAVED,
+} from "../actions/warhammerCriticals.actions";
 
 export interface ModalsStateTypes {
   isConanModalOpen: boolean;
@@ -37,6 +44,8 @@ export interface ModalsStateTypes {
   isWarhammerAttackerDamageModalOpen: boolean;
   isWarhammerDefenderDamageModalOpen: boolean;
   isWarhammerDefenderDamageResultsModalOpen: boolean;
+  isWarhammerCriticalsModalOpen: boolean;
+  isWarhammerCriticalsResultsModalOpen: boolean;
 }
 
 const initialState = {
@@ -51,6 +60,8 @@ const initialState = {
   isWarhammerAttackerDamageModalOpen: false,
   isWarhammerDefenderDamageModalOpen: false,
   isWarhammerDefenderDamageResultsModalOpen: false,
+  isWarhammerCriticalsModalOpen: false,
+  isWarhammerCriticalsResultsModalOpen: false,
 };
 
 function modalsReducer(state: ModalsStateTypes = initialState, action: any) {
@@ -61,6 +72,32 @@ function modalsReducer(state: ModalsStateTypes = initialState, action: any) {
         isWarhammerDefenderDamageModalOpen: false,
         isWarhammerDefenderDamageResultsModalOpen: true,
       };
+    case WARHAMMER_CRITICAL_RESULTS_SAVED:
+      return {
+        ...state,
+        isWarhammerCriticalsModalOpen: false,
+        isWarhammerCriticalsResultsModalOpen: true,
+      };
+    case WARHAMMER_CRITICAL_BACK_TO_FORM:
+      return {
+        ...state,
+        isWarhammerCriticalsModalOpen: true,
+        isWarhammerCriticalsResultsModalOpen: false,
+      };
+    case WARHAMMER_CRITICAL_RESULTS_CLOSED:
+      return {
+        ...state,
+        isWarhammerCriticalsModalOpen: false,
+        isWarhammerCriticalsResultsModalOpen: false,
+      };
+    case OPEN_WARHAMMER_CRITICALS_MODAL:
+      return {
+        ...state,
+        isWarhammerCriticalsModalOpen: true,
+        isWarhammerCriticalsResultsModalOpen: false,
+      };
+    case CLOSE_WARHAMMER_CRITICALS_MODAL:
+      return { ...state, isWarhammerCriticalsModalOpen: false };
     case WARHAMMER_DEFENDER_DAMAGE_BACK_TO_FORM:
       return {
         ...state,

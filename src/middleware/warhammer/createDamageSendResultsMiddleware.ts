@@ -5,7 +5,7 @@ import reducers from "../../reducers";
 type RootState = ReturnType<typeof reducers>;
 
 interface DamageRequestMsg {
-  msgTitle: string;
+  msgTitle?: string;
   description: string;
   color: number;
   fields: ReadonlyArray<{ name: string; value: string }>;

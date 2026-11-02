@@ -24,6 +24,8 @@ import warhammerAttackerDamageRollRequested from "./middleware/warhammer/warhamm
 import warhammerAttackerDamageSendResults from "./middleware/warhammer/warhammerAttackerDamageSendResults.middleware";
 import warhammerDefenderDamageCalculationRequested from "./middleware/warhammer/warhammerDefenderDamageCalculationRequested.middleware";
 import warhammerDefenderDamageSendResults from "./middleware/warhammer/warhammerDefenderDamageSendResults.middleware";
+import warhammerCriticalsRequested from "./middleware/warhammer/warhammerCriticalsRequested.middleware";
+import warhammerCriticalsSendResults from "./middleware/warhammer/warhammerCriticalsSendResults.middleware";
 // 2d20
 import { get2d20LocalMsg } from "./middleware/2d20/get-2d20-local-msg.middleware";
 import { get2d20RequestMsg } from "./middleware/2d20/get-2d20-request-msg.middleware";
@@ -95,6 +97,8 @@ export const rollMiddleware = [
   warhammerAttackerDamageSendResults,
   warhammerDefenderDamageCalculationRequested,
   warhammerDefenderDamageSendResults,
+  warhammerCriticalsRequested,
+  warhammerCriticalsSendResults,
 
   get2d20LocalMsg,
   get2d20RequestMsg,

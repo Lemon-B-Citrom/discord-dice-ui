@@ -13,7 +13,7 @@ export default (store: any) => (next: any) => (action: any) => {
         username: "Dice Roller",
         embeds: [
           {
-            title: msgTitle,
+            ...(msgTitle ? { title: msgTitle } : {}),
             description,
             color,
             fields,

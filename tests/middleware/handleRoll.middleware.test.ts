@@ -5,10 +5,12 @@ import { submitRoll } from "../../src/actions/roll.actions";
 import {
   closeWarhammerAttackerDamageModal,
   closeWarhammerDefenderDamageModal,
+  closeWarhammerCriticalsModal,
 } from "../../src/actions/modals";
 import {
   WARHAMMER_ATTACKER_DAMAGE,
   WARHAMMER_DEFENDER_DAMAGE,
+  WARHAMMER_CRITICALS,
 } from "../../src/consts/diceConstants";
 import { warhammerSet } from "../../src/consts/diceSets";
 import handleRollMiddleware from "../../src/middleware/handleRoll.middleware";
@@ -62,4 +64,21 @@ test("Warhammer options include Attacker Damage and launch its modal", () => {
   expect(store.getState().modalsState.isWarhammerAttackerDamageModalOpen).toBe(
     false
   );
+});
+
+test("Warhammer options include Criticals and launch its modal", () => {
+  expect(warhammerSet).toContainEqual(
+    expect.objectContaining({
+      diceType: WARHAMMER_CRITICALS,
+      label: "Criticals",
+      noDropdown: true,
+    })
+  );
+
+  const store = createStore(testReducer, applyMiddleware(handleRollMiddleware));
+  store.dispatch(submitRoll({ diceType: WARHAMMER_CRITICALS, diceAmount: 1 }));
+
+  expect(store.getState().modalsState.isWarhammerCriticalsModalOpen).toBe(true);
+  store.dispatch(closeWarhammerCriticalsModal());
+  expect(store.getState().modalsState.isWarhammerCriticalsModalOpen).toBe(false);
 });

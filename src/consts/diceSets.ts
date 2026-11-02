@@ -34,6 +34,7 @@ import {
   WARHAMMER_MONEY,
   WARHAMMER_ATTACKER_DAMAGE,
   WARHAMMER_DEFENDER_DAMAGE,
+  WARHAMMER_CRITICALS,
   CTHULHU_SHEET_MODAL,
   COMBAT_TRACKER,
   WRATH_AND_GLORY_SKILL_TEST,
@@ -181,6 +182,12 @@ export const warhammerSet = [
   {
     diceType: WARHAMMER_DEFENDER_DAMAGE,
     label: "Defender Damage",
+    diceImg: "d100-skill-test.png",
+    noDropdown: true,
+  },
+  {
+    diceType: WARHAMMER_CRITICALS,
+    label: "Criticals",
     diceImg: "d100-skill-test.png",
     noDropdown: true,
   },
